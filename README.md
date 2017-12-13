@@ -21,9 +21,12 @@ A OpenGL 1.3(ish) software rasterizer implementation
 It's reasonably fast - but don't expect interactive framerates for Full HD resolutions :)
 
 ### How to use
-Compile the project with Visual Studio and rename the resulting file swGL.dll into OpenGL32.dll. Put OpenGL32.dll right into the game directory and start the game - this should do the trick.
+Compile the project with Visual Studio and rename the resulting file swGL.dll into OpenGL32.dll. Put OpenGL32.dll right into the game directory and start the game.
 
 ### Supported Games
-As far as I can tell Quake 3, Star Trek Elite Force I & II, Half Life 1, Unreal Tournament 99 and Heavy Metal: F.A.K.K.² work pretty well. But I can't give you any guarantees that other software will run without problems or crashes, as many OpenGL calls are still unimplemented or only partially implemented.
+As far as I can tell Quake 3, Star Trek Elite Force I & II, Half Life 1, Unreal Tournament 99 and Heavy Metal: F.A.K.K.² work pretty well.
+
+### What doesn't work
+I can't give you any guarantees that software which isn't listed under "Supported Games" will run without problems or crashes. Most of the OpenGL 1.3 features are still unimplemented or only partially implemented.
 
 Have fun.
