@@ -1,0 +1,299 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Quelldateien">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Headerdateien">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Ressourcendateien">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Quelldateien\DLL">
+      <UniqueIdentifier>{b6384ba0-1f3e-4d92-8398-4cd308957996}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\DLL">
+      <UniqueIdentifier>{9b69d7d0-fe7c-4257-9f20-23bd0230d03f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Context">
+      <UniqueIdentifier>{e0908b6d-4eec-4a23-8606-ab5ad9dde923}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Context">
+      <UniqueIdentifier>{efe1ac0d-f65e-4236-b335-ba2151d93d77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Vertex Pipeline">
+      <UniqueIdentifier>{9bdf2639-d700-40bb-b6b3-641bf90ba189}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Vertex Pipeline">
+      <UniqueIdentifier>{2ee54d1b-965f-4d0e-844e-70803467fefd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Vertex Pipeline\Primitives">
+      <UniqueIdentifier>{ce33805d-27f5-4de5-a826-2d3616d91e8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Vertex Pipeline\Matrix Stack">
+      <UniqueIdentifier>{c4fc9a98-ddfc-41f7-aa05-79e53dea0479}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Utility">
+      <UniqueIdentifier>{91618001-6fd0-48c4-ae61-1ed369928e6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Utility\Math">
+      <UniqueIdentifier>{31a9cdc9-b1a5-4b0e-9268-9b37bc17552f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Utility\Logging">
+      <UniqueIdentifier>{47b208e1-ef45-4398-90ff-f28855f73127}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Vertex Pipeline\Clipping">
+      <UniqueIdentifier>{1042c812-62fd-440f-8bfd-e71925c80539}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\DLL\OpenGL">
+      <UniqueIdentifier>{ce025be7-764f-4b29-b7bc-383ac09203c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\DLL\WGL">
+      <UniqueIdentifier>{ab0513b5-647e-467c-9d2d-17a44f03b6ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Utility">
+      <UniqueIdentifier>{6d634fe9-17d4-41bc-b630-b4b18d0d9f5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Utility\Math">
+      <UniqueIdentifier>{d7a44dd6-b210-49cf-be0d-bcd27956500f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Utility\Logging">
+      <UniqueIdentifier>{9d42fdc2-8c37-4f8a-827b-ae49a358edc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Vertex Pipeline\Matrix Stack">
+      <UniqueIdentifier>{04ef16d4-e511-4eca-8262-d7d996718c76}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Rendering">
+      <UniqueIdentifier>{74b9306b-f783-45fe-8aa6-c261a95284dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Rendering\Renderer">
+      <UniqueIdentifier>{38f5cfab-fd71-43bf-a923-a133d8dff019}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Rendering">
+      <UniqueIdentifier>{3d0f1e7c-60a7-4988-a365-7b485fb18a18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Rendering\Renderer">
+      <UniqueIdentifier>{24533c53-b33b-4b42-92fb-bf15e26ea49d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Utility\Count Down Latch">
+      <UniqueIdentifier>{1fb0ffed-f47f-489e-a4b9-8e6fcb297c58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Rendering\Renderer\Commands">
+      <UniqueIdentifier>{43aa9dfe-2f51-4b6e-bdf5-01582cee6e9d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Rendering\Renderer\Commands">
+      <UniqueIdentifier>{cae520f5-0eab-4527-a054-312f5995a7fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Utility\Aligned Allocator">
+      <UniqueIdentifier>{38d09d0e-9748-44c7-b5a8-a477de328112}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Utility\SIMD">
+      <UniqueIdentifier>{d597e00b-c5ab-4099-9b5e-2e3569c41d02}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Utility\Lockfree Queue">
+      <UniqueIdentifier>{9622d77c-0ec6-4bd4-b168-60aea7342660}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Vertex Pipeline\Clipper">
+      <UniqueIdentifier>{a22095fa-b76d-4820-ba8f-23a3225ef9c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Vertex Pipeline\Vertex Array">
+      <UniqueIdentifier>{b1665e70-4f63-4129-8bb8-d0c66207134b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Utility\Software Gamma Ramp">
+      <UniqueIdentifier>{a75a963c-ba8d-4dad-9fbd-ff13a131d3c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Rendering\Renderer\Drawing Thread">
+      <UniqueIdentifier>{e4773a46-6258-4784-a019-9b3a2b4c1b09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Rendering\Renderer\Drawing Surface">
+      <UniqueIdentifier>{7021f665-a71e-4cd9-81e6-ed3032459e3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Rendering\Renderer\Drawing Surface">
+      <UniqueIdentifier>{2fbf4c36-f970-4b4f-b5fd-9afb6eae13c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Utility\Targa Writer">
+      <UniqueIdentifier>{1d2c15f6-6cd0-4f6b-87bb-3015615db1f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Rendering\Renderer\Drawing Thread">
+      <UniqueIdentifier>{0df8f652-33f2-45e3-b6c7-f826046d01ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Quelldateien\Rendering\Texture">
+      <UniqueIdentifier>{8d82d405-0905-410f-b22b-f3e6a9475526}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Rendering\Texture Manager">
+      <UniqueIdentifier>{8736d5d0-5a08-442f-a2a3-8f22acfc027a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Context.h">
+      <Filter>Headerdateien\Context</Filter>
+    </ClInclude>
+    <ClInclude Include="ContextTypes.h">
+      <Filter>Headerdateien\Context</Filter>
+    </ClInclude>
+    <ClInclude Include="Clipper.h">
+      <Filter>Headerdateien\Vertex Pipeline\Clipper</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector.h">
+      <Filter>Headerdateien\Utility\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Matrix.h">
+      <Filter>Headerdateien\Utility\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenGL.h">
+      <Filter>Headerdateien\DLL</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Headerdateien\Utility\Logging</Filter>
+    </ClInclude>
+    <ClInclude Include="MatrixStack.h">
+      <Filter>Headerdateien\Vertex Pipeline\Matrix Stack</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexPipeline.h">
+      <Filter>Headerdateien\Vertex Pipeline</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>Headerdateien\Rendering\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>Headerdateien\Vertex Pipeline\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="Vertex.h">
+      <Filter>Headerdateien\Vertex Pipeline\Primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="CountDownLatch.h">
+      <Filter>Headerdateien\Utility\Count Down Latch</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandBase.h">
+      <Filter>Headerdateien\Rendering\Renderer\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandClearColor.h">
+      <Filter>Headerdateien\Rendering\Renderer\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandClearDepth.h">
+      <Filter>Headerdateien\Rendering\Renderer\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandDrawTriangle.h">
+      <Filter>Headerdateien\Rendering\Renderer\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandPoisonPill.h">
+      <Filter>Headerdateien\Rendering\Renderer\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandSyncPoint.h">
+      <Filter>Headerdateien\Rendering\Renderer\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="AlignedAllocator.h">
+      <Filter>Headerdateien\Utility\Aligned Allocator</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexDataArray.h">
+      <Filter>Headerdateien\Vertex Pipeline\Vertex Array</Filter>
+    </ClInclude>
+    <ClInclude Include="SIMD.h">
+      <Filter>Headerdateien\Utility\SIMD</Filter>
+    </ClInclude>
+    <ClInclude Include="TextureManager.h">
+      <Filter>Headerdateien\Rendering\Texture Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="LockFreeQueue.h">
+      <Filter>Headerdateien\Utility\Lockfree Queue</Filter>
+    </ClInclude>
+    <ClInclude Include="Wiggle.h">
+      <Filter>Headerdateien\DLL</Filter>
+    </ClInclude>
+    <ClInclude Include="SWGammaRamp.h">
+      <Filter>Headerdateien\Utility\Software Gamma Ramp</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawThread.h">
+      <Filter>Headerdateien\Rendering\Renderer\Drawing Thread</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawBuffer.h">
+      <Filter>Headerdateien\Rendering\Renderer\Drawing Surface</Filter>
+    </ClInclude>
+    <ClInclude Include="DrawSurface.h">
+      <Filter>Headerdateien\Rendering\Renderer\Drawing Surface</Filter>
+    </ClInclude>
+    <ClInclude Include="Defines.h">
+      <Filter>Headerdateien\Context</Filter>
+    </ClInclude>
+    <ClInclude Include="TargaWriter.h">
+      <Filter>Headerdateien\Utility\Targa Writer</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandClearStencil.h">
+      <Filter>Headerdateien\Rendering\Renderer\Commands</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Clipper.cpp">
+      <Filter>Quelldateien\Vertex Pipeline\Clipping</Filter>
+    </ClCompile>
+    <ClCompile Include="Context.cpp">
+      <Filter>Quelldateien\Context</Filter>
+    </ClCompile>
+    <ClCompile Include="Log.cpp">
+      <Filter>Quelldateien\Utility\Logging</Filter>
+    </ClCompile>
+    <ClCompile Include="Matrix.cpp">
+      <Filter>Quelldateien\Utility\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Vector.cpp">
+      <Filter>Quelldateien\Utility\Math</Filter>
+    </ClCompile>
+    <ClCompile Include="MatrixStack.cpp">
+      <Filter>Quelldateien\Vertex Pipeline\Matrix Stack</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexPipeline.cpp">
+      <Filter>Quelldateien\Vertex Pipeline</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenGL.cpp">
+      <Filter>Quelldateien\DLL\OpenGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Wiggle.cpp">
+      <Filter>Quelldateien\DLL\WGL</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>Quelldateien\Rendering\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandClearColor.cpp">
+      <Filter>Quelldateien\Rendering\Renderer\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandClearDepth.cpp">
+      <Filter>Quelldateien\Rendering\Renderer\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandDrawTriangle.cpp">
+      <Filter>Quelldateien\Rendering\Renderer\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandSyncPoint.cpp">
+      <Filter>Quelldateien\Rendering\Renderer\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandPoisonPill.cpp">
+      <Filter>Quelldateien\Rendering\Renderer\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureSampler.cpp">
+      <Filter>Quelldateien\Rendering\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="TextureManager.cpp">
+      <Filter>Quelldateien\Rendering\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawSurface.cpp">
+      <Filter>Quelldateien\Rendering\Renderer\Drawing Surface</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandClearStencil.cpp">
+      <Filter>Quelldateien\Rendering\Renderer\Commands</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawThread.cpp">
+      <Filter>Quelldateien\Rendering\Renderer\Drawing Thread</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Quelldateien\DLL</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="swGL.def">
+      <Filter>Quelldateien\DLL\OpenGL</Filter>
+    </None>
+  </ItemGroup>
+</Project>
