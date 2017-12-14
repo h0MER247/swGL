@@ -2,7 +2,6 @@
 
 #include <algorithm>
 #include <string>
-#include <limits>
 #include <vector>
 #include "Vector.h"
 #include "Vertex.h"
@@ -305,9 +304,19 @@ namespace SWGL {
         ~ClearValues() = default;
 
     public:
-        void setClearColor(unsigned int color) {
+        void setClearColor(float red, float green, float blue, float alpha) {
 
-            m_color = color;
+            m_colorRed = std::clamp(red, 0.0f, 1.0f);
+            m_colorGreen = std::clamp(green, 0.0f, 1.0f);
+            m_colorBlue = std::clamp(blue, 0.0f, 1.0f);
+            m_colorAlpha = std::clamp(alpha, 0.0f, 1.0f);
+
+            int r = static_cast<int>(255.0f * m_colorRed);
+            int g = static_cast<int>(255.0f * m_colorGreen);
+            int b = static_cast<int>(255.0f * m_colorBlue);
+            int a = static_cast<int>(255.0f * m_colorAlpha);
+
+            m_color = (a << 24) | (r << 16) | (g << 8) | b;
         }
 
         void setClearDepth(float depth) {
@@ -336,10 +345,37 @@ namespace SWGL {
             return m_stencil;
         }
 
+    public:
+        float getClearColorRed() {
+
+            return m_colorRed;
+        }
+
+        float getClearColorGreen() {
+
+            return m_colorGreen;
+        }
+
+        float getClearColorBlue() {
+
+            return m_colorBlue;
+        }
+
+        float getClearColorAlpha() {
+
+            return m_colorAlpha;
+        }
+
     private:
         unsigned int m_color;
         float m_depth;
         unsigned char m_stencil;
+
+    private:
+        float m_colorRed;
+        float m_colorGreen;
+        float m_colorBlue;
+        float m_colorAlpha;
     };
 
 

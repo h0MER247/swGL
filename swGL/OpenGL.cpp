@@ -149,14 +149,12 @@ SWGLAPI void STDCALL glDrv_glClearColor(GLclampf red, GLclampf green, GLclampf b
 
     LOG("Alpha = %f, Red = %f, Green = %f, Blue = %f", alpha, red, green, blue);
 
-    int r = static_cast<int>(255.0f * std::clamp(red, 0.0f, 1.0f));
-    int g = static_cast<int>(255.0f * std::clamp(green, 0.0f, 1.0f));
-    int b = static_cast<int>(255.0f * std::clamp(blue, 0.0f, 1.0f));
-    int a = static_cast<int>(255.0f * std::clamp(alpha, 0.0f, 1.0f));
-
     SWGL::Context::getCurrentContext()->getClearValues().setClearColor(
-    
-        (a << 24) | (r << 16) | (g << 8) | b
+
+        red,
+        green,
+        blue,
+        alpha
     );
 }
 
@@ -1098,6 +1096,13 @@ SWGLAPI void STDCALL glDrv_glGetFloatv(GLenum pname, GLfloat *params) {
 
     case GL_POLYGON_OFFSET_UNITS:
         params[0] = SWGL::Context::getCurrentContext()->getPolygonOffset().getUnits();
+        break;
+
+    case GL_COLOR_CLEAR_VALUE:
+        params[0] = SWGL::Context::getCurrentContext()->getClearValues().getClearColorRed();
+        params[1] = SWGL::Context::getCurrentContext()->getClearValues().getClearColorGreen();
+        params[2] = SWGL::Context::getCurrentContext()->getClearValues().getClearColorBlue();
+        params[3] = SWGL::Context::getCurrentContext()->getClearValues().getClearColorAlpha();
         break;
 
     default:
