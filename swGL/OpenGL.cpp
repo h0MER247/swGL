@@ -1414,14 +1414,17 @@ SWGLAPI void STDCALL glDrv_glLoadMatrixd(const GLdouble *m) {
 
     LOG("Address: %p", m);
 
-    SWGL::Matrix &M = SWGL::Context::getCurrentContext()->getMatrixStack().getCurrentMatrix();
+    if (m != nullptr) {
 
-    for (int i = 0; i < 4; i++, m += 4) {
+        SWGL::Matrix &M = SWGL::Context::getCurrentContext()->getMatrixStack().getCurrentMatrix();
 
-        M(0, i) = static_cast<float>(m[0]);
-        M(1, i) = static_cast<float>(m[1]);
-        M(2, i) = static_cast<float>(m[2]);
-        M(3, i) = static_cast<float>(m[3]);
+        for (int i = 0; i < 4; i++, m += 4) {
+
+            M(0, i) = static_cast<float>(m[0]);
+            M(1, i) = static_cast<float>(m[1]);
+            M(2, i) = static_cast<float>(m[2]);
+            M(3, i) = static_cast<float>(m[3]);
+        }
     }
 }
 
@@ -1429,14 +1432,17 @@ SWGLAPI void STDCALL glDrv_glLoadMatrixf(const GLfloat *m) {
 
     LOG("Address: %p", m);
 
-    SWGL::Matrix &M = SWGL::Context::getCurrentContext()->getMatrixStack().getCurrentMatrix();
+    if (m != nullptr) {
 
-    for (int i = 0; i < 4; i++, m += 4) {
+        SWGL::Matrix &M = SWGL::Context::getCurrentContext()->getMatrixStack().getCurrentMatrix();
 
-        M(0, i) = m[0];
-        M(1, i) = m[1];
-        M(2, i) = m[2];
-        M(3, i) = m[3];
+        for (int i = 0; i < 4; i++, m += 4) {
+
+            M(0, i) = m[0];
+            M(1, i) = m[1];
+            M(2, i) = m[2];
+            M(3, i) = m[3];
+        }
     }
 }
 
