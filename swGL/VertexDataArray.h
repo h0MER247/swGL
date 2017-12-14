@@ -247,7 +247,7 @@ namespace SWGL {
             m_isLocked = true;
 
             m_firstIdx = firstIdx;
-            m_lastIdx = std::min(firstIdx + count, firstIdx + 1024) - 1;
+            m_lastIdx = firstIdx + std::min(count, 1024) - 1;
         }
 
         void unlock() {
