@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <functional>
 #include "Vector.h"
 #include "Vertex.h"
@@ -217,6 +218,8 @@ namespace SWGL {
 
                 m_texCoord[i].setEnable(false);
             }
+
+            m_prefetchedVertices.resize(1024);
         }
         ~VertexDataArray() = default;
 
@@ -244,10 +247,7 @@ namespace SWGL {
             m_isLocked = true;
 
             m_firstIdx = firstIdx;
-            m_lastIdx = firstIdx + (count - 1);
-
-            m_prefetchedVertices.clear();
-            m_prefetchedVertices.reserve(count);
+            m_lastIdx = std::min(firstIdx + count, firstIdx + 1024) - 1;
         }
 
         void unlock() {
