@@ -1519,25 +1519,38 @@ SWGLAPI void STDCALL glDrv_glMatrixMode(GLenum mode) {
 
 SWGLAPI void STDCALL glDrv_glMultMatrixd(const GLdouble *m) {
 
-    LOG("Unimplemented");
+    LOG("Matrix data address: %p", m);
+
+    if (m != nullptr) {
+
+        SWGL::Matrix &M = SWGL::Context::getCurrentContext()->getMatrixStack().getCurrentMatrix();
+
+        M *= SWGL::Matrix(
+
+            static_cast<float>(m[0]), static_cast<float>(m[4]), static_cast<float>(m[8]), static_cast<float>(m[12]),
+            static_cast<float>(m[1]), static_cast<float>(m[5]), static_cast<float>(m[9]), static_cast<float>(m[13]),
+            static_cast<float>(m[2]), static_cast<float>(m[6]), static_cast<float>(m[10]), static_cast<float>(m[14]),
+            static_cast<float>(m[3]), static_cast<float>(m[7]), static_cast<float>(m[11]), static_cast<float>(m[15])
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glMultMatrixf(const GLfloat *m) {
 
     LOG("Matrix data address: %p", m);
 
-    if (m == nullptr)
-        return;
+    if (m != nullptr) {
 
-    SWGL::Matrix &M = SWGL::Context::getCurrentContext()->getMatrixStack().getCurrentMatrix();
+        SWGL::Matrix &M = SWGL::Context::getCurrentContext()->getMatrixStack().getCurrentMatrix();
 
-    M *= SWGL::Matrix(
+        M *= SWGL::Matrix(
 
-        m[0], m[4], m[8], m[12],
-        m[1], m[5], m[9], m[13],
-        m[2], m[6], m[10], m[14],
-        m[3], m[7], m[11], m[15]
-    );
+            m[0], m[4], m[8], m[12],
+            m[1], m[5], m[9], m[13],
+            m[2], m[6], m[10], m[14],
+            m[3], m[7], m[11], m[15]
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glNewList(GLuint list, GLenum mode) {
