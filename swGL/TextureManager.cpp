@@ -346,10 +346,9 @@ namespace SWGL {
 
     void TextureManager::generateFreeTextureNames() {
 
-        // I know that this implementation sucks :D
-        int count = 1024, texName = 0;
+        unsigned int texName = 1U;
 
-        while (count > 0) {
+        for(int count = 1024; count > 0; ) {
 
             auto it = m_textureObjects.find(texName);
             if (it == m_textureObjects.end()) {
