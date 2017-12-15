@@ -5,7 +5,9 @@
 
 namespace SWGL {
 
-    VertexPipeline::VertexPipeline() {
+    VertexPipeline::VertexPipeline()
+    
+        : m_isInsideGLBegin(false) {
 
         setActiveTexture(0U);
     }
@@ -15,7 +17,8 @@ namespace SWGL {
     void VertexPipeline::begin(GLenum primitiveType) {
 
         m_primitiveType = primitiveType;
-        
+        m_isInsideGLBegin = true;
+
         auto &matrixStack = Context::getCurrentContext()->getMatrixStack();
         m_mvpMatrix = matrixStack.getProjectionMatrix() *
                       matrixStack.getModelViewMatrix();
@@ -35,7 +38,7 @@ namespace SWGL {
             break;
 
         case GL_TRIANGLES:
-            if (m_vertices.size() < 3) return;
+            if (m_vertices.size() < 3) break;
             for (size_t i = 0, n = m_vertices.size(); i < n - 2; i += 3) {
 
                 Vertex &v1 = m_vertices[i + 0];
@@ -47,7 +50,7 @@ namespace SWGL {
             break;
 
         case GL_TRIANGLE_STRIP:
-            if (m_vertices.size() < 3) return;
+            if (m_vertices.size() < 3) break;
             for (size_t i = 0, n = m_vertices.size(); i < n - 2; i++) {
 
                 Vertex &v1 = m_vertices[i + 0];
@@ -65,7 +68,7 @@ namespace SWGL {
 
         case GL_TRIANGLE_FAN:
         case GL_POLYGON:
-            if (m_vertices.size() < 3) return;
+            if (m_vertices.size() < 3) break;
             for (size_t i = 1, n = m_vertices.size(); i < n - 1; i++) {
 
                 Vertex &v1 = m_vertices[0];
@@ -77,7 +80,7 @@ namespace SWGL {
             break;
 
         case GL_QUADS:
-            if (m_vertices.size() < 4) return;
+            if (m_vertices.size() < 4) break;
             for (size_t i = 0, n = m_vertices.size(); i < n - 3; i += 4) {
 
                 Vertex &v1 = m_vertices[i + 0];
@@ -91,7 +94,7 @@ namespace SWGL {
             break;
 
         case GL_QUAD_STRIP:
-            if (m_vertices.size() < 4) return;
+            if (m_vertices.size() < 4) break;
             for (size_t i = 0, n = m_vertices.size(); i < n - 3; i += 2) {
 
                 Vertex &v1 = m_vertices[i + 0];
@@ -110,8 +113,9 @@ namespace SWGL {
             drawTriangles();
             m_triangles.clear();
         }
-
         m_vertices.clear();
+
+        m_isInsideGLBegin = false;
     }
 
     void VertexPipeline::addTriangle(Vertex &v1, Vertex &v2, Vertex &v3) {

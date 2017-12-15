@@ -26,6 +26,8 @@ namespace SWGL {
         void begin(GLenum primitiveType);
         void end();
 
+        bool isInsideGLBegin() { return m_isInsideGLBegin; }
+
     public:
         void setColor(const Vector &color);
         void setTexCoord(size_t index, const Vector &texCoord);
@@ -49,6 +51,7 @@ namespace SWGL {
         void drawTriangles();
 
     private:
+        bool m_isInsideGLBegin;
         Vertex m_vertexState;
         GLenum m_primitiveType;
         size_t m_activeTexture;

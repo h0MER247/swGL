@@ -319,14 +319,14 @@ namespace SWGL {
             m_color = (a << 24) | (r << 16) | (g << 8) | b;
         }
 
-        void setClearDepth(float depth) {
+        void setClearDepth(double depth) {
 
-            m_depth = depth;
+            m_depth = std::clamp(static_cast<float>(depth), 0.0f, 1.0f);
         }
 
-        void setClearStencil(unsigned char stencil) {
+        void setClearStencil(int stencil) {
 
-            m_stencil = stencil;
+            m_stencil = static_cast<unsigned char>(stencil & 0xff);
         }
 
     public:
@@ -527,10 +527,13 @@ namespace SWGL {
             m_translateY = (static_cast<float>(y) + m_scaleY) - 0.5f;
         }
 
-        void setDepthRange(float zNear, float zFar) {
+        void setDepthRange(double zNear, double zFar) {
 
-            m_scaleZ = (zFar - zNear) * 0.5f;
-            m_translateZ = (zFar + zNear) * 0.5f;
+            float n = std::clamp(static_cast<float>(zNear), 0.0f, 1.0f);
+            float f = std::clamp(static_cast<float>(zFar), 0.0f, 1.0f);
+
+            m_scaleZ = (f - n) * 0.5f;
+            m_translateZ = (f + n) * 0.5f;
         }
         
     public:
