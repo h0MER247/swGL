@@ -21,7 +21,7 @@ A multithreaded software rasterizer implementation of OpenGL 1.3(ish).
 It's reasonably fast. But don't expect rock-solid 60 fps in Full HD resolutions - it ain't gonna happen :).
 
 ### How to use
-Compile the project with Visual Studio and rename the resulting file swGL.dll into OpenGL32.dll. Put OpenGL32.dll right into the game directory and start the game. GCC 7.2 should work too, but I currently have no Makefile for that.
+Compile the project with Visual Studio. Put the resulting file OpenGL32.dll right into the game directory and start the game. The project should also compile with GCC 7.2, but I currently have no Makefile for that.
 
 ### Supported Games
 As far as I can tell Quake 3, Star Trek Elite Force I & II, Half Life 1, Unreal Tournament 99 and Heavy Metal: F.A.K.K.² work pretty well.
