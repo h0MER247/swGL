@@ -48,6 +48,10 @@ namespace SWGL {
         }
 
     public:
+        bool operator==(const AlignedAllocator& rhs) { return true; }
+        bool operator!=(const AlignedAllocator& rhs) { return false; }
+
+    public:
         void construct(T * const p, const T &v) const {
 
             new(static_cast<void *>(p)) T(v);
