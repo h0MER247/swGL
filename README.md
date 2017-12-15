@@ -1,5 +1,5 @@
 # swGL
-A OpenGL 1.3(ish) software rasterizer implementation
+A multithreaded software rasterizer implementation of OpenGL 1.3(ish).
 
 ### Screenshots
 <p align="center">
