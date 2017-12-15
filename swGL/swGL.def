@@ -1,4 +1,4 @@
-﻿LIBRARY swGL
+﻿LIBRARY OpenGL32
 EXPORTS
     DllInitialize = DllMain PRIVATE
 
