@@ -39,11 +39,34 @@ namespace SWGL {
 
             return false;
         }
+
+        // If the texture is currently used by the rasterizer we'll make a copy of it, which we can
+        // then manipulate safely without destroying the texture in use. As the texture objects are
+        // reference counted by shared_ptr the original will destroy itself when the rasterization
+        // is done. Maybe there is a better way to cope with this kind of situation, but I'll leave
+        // it like this for now.
+        if (texObj.use_count() > 2) {
+
+            auto &newTexObj = createTextureObject(texObj->name, texObj->target);
+            newTexObj->format = texObj->format;
+            newTexObj->maxLOD = texObj->maxLOD;
+            newTexObj->parameter = texObj->parameter;
+            for (int i = 0; i <= texObj->maxLOD; i++) {
+
+                if (i != mipLevel) {
+
+                    newTexObj->mips[i] = texObj->mips[i];
+                }
+            }
+
+            texObj = m_activeUnit->target2D.texObj = newTexObj;
+        }
+
+
         if (texObj->maxLOD < mipLevel) {
 
             texObj->maxLOD = mipLevel;
         }
-
         texObj->format = internalFormat;
 
         auto &mip = texObj->mips[mipLevel];
