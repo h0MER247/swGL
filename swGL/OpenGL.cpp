@@ -3611,9 +3611,7 @@ SWGLAPI void STDCALL glDrv_glTexCoord4sv(const GLshort *v) {
     );
 }
 
-SWGLAPI void STDCALL glDrv_glTexEnvf(GLenum target, GLenum pname, GLfloat param) {
-
-    LOG("Target: %04x, Parameter: %04x, Data: %f", target, pname, param);
+SWGLAPI void STDCALL glDrv_glTexEnvCommon(GLenum target, GLenum pname, GLenum param) {
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
@@ -3624,14 +3622,14 @@ SWGLAPI void STDCALL glDrv_glTexEnvf(GLenum target, GLenum pname, GLfloat param)
         switch (pname) {
 
         case GL_TEXTURE_ENV_MODE:
-            switch (static_cast<GLenum>(param)) {
+            switch (param) {
 
             case GL_REPLACE:
             case GL_MODULATE:
             case GL_DECAL:
             case GL_BLEND:
             case GL_ADD:
-                ctx->getTextureManager().getActiveTextureEnvironment().mode = static_cast<GLenum>(param);
+                ctx->getTextureManager().getActiveTextureEnvironment().mode = param;
                 break;
 
             default:
@@ -3680,6 +3678,13 @@ SWGLAPI void STDCALL glDrv_glTexEnvf(GLenum target, GLenum pname, GLfloat param)
     }
 }
 
+SWGLAPI void STDCALL glDrv_glTexEnvf(GLenum target, GLenum pname, GLfloat param) {
+
+    LOG("Target: %04x, Parameter: %04x, Data: %f", target, pname, param);
+
+    glDrv_glTexEnvCommon(target, pname, static_cast<GLenum>(param));
+}
+
 SWGLAPI void STDCALL glDrv_glTexEnvfv(GLenum target, GLenum pname, const GLfloat *params) {
 
     LOG("Unimplemented");
@@ -3692,12 +3697,9 @@ SWGLAPI void STDCALL glDrv_glTexEnvfv(GLenum target, GLenum pname, const GLfloat
 
 SWGLAPI void STDCALL glDrv_glTexEnvi(GLenum target, GLenum pname, GLint param) {
 
-    LOG("Unimplemented");
+    LOG("Target: %04x, Parameter: %04x, Data: %d", target, pname, param);
 
-    GET_CONTEXT_OR_RETURN();
-    MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
-
-    // ...
+    glDrv_glTexEnvCommon(target, pname, static_cast<GLenum>(param));
 }
 
 SWGLAPI void STDCALL glDrv_glTexEnviv(GLenum target, GLenum pname, const GLint *params) {
@@ -3847,9 +3849,7 @@ SWGLAPI void STDCALL glDrv_glTexImage2D(GLenum target, GLint level, GLint intern
     }
 }
 
-SWGLAPI void STDCALL glDrv_glTexParameterf(GLenum target, GLenum pname, GLfloat param) {
-
-    LOG("Target: %04x, Parameter: %04x, Data: %f", target, pname, param);
+SWGLAPI void STDCALL glDrv_glTexParameterCommon(GLenum target, GLenum pname, GLenum param) {
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
@@ -3878,7 +3878,7 @@ SWGLAPI void STDCALL glDrv_glTexParameterf(GLenum target, GLenum pname, GLfloat 
     switch (pname) {
 
     case GL_TEXTURE_MIN_FILTER:
-        switch (static_cast<GLenum>(param)) {
+        switch (param) {
 
         case GL_NEAREST:
         case GL_LINEAR:
@@ -3886,14 +3886,14 @@ SWGLAPI void STDCALL glDrv_glTexParameterf(GLenum target, GLenum pname, GLfloat 
         case GL_LINEAR_MIPMAP_NEAREST:
         case GL_NEAREST_MIPMAP_LINEAR:
         case GL_LINEAR_MIPMAP_LINEAR:
-            texParams.minifyFilter = static_cast<GLenum>(param);
+            texParams.minifyFilter = param;
             texParams.isUsingMipMapping = texParams.minifyFilter != GL_NEAREST && texParams.minifyFilter != GL_LINEAR;
             if (texParams.isUsingMipMapping) {
 
                 texParams.minifySampler = (texParams.minifyFilter == GL_NEAREST_MIPMAP_NEAREST ||
-                    texParams.minifyFilter == GL_NEAREST_MIPMAP_LINEAR) ? &SWGL::sampleTexelsNearest : &SWGL::sampleTexelsLinear;
+                                           texParams.minifyFilter == GL_NEAREST_MIPMAP_LINEAR) ? &SWGL::sampleTexelsNearest : &SWGL::sampleTexelsLinear;
                 texParams.isUsingTrilinearFilter = texParams.minifyFilter == GL_NEAREST_MIPMAP_LINEAR ||
-                    texParams.minifyFilter == GL_LINEAR_MIPMAP_LINEAR;
+                                                   texParams.minifyFilter == GL_LINEAR_MIPMAP_LINEAR;
             }
             else {
 
@@ -3908,11 +3908,11 @@ SWGLAPI void STDCALL glDrv_glTexParameterf(GLenum target, GLenum pname, GLfloat 
         break;
 
     case GL_TEXTURE_MAG_FILTER:
-        switch (static_cast<GLenum>(param)) {
+        switch (param) {
 
         case GL_NEAREST:
         case GL_LINEAR:
-            texParams.magnifyFilter = static_cast<GLenum>(param);
+            texParams.magnifyFilter = param;
             texParams.magnifySampler = texParams.magnifyFilter == GL_NEAREST ? &SWGL::sampleTexelsNearest : &SWGL::sampleTexelsLinear;
             break;
 
@@ -3923,13 +3923,13 @@ SWGLAPI void STDCALL glDrv_glTexParameterf(GLenum target, GLenum pname, GLfloat 
         break;
 
     case GL_TEXTURE_WRAP_S:
-        switch (static_cast<GLenum>(param)) {
+        switch (param) {
 
         case GL_CLAMP:
         case GL_CLAMP_TO_EDGE:
         case GL_CLAMP_TO_BORDER:
         case GL_REPEAT:
-            texParams.wrappingModeS = static_cast<GLenum>(param);
+            texParams.wrappingModeS = param;
             break;
 
         default:
@@ -3939,13 +3939,13 @@ SWGLAPI void STDCALL glDrv_glTexParameterf(GLenum target, GLenum pname, GLfloat 
         break;
 
     case GL_TEXTURE_WRAP_T:
-        switch (static_cast<GLenum>(param)) {
+        switch (param) {
 
         case GL_CLAMP:
         case GL_CLAMP_TO_EDGE:
         case GL_CLAMP_TO_BORDER:
         case GL_REPEAT:
-            texParams.wrappingModeT = static_cast<GLenum>(param);
+            texParams.wrappingModeT = param;
             break;
 
         default:
@@ -3969,9 +3969,16 @@ SWGLAPI void STDCALL glDrv_glTexParameterf(GLenum target, GLenum pname, GLfloat 
     }
 }
 
+SWGLAPI void STDCALL glDrv_glTexParameterf(GLenum target, GLenum pname, GLfloat param) {
+
+    LOG("Target: %04x, Parameter: %04x, Data: %f", target, pname, param);
+
+    glDrv_glTexParameterCommon(target, pname, static_cast<GLenum>(param));
+}
+
 SWGLAPI void STDCALL glDrv_glTexParameterfv(GLenum target, GLenum pname, const GLfloat *params) {
 
-    LOG("Target: %04x, Parameter: %04x, Data Address: %p", target, pname, params);
+    LOG("Unimplemented");
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
@@ -3983,15 +3990,12 @@ SWGLAPI void STDCALL glDrv_glTexParameteri(GLenum target, GLenum pname, GLint pa
 
     LOG("Target: %04x, Parameter: %04x, Data: %d", target, pname, param);
 
-    GET_CONTEXT_OR_RETURN();
-    MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
-
-    // ...
+    glDrv_glTexParameterCommon(target, pname, static_cast<GLenum>(param));
 }
 
 SWGLAPI void STDCALL glDrv_glTexParameteriv(GLenum target, GLenum pname, const GLint *params) {
 
-    LOG("Target: %04x, Parameter: %04x, Data Address: %p", target, pname, params);
+    LOG("Unimplemented");
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
