@@ -3611,105 +3611,238 @@ SWGLAPI void STDCALL glDrv_glTexCoord4sv(const GLshort *v) {
     );
 }
 
-SWGLAPI void STDCALL glDrv_glTexEnvCommon(GLenum target, GLenum pname, GLenum param) {
+SWGLAPI void STDCALL glDrv_glTexEnvModeCommon(const SWGL::ContextPtr &ctx, GLenum param) {
 
-    GET_CONTEXT_OR_RETURN();
-    MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
+    switch (param) {
 
-    switch (target) {
-
-    case GL_TEXTURE_ENV:
-        switch (pname) {
-
-        case GL_TEXTURE_ENV_MODE:
-            switch (param) {
-
-            case GL_REPLACE:
-            case GL_MODULATE:
-            case GL_DECAL:
-            case GL_BLEND:
-            case GL_ADD:
-                ctx->getTextureManager().getActiveTextureEnvironment().mode = param;
-                break;
-
-            default:
-                ctx->getError().setState(GL_INVALID_ENUM);
-                return;
-            }
-            break;
-
-        case GL_TEXTURE_ENV_COLOR:
-            LOG("Unimplemented env color");
-            break;
-
-        case GL_COMBINE_RGB:
-        case GL_COMBINE_ALPHA:
-            LOG("Unimplemented Combine RGB/Alpha");
-            break;
-
-        case GL_SOURCE0_RGB:
-        case GL_SOURCE0_ALPHA:
-        case GL_SOURCE1_RGB:
-        case GL_SOURCE1_ALPHA:
-        case GL_SOURCE2_RGB:
-        case GL_SOURCE2_ALPHA:
-            LOG("Unimplemented source rgb/alpha");
-            break;
-
-        case GL_OPERAND0_ALPHA:
-        case GL_OPERAND0_RGB:
-        case GL_OPERAND1_ALPHA:
-        case GL_OPERAND1_RGB:
-        case GL_OPERAND2_ALPHA:
-        case GL_OPERAND2_RGB:
-            LOG("Unimplemented operand rgb/alpha");
-            break;
-
-        default:
-            ctx->getError().setState(GL_INVALID_ENUM);
-            return;
-        }
+    case GL_COMBINE:
+        LOG("Unimplemented texture environment mode: GL_COMBINE");
+    case GL_REPLACE:
+    case GL_MODULATE:
+    case GL_DECAL:
+    case GL_BLEND:
+    case GL_ADD:
+        ctx->getTextureManager().getActiveTextureEnvironment().mode = param;
         break;
 
     default:
-        LOG("Unkown target: %04x\n", target);
         ctx->getError().setState(GL_INVALID_ENUM);
-        return;
+        break;
     }
+}
+
+SWGLAPI void STDCALL glDrv_glTexEnvColorCommon(const SWGL::ContextPtr &ctx, float r, float g, float b, float a) {
+
+    auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
+
+    texEnv.colorA = std::clamp(a, 0.0f, 1.0f);
+    texEnv.colorR = std::clamp(r, 0.0f, 1.0f);
+    texEnv.colorG = std::clamp(g, 0.0f, 1.0f);
+    texEnv.colorB = std::clamp(b, 0.0f, 1.0f);
 }
 
 SWGLAPI void STDCALL glDrv_glTexEnvf(GLenum target, GLenum pname, GLfloat param) {
 
     LOG("Target: %04x, Parameter: %04x, Data: %f", target, pname, param);
 
-    glDrv_glTexEnvCommon(target, pname, static_cast<GLenum>(param));
+    GET_CONTEXT_OR_RETURN();
+    MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
+
+    if (target != GL_TEXTURE_ENV) {
+
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    switch (pname) {
+
+    case GL_TEXTURE_ENV_MODE:
+        glDrv_glTexEnvModeCommon(ctx, static_cast<GLenum>(param));
+        break;
+
+    case GL_TEXTURE_ENV_COLOR:
+        glDrv_glTexEnvColorCommon(ctx, param, param, param, param);
+        break;
+
+    case GL_COMBINE_RGB:
+    case GL_COMBINE_ALPHA:
+    case GL_SOURCE0_ALPHA:
+    case GL_SOURCE0_RGB:
+    case GL_SOURCE1_ALPHA:
+    case GL_SOURCE1_RGB:
+    case GL_SOURCE2_ALPHA:
+    case GL_SOURCE2_RGB:
+    case GL_OPERAND0_ALPHA:
+    case GL_OPERAND0_RGB:
+    case GL_OPERAND1_ALPHA:
+    case GL_OPERAND1_RGB:
+    case GL_OPERAND2_ALPHA:
+    case GL_OPERAND2_RGB:
+        LOG("Unimplemented texture combiner parameter name: %04x, value: %f", pname, param);
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        break;
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexEnvfv(GLenum target, GLenum pname, const GLfloat *params) {
 
-    LOG("Unimplemented");
+    LOG("Target: %04x, Parameter: %04x, Data Address: %p", target, pname, params);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (target != GL_TEXTURE_ENV) {
+
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    if (params != nullptr) {
+
+        switch (pname) {
+
+        case GL_TEXTURE_ENV_MODE:
+            glDrv_glTexEnvModeCommon(ctx, static_cast<GLenum>(params[0]));
+            break;
+
+        case GL_TEXTURE_ENV_COLOR:
+            glDrv_glTexEnvColorCommon(ctx, params[0], params[1], params[2], params[3]);
+            break;
+
+        case GL_COMBINE_RGB:
+        case GL_COMBINE_ALPHA:
+        case GL_SOURCE0_ALPHA:
+        case GL_SOURCE0_RGB:
+        case GL_SOURCE1_ALPHA:
+        case GL_SOURCE1_RGB:
+        case GL_SOURCE2_ALPHA:
+        case GL_SOURCE2_RGB:
+        case GL_OPERAND0_ALPHA:
+        case GL_OPERAND0_RGB:
+        case GL_OPERAND1_ALPHA:
+        case GL_OPERAND1_RGB:
+        case GL_OPERAND2_ALPHA:
+        case GL_OPERAND2_RGB:
+            LOG("Unimplemented texture combiner parameter name: %04x, value: %f", pname, params[0]);
+            break;
+
+        default:
+            ctx->getError().setState(GL_INVALID_ENUM);
+            break;
+        }
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexEnvi(GLenum target, GLenum pname, GLint param) {
 
     LOG("Target: %04x, Parameter: %04x, Data: %d", target, pname, param);
 
-    glDrv_glTexEnvCommon(target, pname, static_cast<GLenum>(param));
+    GET_CONTEXT_OR_RETURN();
+    MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
+
+    if (target != GL_TEXTURE_ENV) {
+
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    switch (pname) {
+
+    case GL_TEXTURE_ENV_MODE:
+        glDrv_glTexEnvModeCommon(ctx, static_cast<GLenum>(param));
+        break;
+
+    case GL_TEXTURE_ENV_COLOR:
+        glDrv_glTexEnvColorCommon(
+        
+            ctx,
+            SWGL::Vector::normalizeInteger(param),
+            SWGL::Vector::normalizeInteger(param),
+            SWGL::Vector::normalizeInteger(param),
+            SWGL::Vector::normalizeInteger(param)
+        );
+        break;
+
+    case GL_COMBINE_RGB:
+    case GL_COMBINE_ALPHA:
+    case GL_SOURCE0_ALPHA:
+    case GL_SOURCE0_RGB:
+    case GL_SOURCE1_ALPHA:
+    case GL_SOURCE1_RGB:
+    case GL_SOURCE2_ALPHA:
+    case GL_SOURCE2_RGB:
+    case GL_OPERAND0_ALPHA:
+    case GL_OPERAND0_RGB:
+    case GL_OPERAND1_ALPHA:
+    case GL_OPERAND1_RGB:
+    case GL_OPERAND2_ALPHA:
+    case GL_OPERAND2_RGB:
+        LOG("Unimplemented texture combiner parameter name: %04x, value: %d", pname, param);
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        break;
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexEnviv(GLenum target, GLenum pname, const GLint *params) {
 
-    LOG("Unimplemented");
+    LOG("Target: %04x, Parameter: %04x, Data Address: %p", target, pname, params);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (target != GL_TEXTURE_ENV) {
+
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    if (params != nullptr) {
+
+        switch (pname) {
+
+        case GL_TEXTURE_ENV_MODE:
+            glDrv_glTexEnvModeCommon(ctx, static_cast<GLenum>(params[0]));
+            break;
+
+        case GL_TEXTURE_ENV_COLOR:
+            glDrv_glTexEnvColorCommon(
+
+                ctx,
+                SWGL::Vector::normalizeInteger(params[0]),
+                SWGL::Vector::normalizeInteger(params[1]),
+                SWGL::Vector::normalizeInteger(params[2]),
+                SWGL::Vector::normalizeInteger(params[3])
+            );
+            break;
+
+        case GL_COMBINE_RGB:
+        case GL_COMBINE_ALPHA:
+        case GL_SOURCE0_ALPHA:
+        case GL_SOURCE0_RGB:
+        case GL_SOURCE1_ALPHA:
+        case GL_SOURCE1_RGB:
+        case GL_SOURCE2_ALPHA:
+        case GL_SOURCE2_RGB:
+        case GL_OPERAND0_ALPHA:
+        case GL_OPERAND0_RGB:
+        case GL_OPERAND1_ALPHA:
+        case GL_OPERAND1_RGB:
+        case GL_OPERAND2_ALPHA:
+        case GL_OPERAND2_RGB:
+            LOG("Unimplemented texture combiner parameter name: %04x, value: %d", pname, params[0]);
+            break;
+
+        default:
+            ctx->getError().setState(GL_INVALID_ENUM);
+            break;
+        }
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexGend(GLenum coord, GLenum pname, GLdouble param) {

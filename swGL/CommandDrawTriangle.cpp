@@ -432,8 +432,34 @@ namespace SWGL {
                                 }
                                 break;
 
+                            case GL_BLEND:
+                                switch (texState.texObj->format) {
+
+                                case TextureBaseFormat::Alpha:
+                                    srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
+                                    break;
+
+                                case TextureBaseFormat::LuminanceAlpha:
+                                case TextureBaseFormat::RGBA:
+                                    srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
+                                case TextureBaseFormat::Luminance:
+                                case TextureBaseFormat::RGB:
+                                    srcColor.r = SIMD::lerp(texColor.r, srcColor.r, _mm_set1_ps(texState.texEnv.colorR));
+                                    srcColor.g = SIMD::lerp(texColor.g, srcColor.g, _mm_set1_ps(texState.texEnv.colorG));
+                                    srcColor.b = SIMD::lerp(texColor.b, srcColor.b, _mm_set1_ps(texState.texEnv.colorB));
+                                    break;
+
+                                case TextureBaseFormat::Intensity:
+                                    srcColor.a = SIMD::lerp(texColor.a, srcColor.a, _mm_set1_ps(texState.texEnv.colorA));
+                                    srcColor.r = SIMD::lerp(texColor.r, srcColor.r, _mm_set1_ps(texState.texEnv.colorR));
+                                    srcColor.g = SIMD::lerp(texColor.g, srcColor.g, _mm_set1_ps(texState.texEnv.colorG));
+                                    srcColor.b = SIMD::lerp(texColor.b, srcColor.b, _mm_set1_ps(texState.texEnv.colorB));
+                                    break;
+                                }
+                                break;
+
                             // TODO: Unimplemented
-                            default:
+                            case GL_COMBINE:
                                 srcColor.a = _mm_set1_ps(1.0f);
                                 srcColor.r = _mm_set1_ps(1.0f);
                                 srcColor.g = _mm_set1_ps(0.0f);
