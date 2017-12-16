@@ -424,6 +424,7 @@ namespace SWGL {
                                     srcColor.r = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.r, texColor.r));
                                     srcColor.g = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.g, texColor.g));
                                     srcColor.b = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.b, texColor.b));
+                                    break;
                                 }
                                 break;
 
