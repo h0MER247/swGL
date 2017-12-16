@@ -371,18 +371,13 @@ namespace SWGL {
                                 case TextureBaseFormat::Alpha:
                                     srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
                                     break;
-
-                                case TextureBaseFormat::Luminance:
-                                case TextureBaseFormat::RGB:
-                                    srcColor.r = _mm_mul_ps(srcColor.r, texColor.r);
-                                    srcColor.g = _mm_mul_ps(srcColor.g, texColor.g);
-                                    srcColor.b = _mm_mul_ps(srcColor.b, texColor.b);
-                                    break;
-
+                                    
                                 case TextureBaseFormat::LuminanceAlpha:
                                 case TextureBaseFormat::Intensity:
                                 case TextureBaseFormat::RGBA:
                                     srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
+                                case TextureBaseFormat::Luminance:
+                                case TextureBaseFormat::RGB:
                                     srcColor.r = _mm_mul_ps(srcColor.r, texColor.r);
                                     srcColor.g = _mm_mul_ps(srcColor.g, texColor.g);
                                     srcColor.b = _mm_mul_ps(srcColor.b, texColor.b);
