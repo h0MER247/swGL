@@ -12,7 +12,7 @@
     auto &ctx = SWGL::Context::getCurrentContext();         \
     do {                                                    \
                                                             \
-        if(ctx == nullptr) {                                \
+        if (ctx == nullptr) {                               \
                                                             \
             LOG("No context to execute this function!");    \
             return __VA_ARGS__;                             \
@@ -144,7 +144,6 @@ SWGLAPI void STDCALL glDrv_glBlendFunc(GLenum srcFactor, GLenum dstFactor) {
     case GL_ONE_MINUS_DST_ALPHA:
     case GL_SRC_ALPHA_SATURATE:
         break;
-
 
     default:
         ctx->getError().setState(GL_INVALID_ENUM);
@@ -1008,6 +1007,8 @@ SWGLAPI void STDCALL glDrv_glDrawBuffer(GLenum mode) {
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
+
+    // ...
 }
 
 SWGLAPI void STDCALL glDrv_glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels) {
@@ -1016,6 +1017,8 @@ SWGLAPI void STDCALL glDrv_glDrawPixels(GLsizei width, GLsizei height, GLenum fo
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
+
+    // ...
 }
 
 SWGLAPI void STDCALL glDrv_glEdgeFlag(GLboolean flag) {
@@ -1024,6 +1027,8 @@ SWGLAPI void STDCALL glDrv_glEdgeFlag(GLboolean flag) {
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
+
+    // ...
 }
 
 SWGLAPI void STDCALL glDrv_glEdgeFlagv(const GLboolean *flag) {
@@ -1032,6 +1037,8 @@ SWGLAPI void STDCALL glDrv_glEdgeFlagv(const GLboolean *flag) {
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
+
+    // ...
 }
 
 SWGLAPI void STDCALL glDrv_glEnable(GLenum cap) {
@@ -1345,7 +1352,7 @@ SWGLAPI GLuint STDCALL glDrv_glGenLists(GLsizei range) {
 }
 
 SWGLAPI void STDCALL glDrv_glGetBooleanv(GLenum pname, GLboolean *params) {
-    
+
     LOG("Unimplemented");
 
     GET_CONTEXT_OR_RETURN();
@@ -1393,7 +1400,7 @@ SWGLAPI void STDCALL glDrv_glGetFloatv(GLenum pname, GLfloat *params) {
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
     if (params != nullptr) {
-    
+
         SWGL::Matrix M;
         switch (pname) {
 
@@ -1456,8 +1463,8 @@ SWGLAPI void STDCALL glDrv_glGetIntegerv(GLenum pname, GLint *params) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    if(params != nullptr) {
-    
+    if (params != nullptr) {
+
         switch (pname) {
 
         case GL_MAX_TEXTURE_SIZE:
@@ -1983,7 +1990,9 @@ SWGLAPI void STDCALL glDrv_glLoadIdentity(void) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getMatrixStack().getCurrentMatrix() = SWGL::Matrix::getIdentity();
+    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+
+    M = SWGL::Matrix::getIdentity();
 }
 
 SWGLAPI void STDCALL glDrv_glLoadMatrixd(const GLdouble *m) {
@@ -2337,7 +2346,9 @@ SWGLAPI void STDCALL glDrv_glOrtho(GLdouble left, GLdouble right, GLdouble botto
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getMatrixStack().getCurrentMatrix() *= SWGL::Matrix::getOrtho(
+    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+
+    M *= SWGL::Matrix::getOrtho(
 
         static_cast<float>(left),
         static_cast<float>(right),
@@ -2898,7 +2909,9 @@ SWGLAPI void STDCALL glDrv_glRotated(GLdouble angle, GLdouble x, GLdouble y, GLd
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getMatrixStack().getCurrentMatrix() *= SWGL::Matrix::getRotation(
+    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+
+    M *= SWGL::Matrix::getRotation(
 
         static_cast<float>(angle),
         static_cast<float>(x),
@@ -2914,8 +2927,10 @@ SWGLAPI void STDCALL glDrv_glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloa
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getMatrixStack().getCurrentMatrix() *= SWGL::Matrix::getRotation(
-    
+    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+
+    M *= SWGL::Matrix::getRotation(
+
         angle,
         x,
         y,
@@ -2930,7 +2945,9 @@ SWGLAPI void STDCALL glDrv_glScaled(GLdouble x, GLdouble y, GLdouble z) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getMatrixStack().getCurrentMatrix() *= SWGL::Matrix::getScale(
+    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+
+    M *= SWGL::Matrix::getScale(
 
         static_cast<float>(x),
         static_cast<float>(y),
@@ -2945,7 +2962,9 @@ SWGLAPI void STDCALL glDrv_glScalef(GLfloat x, GLfloat y, GLfloat z) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getMatrixStack().getCurrentMatrix() *= SWGL::Matrix::getScale(
+    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+
+    M *= SWGL::Matrix::getScale(
 
         x,
         y,
@@ -3757,7 +3776,7 @@ SWGLAPI void STDCALL glDrv_glTexEnvi(GLenum target, GLenum pname, GLint param) {
 
     case GL_TEXTURE_ENV_COLOR:
         glDrv_glTexEnvColorCommon(
-        
+
             ctx,
             SWGL::Vector::normalizeInteger(param),
             SWGL::Vector::normalizeInteger(param),
@@ -3961,7 +3980,7 @@ SWGLAPI void STDCALL glDrv_glTexImage2D(GLenum target, GLint level, GLint intern
     }
 
     switch (target) {
-    
+
     case GL_TEXTURE_2D:
     case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
     case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
@@ -4171,7 +4190,9 @@ SWGLAPI void STDCALL glDrv_glTranslated(GLdouble x, GLdouble y, GLdouble z) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getMatrixStack().getCurrentMatrix() *= SWGL::Matrix::getTranslation(
+    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+
+    M *= SWGL::Matrix::getTranslation(
 
         static_cast<float>(x),
         static_cast<float>(y),
@@ -4186,8 +4207,10 @@ SWGLAPI void STDCALL glDrv_glTranslatef(GLfloat x, GLfloat y, GLfloat z) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getMatrixStack().getCurrentMatrix() *= SWGL::Matrix::getTranslation(
-    
+    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+
+    M *= SWGL::Matrix::getTranslation(
+
         x,
         y,
         z
@@ -4686,8 +4709,10 @@ SWGLAPI GLboolean STDCALL glDrv_glAreTexturesResident(GLsizei n, const GLuint *t
 
     for (int i = 0; i < n; i++) {
 
-        if (!ctx->getTextureManager().containsTexture(textures[i]))
+        if (!ctx->getTextureManager().containsTexture(textures[i])) {
+
             return GL_FALSE;
+        }
     }
 
     return GL_TRUE;
@@ -4862,8 +4887,8 @@ SWGLAPI void STDCALL glDrv_glDrawElements(GLenum mode, GLsizei count, GLenum typ
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    if(indices != nullptr) {
-    
+    if (indices != nullptr) {
+
         // Check mode
         switch (mode) {
 
@@ -5329,7 +5354,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord1d(GLenum target, GLdouble s) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5353,7 +5378,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord1dv(GLenum target, const GLdouble *v) 
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5377,7 +5402,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord1f(GLenum target, GLfloat s) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5395,7 +5420,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord1fv(GLenum target, const GLfloat *v) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5413,7 +5438,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord1i(GLenum target, GLint s) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5437,7 +5462,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord1iv(GLenum target, const GLint *v) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5461,7 +5486,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord1s(GLenum target, GLshort s) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5485,7 +5510,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord1sv(GLenum target, const GLshort *v) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5509,7 +5534,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord2d(GLenum target, GLdouble s, GLdouble
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5533,7 +5558,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord2dv(GLenum target, const GLdouble *v) 
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5557,7 +5582,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord2f(GLenum target, GLfloat s, GLfloat t
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5575,7 +5600,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord2fv(GLenum target, const GLfloat *v) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5593,7 +5618,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord2i(GLenum target, GLint s, GLint t) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5617,7 +5642,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord2iv(GLenum target, const GLint *v) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5641,7 +5666,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord2s(GLenum target, GLshort s, GLshort t
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5665,7 +5690,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord2sv(GLenum target, const GLshort *v) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5689,7 +5714,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord3d(GLenum target, GLdouble s, GLdouble
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5713,7 +5738,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord3dv(GLenum target, const GLdouble *v) 
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5737,7 +5762,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord3f(GLenum target, GLfloat s, GLfloat t
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5755,7 +5780,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord3fv(GLenum target, const GLfloat *v) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5773,7 +5798,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord3i(GLenum target, GLint s, GLint t, GL
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5797,7 +5822,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord3iv(GLenum target, const GLint *v) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5821,7 +5846,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord3s(GLenum target, GLshort s, GLshort t
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5845,7 +5870,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord3sv(GLenum target, const GLshort *v) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5869,7 +5894,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord4d(GLenum target, GLdouble s, GLdouble
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5893,7 +5918,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord4dv(GLenum target, const GLdouble *v) 
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5917,7 +5942,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord4f(GLenum target, GLfloat s, GLfloat t
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5935,7 +5960,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord4fv(GLenum target, const GLfloat *v) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5953,7 +5978,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord4i(GLenum target, GLint s, GLint t, GL
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -5977,7 +6002,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord4iv(GLenum target, const GLint *v) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -6001,7 +6026,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord4s(GLenum target, GLshort s, GLshort t
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
@@ -6025,7 +6050,7 @@ SWGLAPI void STDCALL glDrv_glMultiTexCoord4sv(GLenum target, const GLshort *v) {
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
     auto texIdx = target - GL_TEXTURE0;
-    if (texIdx >= 0 && texIdx < SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx >= 0U && texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().setTexCoord(
 
