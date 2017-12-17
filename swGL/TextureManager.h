@@ -154,11 +154,11 @@ namespace SWGL {
         ~TextureManager() = default;
 
     public:
-        bool loadTextureTarget2D(GLint mipLevel, GLsizei width, GLsizei height, GLint border, TextureBaseFormat internalFormat, GLenum externalFormat, GLenum externalType, const GLvoid *pixels);
-        bool loadSubTextureTarget2D(GLint mipLevel, GLint x, GLint y, GLsizei width, GLsizei height, GLenum externalFormat, GLenum externalType, const GLvoid *pixels);
+        bool loadTextureImage2D(GLenum target, GLint mipLevel, GLsizei width, GLsizei height, GLint border, TextureBaseFormat internalFormat, GLenum externalFormat, GLenum externalType, const GLvoid *pixels);
+        bool loadSubTextureImage2D(GLenum target, GLint mipLevel, GLint x, GLint y, GLsizei width, GLsizei height, GLenum externalFormat, GLenum externalType, const GLvoid *pixels);
 
     private:
-        bool readTextureData2D(GLsizei offsX, GLsizei offsY, GLsizei width, GLsizei height, GLenum externalFormat, GLenum externalType, const GLvoid *src, TexturePixels &texPix);
+        bool readTextureData2D(GLsizei offsX, GLsizei offsY, GLsizei width, GLsizei height, GLenum externalFormat, GLenum externalType, const GLvoid *src, unsigned int *dst);
 
     public:
         bool bindTexture(TextureTargetID target, GLuint name);

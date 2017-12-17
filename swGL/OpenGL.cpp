@@ -3949,7 +3949,7 @@ SWGLAPI void STDCALL glDrv_glTexImage2D(GLenum target, GLint level, GLint intern
     if (!isPowerOfTwo(width) || !isPowerOfTwo(height)) {
 
         // Unsupported at the moment
-        ctx->getError().setState(GL_INVALID_VALUE);
+        LOG("Unsupported non power of two sized texture");
         return;
     }
 
@@ -3961,24 +3961,25 @@ SWGLAPI void STDCALL glDrv_glTexImage2D(GLenum target, GLint level, GLint intern
     }
 
     switch (target) {
-
+    
     case GL_TEXTURE_2D:
-        ctx->getTextureManager().loadTextureTarget2D(level, width, height, border, baseFormat, format, type, pixels);
-        break;
-
-    case GL_TEXTURE_1D:
-    case GL_TEXTURE_3D:
-    case GL_TEXTURE_CUBE_MAP:
-    case GL_PROXY_TEXTURE_1D:
+    case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
+    case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
+    case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
+    case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
+    case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
+    case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
     case GL_PROXY_TEXTURE_2D:
-    case GL_PROXY_TEXTURE_3D:
     case GL_PROXY_TEXTURE_CUBE_MAP:
-        LOG("Unimplemented texture target %04x", target);
-        return;
+        if (!ctx->getTextureManager().loadTextureImage2D(target, level, width, height, border, baseFormat, format, type, pixels)) {
+
+            ctx->getError().setState(GL_INVALID_OPERATION);
+        }
+        break;
 
     default:
         ctx->getError().setState(GL_INVALID_ENUM);
-        return;
+        break;
     }
 }
 
@@ -4000,7 +4001,7 @@ SWGLAPI void STDCALL glDrv_glTexParameterCommon(GLenum target, GLenum pname, GLe
     // Make sure that a texture is bound
     if (!texManager.isTextureTargetBound(targetID)) {
 
-        // TODO: What should we do here?
+        ctx->getError().setState(GL_INVALID_ENUM);
         return;
     }
 
@@ -4020,16 +4021,36 @@ SWGLAPI void STDCALL glDrv_glTexParameterCommon(GLenum target, GLenum pname, GLe
         case GL_NEAREST_MIPMAP_LINEAR:
         case GL_LINEAR_MIPMAP_LINEAR:
             texParams.minifyFilter = param;
-            texParams.isUsingMipMapping = texParams.minifyFilter != GL_NEAREST && texParams.minifyFilter != GL_LINEAR;
-            if (texParams.isUsingMipMapping) {
+            if (texParams.minifyFilter != GL_NEAREST &&
+                texParams.minifyFilter != GL_LINEAR) {
 
-                texParams.minifySampler = (texParams.minifyFilter == GL_NEAREST_MIPMAP_NEAREST ||
-                                           texParams.minifyFilter == GL_NEAREST_MIPMAP_LINEAR) ? &SWGL::sampleTexelsNearest : &SWGL::sampleTexelsLinear;
-                texParams.isUsingTrilinearFilter = texParams.minifyFilter == GL_NEAREST_MIPMAP_LINEAR ||
-                                                   texParams.minifyFilter == GL_LINEAR_MIPMAP_LINEAR;
+                texParams.isUsingMipMapping = true;
+
+                // Determine which sampling method we should use for texture minification
+                if (texParams.minifyFilter == GL_NEAREST_MIPMAP_NEAREST ||
+                    texParams.minifyFilter == GL_NEAREST_MIPMAP_LINEAR) {
+
+                    texParams.minifySampler = &SWGL::sampleTexelsNearest;
+                }
+                else {
+
+                    texParams.minifySampler = &SWGL::sampleTexelsLinear;
+                }
+
+                // Check if we are using trilinear filtering
+                if (texParams.minifyFilter == GL_NEAREST_MIPMAP_LINEAR ||
+                    texParams.minifyFilter == GL_LINEAR_MIPMAP_LINEAR) {
+
+                    texParams.isUsingTrilinearFilter = true;
+                }
+                else {
+
+                    texParams.isUsingTrilinearFilter = false;
+                }
             }
             else {
 
+                texParams.isUsingMipMapping = false;
                 texParams.isUsingTrilinearFilter = false;
             }
             break;
@@ -4046,7 +4067,14 @@ SWGLAPI void STDCALL glDrv_glTexParameterCommon(GLenum target, GLenum pname, GLe
         case GL_NEAREST:
         case GL_LINEAR:
             texParams.magnifyFilter = param;
-            texParams.magnifySampler = texParams.magnifyFilter == GL_NEAREST ? &SWGL::sampleTexelsNearest : &SWGL::sampleTexelsLinear;
+            if (texParams.magnifyFilter == GL_NEAREST) {
+
+                texParams.magnifySampler = &SWGL::sampleTexelsNearest;
+            }
+            else {
+
+                texParams.magnifySampler = &SWGL::sampleTexelsLinear;
+            }
             break;
 
         default:
@@ -5095,25 +5123,21 @@ SWGLAPI void STDCALL glDrv_glTexSubImage2D(GLenum target, GLint level, GLint xof
     switch (target) {
 
     case GL_TEXTURE_2D:
-        if (!ctx->getTextureManager().loadSubTextureTarget2D(level, xoffset, yoffset, width, height, format, type, pixels)) {
+    case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
+    case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
+    case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
+    case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
+    case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
+    case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
+        if (!ctx->getTextureManager().loadSubTextureImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels)) {
 
-            // TODO: What should we do here?
+            ctx->getError().setState(GL_INVALID_OPERATION);
         }
         break;
 
-    case GL_TEXTURE_1D:
-    case GL_TEXTURE_3D:
-    case GL_TEXTURE_CUBE_MAP:
-    case GL_PROXY_TEXTURE_1D:
-    case GL_PROXY_TEXTURE_2D:
-    case GL_PROXY_TEXTURE_3D:
-    case GL_PROXY_TEXTURE_CUBE_MAP:
-        LOG("Unimplemented texture target %04x", target);
-        return;
-
     default:
         ctx->getError().setState(GL_INVALID_ENUM);
-        return;
+        break;
     }
 }
 
