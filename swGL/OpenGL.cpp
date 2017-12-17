@@ -80,7 +80,7 @@ SWGLAPI void STDCALL glDrv_glAlphaFunc(GLenum func, GLclampf ref) {
 
     default:
         ctx->getError().setState(GL_INVALID_ENUM);
-        return;
+        break;
     }
 }
 
@@ -108,7 +108,7 @@ SWGLAPI void STDCALL glDrv_glBegin(GLenum mode) {
 
     default:
         ctx->getError().setState(GL_INVALID_ENUM);
-        return;
+        break;
     }
 }
 
@@ -1451,7 +1451,7 @@ SWGLAPI void STDCALL glDrv_glGetFloatv(GLenum pname, GLfloat *params) {
 
         default:
             LOG("Unimplemented");
-            return;
+            break;
         }
     }
 }
@@ -4076,7 +4076,7 @@ SWGLAPI void STDCALL glDrv_glTexParameterCommon(GLenum target, GLenum pname, GLe
 
         default:
             ctx->getError().setState(GL_INVALID_ENUM);
-            return;
+            break;
         }
         break;
 
@@ -4098,7 +4098,7 @@ SWGLAPI void STDCALL glDrv_glTexParameterCommon(GLenum target, GLenum pname, GLe
 
         default:
             ctx->getError().setState(GL_INVALID_ENUM);
-            return;
+            break;
         }
         break;
 
@@ -4114,7 +4114,7 @@ SWGLAPI void STDCALL glDrv_glTexParameterCommon(GLenum target, GLenum pname, GLe
 
         default:
             ctx->getError().setState(GL_INVALID_ENUM);
-            return;
+            break;
         }
         break;
 
@@ -4130,7 +4130,7 @@ SWGLAPI void STDCALL glDrv_glTexParameterCommon(GLenum target, GLenum pname, GLe
 
         default:
             ctx->getError().setState(GL_INVALID_ENUM);
-            return;
+            break;
         }
         break;
 
@@ -4145,7 +4145,7 @@ SWGLAPI void STDCALL glDrv_glTexParameterCommon(GLenum target, GLenum pname, GLe
 
     default:
         ctx->getError().setState(GL_INVALID_ENUM);
-        return;
+        break;
     }
 }
 
@@ -4922,14 +4922,13 @@ SWGLAPI void STDCALL glDrv_glDrawElements(GLenum mode, GLsizei count, GLenum typ
         case GL_UNSIGNED_BYTE:
         case GL_UNSIGNED_SHORT:
         case GL_UNSIGNED_INT:
+            ctx->getVertexPipeline().drawArrayElements(mode, count, type, indices);
             break;
 
         default:
             ctx->getError().setState(GL_INVALID_ENUM);
-            return;
+            break;
         }
-
-        ctx->getVertexPipeline().drawArrayElements(mode, count, type, indices);
     }
 }
 
