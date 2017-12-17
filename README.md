@@ -17,11 +17,20 @@ A multithreaded software rasterizer implementation of OpenGL 1.3(ish).
   <img src="https://user-images.githubusercontent.com/5739639/33936631-777b51e2-e000-11e7-9bc7-7952f3e8b22c.jpg" width="24%" alt="Heavy Metal: F.A.K.K.²" title="Heavy Metal: F.A.K.K.²" />
 </p>
 
-### How fast is it?
+### How fast is it
 It's reasonably fast. But don't expect rock-solid 60 fps in Full HD resolutions - it ain't gonna happen :).
 
-### How to use
-Compile the project with Visual Studio. Put the resulting file OpenGL32.dll right into the game directory and start the game. The project should also compile with GCC 7.2, but I currently have no Makefile for that.
+### How to compile
+The project compiles with Visual Studio 2017 just fine - no external dependencies needed. It should also compile with GCC 7.2, but I currently have no Makefile for that.
+
+### How to get it running
+For most games it suffices if you put the resulting file `OpenGL32.dll` right into the game directory before starting the game. Games like *Half Life 1* or *Star Trek - Elite Force I* however need some config file modifications before they start using the custom OpenGL driver. For this games you have to rename the `OpenGL32.dll` file you just compiled to something else (like `swGL.dll` for example) - or they will just use the OpenGL driver provided from your graphics card vendor!
+
+##### Half Life 1
+Put `swGL.dll` into Half Life 1's `gldrv` directory and modify the file `drvmap.txt` accordingly. Then select the driver from the Options menu in Half Life 1.
+
+##### Star Trek - Elite Force I
+Put `swGL.dll` into Star Trek - Elite Force I's game directory. Modify the config file inside the `BaseEF` directory to use the new custom OpenGL driver. To do this, add the command `r_gldriver "swGL.dll"`.
 
 ### Supported Games
 As far as I can tell Quake 3, Star Trek Elite Force I & II, Half Life 1, Unreal Tournament 99 and Heavy Metal: F.A.K.K.² work pretty well.
