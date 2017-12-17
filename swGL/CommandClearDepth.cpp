@@ -1,4 +1,4 @@
-#include "DrawThread.h"
+﻿#include "DrawThread.h"
 #include "CommandClearDepth.h"
 
 namespace SWGL {

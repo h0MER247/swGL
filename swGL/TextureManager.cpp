@@ -1,4 +1,4 @@
-#include "TextureManager.h"
+﻿#include "TextureManager.h"
 #if 0
 // Just for debugging purposes
 #include "TargaWriter.h"

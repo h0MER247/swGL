@@ -1,4 +1,4 @@
-#include <stdexcept>
+﻿#include <stdexcept>
 #include "Log.h"
 #include "DrawThread.h"
 

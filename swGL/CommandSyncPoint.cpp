@@ -1,4 +1,4 @@
-#include "DrawThread.h"
+﻿#include "DrawThread.h"
 #include "CountDownLatch.h"
 #include "CommandSyncPoint.h"
 

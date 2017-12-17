@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #define SWGLAPI extern "C"
 #define STDCALL __stdcall

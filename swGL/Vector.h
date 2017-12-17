@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "OpenGL.h"
 #include "Defines.h"

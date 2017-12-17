@@ -1,4 +1,4 @@
-#include "DrawThread.h"
+﻿#include "DrawThread.h"
 #include "CommandPoisonPill.h"
 
 namespace SWGL {
