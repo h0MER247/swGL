@@ -24,6 +24,9 @@
 // Enable / disable OpenGL call logging
 #define SWGL_ENABLE_LOGGING 0
 
+// Enable / disable log file flushing
+#define SWGL_ENABLE_LOG_FLUSH 0
+
 // The maximum number of matrices for one stack
 static constexpr unsigned int SWGL_MAX_MATRIXSTACK_DEPTH = 30U;
 

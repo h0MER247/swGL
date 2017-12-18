@@ -46,6 +46,9 @@ namespace SWGL {
             va_end(argptr);
 
             fputs(logBuf, m_file);
+            #if SWGL_ENABLE_LOG_FLUSH
+            fflush(m_file);
+            #endif
         }
     }
 }
