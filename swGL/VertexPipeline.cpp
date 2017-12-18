@@ -260,7 +260,6 @@ namespace SWGL {
         bool anyVisible = false;
         for (auto &t : m_triangles) {
 
-            
             for (int i = 0; i < 3; i++) {
 
                 auto &proj = t.v[i].proj;

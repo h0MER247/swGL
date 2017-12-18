@@ -46,34 +46,34 @@ namespace SWGL {
         static float dot(const Vector &vA, const Vector &vB);
 
     public:
+        // Normalizes [0,4294967295] to [0,1]
         static INLINED float normalizeInteger(GLuint value) {
-        
-            // Normalizes [0,4294967295] to [0,1]
+
             return static_cast<float>(value) / 4294967295.0f;
         }
+        // Normalizes [0,65535] to [0,1]
         static INLINED float normalizeInteger(GLushort value) {
 
-            // Normalizes [0,65535] to [0,1]
             return static_cast<float>(value) / 65535.0f;
         }
+        // Normalizes [0,255] to [0,1]
         static INLINED float normalizeInteger(GLubyte value) {
 
-            // Normalizes [0,255] to [0,1]
             return static_cast<float>(value) / 255.0f;
         }
+        // Normalizes [-2147483648,2147483647] to [-1,1]
         static INLINED float normalizeInteger(GLint value) {
 
-            // Normalizes [-2147483648,2147483647] to [-1,1]
             return -1.0f + ((2.0f * (static_cast<float>(value) + 2147483648.0f)) / 4294967295.0f);
         }
+        // Normalizes [-32768,32767] to [-1,1]
         static INLINED float normalizeInteger(GLshort value) {
 
-            // Normalizes [-32768,32767] to [-1,1]
             return -1.0f + ((2.0f * (static_cast<float>(value) + 32768.0f)) / 65535.0f);
         }
+        // Normalizes [-128,127] to [-1,1]
         static INLINED float normalizeInteger(GLbyte value) {
 
-            // Normalizes [-128,127] to [-1,1]
             return -1.0f + ((2.0f * (static_cast<float>(value) + 128.0f)) / 255.0f);
         }
 

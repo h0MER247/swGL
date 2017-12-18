@@ -16,8 +16,6 @@
 
 
 // Enables avx2 instructions to gather texture samples (if avx2 is available).
-// This is disabled, because I don't have a avx2 capable processor and I wasn't
-// able to test this.
 #define SWGL_USE_AVX2_GATHER 0
 
 // Whether swGL should use hardware gamma correction, or not

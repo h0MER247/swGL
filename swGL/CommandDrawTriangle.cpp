@@ -1,4 +1,4 @@
-#include <algorithm>
+﻿#include <algorithm>
 #include <cmath>
 #include "DrawThread.h"
 #include "ContextTypes.h"
@@ -60,7 +60,11 @@ namespace SWGL {
         QInt resG = _mm_slli_epi32(_mm_cvtps_epi32(g), 8);
         QInt resB = _mm_cvtps_epi32(b);
 
-        return _mm_or_si128(_mm_or_si128(resA, resR), _mm_or_si128(resG, resB));
+        return _mm_or_si128(
+        
+            _mm_or_si128(resA, resR),
+            _mm_or_si128(resG, resB)
+        );
     }
 
     static void setupGradientEquation(QFloat &qVAL, QFloat &qDQDX, QFloat &qDQDY, float q1, float q2, float q3, float x1, float y1, float dx21, float dy21, float dx31, float dy31, float rcpArea) {
@@ -90,8 +94,10 @@ namespace SWGL {
         int dedy = dx << 4;
         int value = (dy * x) - (dx * y) + (dedx * minX) + (dedy * minY);
 
-        if (dy < 0 || (dy == 0 && dx > 0))
+        if (dy < 0 || (dy == 0 && dx > 0)) {
+
             value++;
+        }
 
         eDEDX = _mm_set1_epi32(dedx << 1);
         eDEDY = _mm_set1_epi32((dedy << 1) - (dedx * width));

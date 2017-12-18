@@ -33,8 +33,8 @@ namespace SWGL {
 
         // The value of "A" tells us, how many texels of detail level 0 should be mapped to one pixel. If
         // "A" is big, then many texels must be mapped to one pixel. This will result in the typical alias
-        // artifacts. If "A" is small, then one texel must be mapped to many pixels, which in  turn results
-        // in a "blocky" looking texture. One texel of detail level "L" is generally  obtained by blending
+        // artifacts. If "A" is small, then one texel must be mapped to many pixels, which in turn results
+        // in a "blocky" looking texture. One texel of detail level "L" is generally obtained by blending
         // 2^(2*L) texel from detail level 0. If we assume that "A" is equal to 2^(2*L), we can calculate
         // the detail level "L" in which one texel maps to (roughly) one pixel:
         //
@@ -248,8 +248,10 @@ namespace SWGL {
                 else {
 
                     int lod = static_cast<int>(std::ceil(lambda + 0.5f) - 1.0f);
-                    if (lod > tex->maxLOD)
+                    if (lod > tex->maxLOD) {
+
                         lod = tex->maxLOD;
+                    }
 
                     texParams.minifySampler(tex, texParams, lod, texCoords, color);
                 }

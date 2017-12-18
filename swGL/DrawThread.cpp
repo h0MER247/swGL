@@ -24,8 +24,10 @@ namespace SWGL {
 
         try {
 
-            if (m_thread.joinable())
+            if (m_thread.joinable()) {
+
                 m_thread.join();
+            }
         }
         catch (std::runtime_error ex) {
 

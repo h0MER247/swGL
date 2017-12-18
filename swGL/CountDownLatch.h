@@ -29,8 +29,10 @@ namespace SWGL {
 
             std::lock_guard<std::mutex> cs(m_mutex);
             m_count--;
-            if (m_count == 0)
+            if (m_count == 0) {
+
                 m_condition.notify_one();
+            }
         }
 
         void wait() {

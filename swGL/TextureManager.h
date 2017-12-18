@@ -29,8 +29,6 @@ namespace SWGL {
     extern void sampleTexelsLinear(TextureObjectPtr &tex, TextureParameter &texParams, int lod, TextureCoordinates &texCoords, ARGBColor &color);
     extern void sampleTexels(TextureObjectPtr &tex, TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &color);
 
-
-
     // The different texture targets
     enum class TextureTargetID : size_t {
 
@@ -140,8 +138,6 @@ namespace SWGL {
         QFloat g;
         QFloat b;
     };
-
-
 
     //
     // Implements the texture management functionality of swGL

@@ -49,7 +49,7 @@ namespace SWGL {
     public:
         void correct(unsigned int *color, int count) {
 
-            for(int i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++) {
 
                 int r = (color[i] >> 16) & 0xff;
                 int g = (color[i] >> 8) & 0xff;

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include "Defines.h"
+
 // Datatypes
 typedef unsigned int GLenum;
 typedef unsigned char GLboolean;
@@ -830,10 +832,6 @@ typedef double GLclampd;
 #define GL_DOT3_RGB                             0x86AE
 #define GL_DOT3_RGBA                            0x86AF
 // -------------------------------------------------------
-
-
-
-#include "Defines.h"
 
 
 

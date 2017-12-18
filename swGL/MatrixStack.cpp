@@ -5,9 +5,10 @@ namespace SWGL {
 
     MatrixStack::MatrixStack() {
         
-        for(int i = 0; i < 4; i++)
-            m_stack[i].currentMatrix = &m_stack[i].matrix[0];
+        for(int i = 0; i < 4; i++) {
 
+            m_stack[i].currentMatrix = &m_stack[i].matrix[0];
+        }
         setMatrixMode(GL_MODELVIEW);
     }
 
