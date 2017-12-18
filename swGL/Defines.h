@@ -39,6 +39,9 @@ static constexpr unsigned int SWGL_MAX_TEXTURE_LOD = 10U;
 // Maximum size of a texture given the maximum lod defined above
 static constexpr unsigned int SWGL_MAX_TEXTURE_SIZE = 1U << SWGL_MAX_TEXTURE_LOD;
 
+// Maximum number of user defined clipping planes
+static constexpr unsigned int SWGL_MAX_CLIP_PLANES = 6U;
+
 // Number of drawing threads
 static constexpr unsigned int SWGL_NUM_DRAW_THREADS = 8U;
 

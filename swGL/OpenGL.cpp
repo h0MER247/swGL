@@ -216,6 +216,8 @@ SWGLAPI void STDCALL glDrv_glClearAccum(GLfloat red, GLfloat green, GLfloat blue
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
+
+    // ...
 }
 
 SWGLAPI void STDCALL glDrv_glClearColor(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha) {
@@ -250,6 +252,8 @@ SWGLAPI void STDCALL glDrv_glClearIndex(GLfloat c) {
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
+
+    // ...
 }
 
 SWGLAPI void STDCALL glDrv_glClearStencil(GLint s) {
@@ -264,10 +268,42 @@ SWGLAPI void STDCALL glDrv_glClearStencil(GLint s) {
 
 SWGLAPI void STDCALL glDrv_glClipPlane(GLenum plane, const GLdouble *equation) {
 
-    LOG("Unimplemented");
+    LOG("Plane: %d, A: %f, B: %f, C: %f, D: %f", plane - GL_CLIP_PLANE0, equation[0], equation[1], equation[2], equation[3]);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
+
+    if (equation != nullptr) {
+
+        auto &mvMatrix = ctx->getVertexPipeline().getMatrixStack().getModelViewMatrix();
+
+        switch (plane) {
+
+        case GL_CLIP_PLANE0:
+        case GL_CLIP_PLANE1:
+        case GL_CLIP_PLANE2:
+        case GL_CLIP_PLANE3:
+        case GL_CLIP_PLANE4:
+        case GL_CLIP_PLANE5:
+            auto planeEq = SWGL::Vector(
+
+                static_cast<float>(equation[0]),
+                static_cast<float>(equation[1]),
+                static_cast<float>(equation[2]),
+                static_cast<float>(equation[3])
+            );
+            ctx->getVertexPipeline().getClipper().setClipPlaneEquation(
+
+                plane - GL_CLIP_PLANE0,
+                planeEq * mvMatrix.getTransposedInverse()
+            );
+            break;
+
+        default:
+            ctx->getError().setState(GL_INVALID_ENUM);
+            break;
+        }
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor3b(GLbyte red, GLbyte green, GLbyte blue) {
@@ -995,6 +1031,15 @@ SWGLAPI void STDCALL glDrv_glDisable(GLenum cap) {
         ctx->getPolygonOffset().setFillEnable(false);
         break;
 
+    case GL_CLIP_PLANE0:
+    case GL_CLIP_PLANE1:
+    case GL_CLIP_PLANE2:
+    case GL_CLIP_PLANE3:
+    case GL_CLIP_PLANE4:
+    case GL_CLIP_PLANE5:
+        ctx->getVertexPipeline().getClipper().setClipPlaneEnable(cap - GL_CLIP_PLANE0, false);
+        break;
+
     default:
         LOG("Unimplemented");
         break;
@@ -1076,6 +1121,15 @@ SWGLAPI void STDCALL glDrv_glEnable(GLenum cap) {
 
     case GL_POLYGON_OFFSET_FILL:
         ctx->getPolygonOffset().setFillEnable(true);
+        break;
+
+    case GL_CLIP_PLANE0:
+    case GL_CLIP_PLANE1:
+    case GL_CLIP_PLANE2:
+    case GL_CLIP_PLANE3:
+    case GL_CLIP_PLANE4:
+    case GL_CLIP_PLANE5:
+        ctx->getVertexPipeline().getClipper().setClipPlaneEnable(cap - GL_CLIP_PLANE0, true);
         break;
 
     default:
@@ -1327,8 +1381,9 @@ SWGLAPI void STDCALL glDrv_glFrustum(GLdouble left, GLdouble right, GLdouble bot
         return;
     }
 
-    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+    auto &matStack = ctx->getVertexPipeline().getMatrixStack();
 
+    SWGL::Matrix &M = matStack.getCurrentMatrix();
     M *= SWGL::Matrix::getFrustum(
 
         static_cast<float>(left),
@@ -1338,6 +1393,8 @@ SWGLAPI void STDCALL glDrv_glFrustum(GLdouble left, GLdouble right, GLdouble bot
         static_cast<float>(zNear),
         static_cast<float>(zFar)
     );
+
+    matStack.updateCurrentMatrixStack();
 }
 
 SWGLAPI GLuint STDCALL glDrv_glGenLists(GLsizei range) {
@@ -1363,12 +1420,33 @@ SWGLAPI void STDCALL glDrv_glGetBooleanv(GLenum pname, GLboolean *params) {
 
 SWGLAPI void STDCALL glDrv_glGetClipPlane(GLenum plane, GLdouble *equation) {
 
-    LOG("Unimplemented");
+    LOG("Plane: %d, Equation Address: %p", plane - GL_CLIP_PLANE0, equation);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (equation != nullptr) {
+
+        switch (plane) {
+
+        case GL_CLIP_PLANE0:
+        case GL_CLIP_PLANE1:
+        case GL_CLIP_PLANE2:
+        case GL_CLIP_PLANE3:
+        case GL_CLIP_PLANE4:
+        case GL_CLIP_PLANE5:
+            auto planeEq = ctx->getVertexPipeline().getClipper().getClipPlaneEquation(plane - GL_CLIP_PLANE0);
+            equation[0] = planeEq.x();
+            equation[1] = planeEq.y();
+            equation[2] = planeEq.z();
+            equation[3] = planeEq.w();
+            break;
+
+        default:
+            ctx->getError().setState(GL_INVALID_ENUM);
+            break;
+        }
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glGetDoublev(GLenum pname, GLdouble *params) {
@@ -1405,7 +1483,7 @@ SWGLAPI void STDCALL glDrv_glGetFloatv(GLenum pname, GLfloat *params) {
         switch (pname) {
 
         case GL_PROJECTION_MATRIX:
-            M = ctx->getMatrixStack().getProjectionMatrix().getTranspose();
+            M = ctx->getVertexPipeline().getMatrixStack().getProjectionMatrix().getTranspose();
             memcpy(
 
                 reinterpret_cast<void *>(params),
@@ -1415,7 +1493,7 @@ SWGLAPI void STDCALL glDrv_glGetFloatv(GLenum pname, GLfloat *params) {
             break;
 
         case GL_MODELVIEW_MATRIX:
-            M = ctx->getMatrixStack().getModelViewMatrix().getTranspose();
+            M = ctx->getVertexPipeline().getMatrixStack().getModelViewMatrix().getTranspose();
             memcpy(
 
                 reinterpret_cast<void *>(params),
@@ -1425,7 +1503,7 @@ SWGLAPI void STDCALL glDrv_glGetFloatv(GLenum pname, GLfloat *params) {
             break;
 
         case GL_TEXTURE_MATRIX:
-            M = ctx->getMatrixStack().getTextureMatrix().getTranspose();
+            M = ctx->getVertexPipeline().getMatrixStack().getTextureMatrix().getTranspose();
             memcpy(
 
                 reinterpret_cast<void *>(params),
@@ -1480,7 +1558,7 @@ SWGLAPI void STDCALL glDrv_glGetIntegerv(GLenum pname, GLint *params) {
             break;
 
         case GL_MATRIX_MODE:
-            params[0] = ctx->getMatrixStack().getMatrixMode();
+            params[0] = ctx->getVertexPipeline().getMatrixStack().getMatrixMode();
             break;
 
         case GL_VIEWPORT:
@@ -1488,6 +1566,10 @@ SWGLAPI void STDCALL glDrv_glGetIntegerv(GLenum pname, GLint *params) {
             params[1] = ctx->getViewport().getY();
             params[2] = ctx->getViewport().getWidth();
             params[3] = ctx->getViewport().getHeight();
+            break;
+
+        case GL_MAX_CLIP_PLANES:
+            params[0] = SWGL_MAX_CLIP_PLANES;
             break;
 
         default:
@@ -1853,6 +1935,12 @@ SWGLAPI GLboolean STDCALL glDrv_glIsEnabled(GLenum cap) {
     case GL_CULL_FACE: result = ctx->getCulling().isEnabled(); break;
     case GL_POLYGON_OFFSET_FILL: result = ctx->getPolygonOffset().isFillEnabled(); break;
     case GL_DEPTH_TEST: result = ctx->getDepthTesting().isTestEnabled(); break;
+    case GL_CLIP_PLANE0: result = ctx->getVertexPipeline().getClipper().isClipPlaneEnabled(0); break;
+    case GL_CLIP_PLANE1: result = ctx->getVertexPipeline().getClipper().isClipPlaneEnabled(1); break;
+    case GL_CLIP_PLANE2: result = ctx->getVertexPipeline().getClipper().isClipPlaneEnabled(2); break;
+    case GL_CLIP_PLANE3: result = ctx->getVertexPipeline().getClipper().isClipPlaneEnabled(3); break;
+    case GL_CLIP_PLANE4: result = ctx->getVertexPipeline().getClipper().isClipPlaneEnabled(4); break;
+    case GL_CLIP_PLANE5: result = ctx->getVertexPipeline().getClipper().isClipPlaneEnabled(5); break;
 
     default:
         LOG("Unimplemented");
@@ -1990,9 +2078,12 @@ SWGLAPI void STDCALL glDrv_glLoadIdentity(void) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+    auto &matStack = ctx->getVertexPipeline().getMatrixStack();
 
+    SWGL::Matrix &M = matStack.getCurrentMatrix();
     M = SWGL::Matrix::getIdentity();
+
+    matStack.updateCurrentMatrixStack();
 }
 
 SWGLAPI void STDCALL glDrv_glLoadMatrixd(const GLdouble *m) {
@@ -2004,8 +2095,9 @@ SWGLAPI void STDCALL glDrv_glLoadMatrixd(const GLdouble *m) {
 
     if (m != nullptr) {
 
-        SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+        auto &matStack = ctx->getVertexPipeline().getMatrixStack();
 
+        SWGL::Matrix &M = matStack.getCurrentMatrix();
         for (int i = 0; i < 4; i++, m += 4) {
 
             M(0, i) = static_cast<float>(m[0]);
@@ -2013,6 +2105,8 @@ SWGLAPI void STDCALL glDrv_glLoadMatrixd(const GLdouble *m) {
             M(2, i) = static_cast<float>(m[2]);
             M(3, i) = static_cast<float>(m[3]);
         }
+
+        matStack.updateCurrentMatrixStack();
     }
 }
 
@@ -2025,8 +2119,9 @@ SWGLAPI void STDCALL glDrv_glLoadMatrixf(const GLfloat *m) {
 
     if (m != nullptr) {
 
-        SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+        auto &matStack = ctx->getVertexPipeline().getMatrixStack();
 
+        SWGL::Matrix &M = matStack.getCurrentMatrix();
         for (int i = 0; i < 4; i++, m += 4) {
 
             M(0, i) = m[0];
@@ -2034,6 +2129,8 @@ SWGLAPI void STDCALL glDrv_glLoadMatrixf(const GLfloat *m) {
             M(2, i) = m[2];
             M(3, i) = m[3];
         }
+
+        matStack.updateCurrentMatrixStack();
     }
 }
 
@@ -2184,7 +2281,7 @@ SWGLAPI void STDCALL glDrv_glMatrixMode(GLenum mode) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getMatrixStack().setMatrixMode(mode);
+    ctx->getVertexPipeline().getMatrixStack().setMatrixMode(mode);
 }
 
 SWGLAPI void STDCALL glDrv_glMultMatrixd(const GLdouble *m) {
@@ -2196,8 +2293,9 @@ SWGLAPI void STDCALL glDrv_glMultMatrixd(const GLdouble *m) {
 
     if (m != nullptr) {
 
-        SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+        auto &matStack = ctx->getVertexPipeline().getMatrixStack();
 
+        SWGL::Matrix &M = matStack.getCurrentMatrix();
         M *= SWGL::Matrix(
 
             static_cast<float>(m[0]), static_cast<float>(m[4]), static_cast<float>(m[8]), static_cast<float>(m[12]),
@@ -2205,6 +2303,8 @@ SWGLAPI void STDCALL glDrv_glMultMatrixd(const GLdouble *m) {
             static_cast<float>(m[2]), static_cast<float>(m[6]), static_cast<float>(m[10]), static_cast<float>(m[14]),
             static_cast<float>(m[3]), static_cast<float>(m[7]), static_cast<float>(m[11]), static_cast<float>(m[15])
         );
+
+        matStack.updateCurrentMatrixStack();
     }
 }
 
@@ -2217,8 +2317,9 @@ SWGLAPI void STDCALL glDrv_glMultMatrixf(const GLfloat *m) {
 
     if (m != nullptr) {
 
-        SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+        auto &matStack = ctx->getVertexPipeline().getMatrixStack();
 
+        SWGL::Matrix &M = matStack.getCurrentMatrix();
         M *= SWGL::Matrix(
 
             m[0], m[4], m[8], m[12],
@@ -2226,6 +2327,8 @@ SWGLAPI void STDCALL glDrv_glMultMatrixf(const GLfloat *m) {
             m[2], m[6], m[10], m[14],
             m[3], m[7], m[11], m[15]
         );
+
+        matStack.updateCurrentMatrixStack();
     }
 }
 
@@ -2346,8 +2449,9 @@ SWGLAPI void STDCALL glDrv_glOrtho(GLdouble left, GLdouble right, GLdouble botto
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+    auto &matStack = ctx->getVertexPipeline().getMatrixStack();
 
+    SWGL::Matrix &M = matStack.getCurrentMatrix();
     M *= SWGL::Matrix::getOrtho(
 
         static_cast<float>(left),
@@ -2357,6 +2461,8 @@ SWGLAPI void STDCALL glDrv_glOrtho(GLdouble left, GLdouble right, GLdouble botto
         static_cast<float>(zNear),
         static_cast<float>(zFar)
     );
+
+    matStack.updateCurrentMatrixStack();
 }
 
 SWGLAPI void STDCALL glDrv_glPassThrough(GLfloat token) {
@@ -2496,13 +2602,16 @@ SWGLAPI void STDCALL glDrv_glPopMatrix(void) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    if (!ctx->getMatrixStack().canPop()) {
+    auto &matStack = ctx->getVertexPipeline().getMatrixStack();
+
+    if (!matStack.canPop()) {
 
         ctx->getError().setState(GL_STACK_UNDERFLOW);
         return;
     }
 
-    ctx->getMatrixStack().pop();
+    matStack.pop();
+    matStack.updateCurrentMatrixStack();
 }
 
 SWGLAPI void STDCALL glDrv_glPopName(void) {
@@ -2532,13 +2641,16 @@ SWGLAPI void STDCALL glDrv_glPushMatrix(void) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    if (!ctx->getMatrixStack().canPush()) {
+    auto &matStack = ctx->getVertexPipeline().getMatrixStack();
+
+    if (!matStack.canPush()) {
 
         ctx->getError().setState(GL_STACK_OVERFLOW);
         return;
     }
 
-    ctx->getMatrixStack().push();
+    matStack.push();
+    matStack.updateCurrentMatrixStack();
 }
 
 SWGLAPI void STDCALL glDrv_glPushName(GLuint name) {
@@ -2909,8 +3021,9 @@ SWGLAPI void STDCALL glDrv_glRotated(GLdouble angle, GLdouble x, GLdouble y, GLd
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+    auto &matStack = ctx->getVertexPipeline().getMatrixStack();
 
+    SWGL::Matrix &M = matStack.getCurrentMatrix();
     M *= SWGL::Matrix::getRotation(
 
         static_cast<float>(angle),
@@ -2918,6 +3031,8 @@ SWGLAPI void STDCALL glDrv_glRotated(GLdouble angle, GLdouble x, GLdouble y, GLd
         static_cast<float>(y),
         static_cast<float>(z)
     );
+
+    matStack.updateCurrentMatrixStack();
 }
 
 SWGLAPI void STDCALL glDrv_glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z) {
@@ -2927,8 +3042,9 @@ SWGLAPI void STDCALL glDrv_glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloa
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+    auto &matStack = ctx->getVertexPipeline().getMatrixStack();
 
+    SWGL::Matrix &M = matStack.getCurrentMatrix();
     M *= SWGL::Matrix::getRotation(
 
         angle,
@@ -2936,6 +3052,8 @@ SWGLAPI void STDCALL glDrv_glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloa
         y,
         z
     );
+
+    matStack.updateCurrentMatrixStack();
 }
 
 SWGLAPI void STDCALL glDrv_glScaled(GLdouble x, GLdouble y, GLdouble z) {
@@ -2945,14 +3063,17 @@ SWGLAPI void STDCALL glDrv_glScaled(GLdouble x, GLdouble y, GLdouble z) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+    auto &matStack = ctx->getVertexPipeline().getMatrixStack();
 
+    SWGL::Matrix &M = matStack.getCurrentMatrix();
     M *= SWGL::Matrix::getScale(
 
         static_cast<float>(x),
         static_cast<float>(y),
         static_cast<float>(z)
     );
+
+    matStack.updateCurrentMatrixStack();
 }
 
 SWGLAPI void STDCALL glDrv_glScalef(GLfloat x, GLfloat y, GLfloat z) {
@@ -2962,14 +3083,17 @@ SWGLAPI void STDCALL glDrv_glScalef(GLfloat x, GLfloat y, GLfloat z) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+    auto &matStack = ctx->getVertexPipeline().getMatrixStack();
 
+    SWGL::Matrix &M = matStack.getCurrentMatrix();
     M *= SWGL::Matrix::getScale(
 
         x,
         y,
         z
     );
+
+    matStack.updateCurrentMatrixStack();
 }
 
 SWGLAPI void STDCALL glDrv_glScissor(GLint x, GLint y, GLsizei width, GLsizei height) {
@@ -4190,14 +4314,17 @@ SWGLAPI void STDCALL glDrv_glTranslated(GLdouble x, GLdouble y, GLdouble z) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+    auto &matStack = ctx->getVertexPipeline().getMatrixStack();
 
+    SWGL::Matrix &M = matStack.getCurrentMatrix();
     M *= SWGL::Matrix::getTranslation(
 
         static_cast<float>(x),
         static_cast<float>(y),
         static_cast<float>(z)
     );
+
+    matStack.updateCurrentMatrixStack();
 }
 
 SWGLAPI void STDCALL glDrv_glTranslatef(GLfloat x, GLfloat y, GLfloat z) {
@@ -4207,14 +4334,17 @@ SWGLAPI void STDCALL glDrv_glTranslatef(GLfloat x, GLfloat y, GLfloat z) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    SWGL::Matrix &M = ctx->getMatrixStack().getCurrentMatrix();
+    auto &matStack = ctx->getVertexPipeline().getMatrixStack();
 
+    SWGL::Matrix &M = matStack.getCurrentMatrix();
     M *= SWGL::Matrix::getTranslation(
 
         x,
         y,
         z
     );
+
+    matStack.updateCurrentMatrixStack();
 }
 
 SWGLAPI void STDCALL glDrv_glVertex2d(GLdouble x, GLdouble y) {

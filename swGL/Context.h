@@ -6,7 +6,6 @@
 #include "OpenGL.h"
 #include "Wiggle.h"
 #include "Renderer.h"
-#include "MatrixStack.h"
 #include "VertexPipeline.h"
 #include "TextureManager.h"
 #include "ContextTypes.h"
@@ -42,7 +41,6 @@ namespace SWGL {
 
     public:
         ContextID getContextID() { return m_id; }
-        MatrixStack &getMatrixStack() { return m_matrixStack; }
         Viewport &getViewport() { return m_viewport; }
         Culling &getCulling() { return m_culling; }
         Scissor &getScissor() { return m_scissor; }
@@ -71,7 +69,6 @@ namespace SWGL {
         GLError m_error;
 
     private:
-        MatrixStack m_matrixStack;
         Viewport m_viewport;
         Culling m_culling;
         Scissor m_scissor;

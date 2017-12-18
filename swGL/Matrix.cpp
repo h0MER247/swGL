@@ -1,6 +1,7 @@
 ﻿#include <cmath>
 #include <memory>
 #include "Vector.h"
+#include "Log.h"
 #include "Matrix.h"
 
 namespace SWGL {
@@ -111,6 +112,68 @@ namespace SWGL {
             M(0, 2), M(1, 2), M(2, 2), M(3, 2),
             M(0, 3), M(1, 3), M(2, 3), M(3, 3)
         );
+    }
+
+    // Return the transposed inverse of this matrix
+    Matrix Matrix::getTransposedInverse() {
+
+        Matrix &M = *this;
+
+        // Calculate minors
+        float A_ = M(2, 2) * M(3, 3) - M(3, 2) * M(2, 3);
+        float B_ = M(1, 2) * M(3, 3) - M(3, 2) * M(1, 3);
+        float C_ = M(1, 2) * M(2, 3) - M(2, 2) * M(1, 3);
+        float D_ = M(2, 1) * M(3, 3) - M(3, 1) * M(2, 3);
+        float E_ = M(1, 1) * M(3, 3) - M(3, 1) * M(1, 3);
+        float F_ = M(1, 1) * M(2, 3) - M(2, 1) * M(1, 3);
+        float G_ = M(2, 1) * M(3, 2) - M(3, 1) * M(2, 2);
+        float H_ = M(1, 1) * M(3, 2) - M(3, 1) * M(1, 2);
+        float I_ = M(1, 1) * M(2, 2) - M(2, 1) * M(1, 2);
+        float J_ = M(0, 2) * M(3, 3) - M(3, 2) * M(0, 3);
+        float K_ = M(0, 2) * M(2, 3) - M(2, 2) * M(0, 3);
+        float L_ = M(0, 1) * M(3, 3) - M(3, 1) * M(0, 3);
+        float M_ = M(0, 1) * M(2, 3) - M(2, 1) * M(0, 3);
+        float N_ = M(0, 1) * M(3, 2) - M(3, 1) * M(0, 2);
+        float O_ = M(0, 1) * M(2, 2) - M(2, 1) * M(0, 2);
+        float P_ = M(0, 2) * M(1, 3) - M(1, 2) * M(0, 3);
+        float Q_ = M(0, 1) * M(1, 3) - M(1, 1) * M(0, 3);
+        float R_ = M(0, 1) * M(1, 2) - M(1, 1) * M(0, 2);
+
+        // Calculate transposed inverse matrix
+        Matrix I(
+
+             M(1, 1) * A_ - M(2, 1) * B_ + M(3, 1) * C_,
+            -M(1, 0) * A_ + M(2, 0) * B_ - M(3, 0) * C_,
+             M(1, 0) * D_ - M(2, 0) * E_ + M(3, 0) * F_,
+            -M(1, 0) * G_ + M(2, 0) * H_ - M(3, 0) * I_,
+
+            -M(0, 1) * A_ + M(2, 1) * J_ - M(3, 1) * K_,
+             M(0, 0) * A_ - M(2, 0) * J_ + M(3, 0) * K_,
+            -M(0, 0) * D_ + M(2, 0) * L_ - M(3, 0) * M_,
+             M(0, 0) * G_ - M(2, 0) * N_ + M(3, 0) * O_,
+
+             M(0, 1) * B_ - M(1, 1) * J_ + M(3, 1) * P_,
+            -M(0, 0) * B_ + M(1, 0) * J_ - M(3, 0) * P_,
+             M(0, 0) * E_ - M(1, 0) * L_ + M(3, 0) * Q_,
+            -M(0, 0) * H_ + M(1, 0) * N_ - M(3, 0) * R_,
+
+            -M(0, 1) * C_ + M(1, 1) * K_ - M(2, 1) * P_,
+             M(0, 0) * C_ - M(1, 0) * K_ + M(2, 0) * P_,
+            -M(0, 0) * F_ + M(1, 0) * M_ - M(2, 0) * Q_,
+             M(0, 0) * I_ - M(1, 0) * O_ + M(2, 0) * R_
+        );
+
+        float rcpDet = 1.0f / (M(0, 0) * I(0, 0) +
+                               M(1, 0) * I(1, 0) +
+                               M(2, 0) * I(2, 0) +
+                               M(3, 0) * I(3, 0));
+
+        I(0, 0) *= rcpDet; I(0, 1) *= rcpDet; I(0, 2) *= rcpDet; I(0, 3) *= rcpDet;
+        I(1, 0) *= rcpDet; I(1, 1) *= rcpDet; I(1, 2) *= rcpDet; I(1, 3) *= rcpDet;
+        I(2, 0) *= rcpDet; I(2, 1) *= rcpDet; I(2, 2) *= rcpDet; I(2, 3) *= rcpDet;
+        I(3, 0) *= rcpDet; I(3, 1) *= rcpDet; I(3, 2) *= rcpDet; I(3, 3) *= rcpDet;
+
+        return I;
     }
 
 

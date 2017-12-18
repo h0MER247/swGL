@@ -8,7 +8,7 @@
 #include "Clipper.h"
 #include "Matrix.h"
 #include "ContextTypes.h"
-#include "Log.h"
+#include "MatrixStack.h"
 #include "VertexDataArray.h"
 
 namespace SWGL {
@@ -46,6 +46,10 @@ namespace SWGL {
         ColorPointer &getColorArrayPointer() { return m_vertexDataArray.getColor(); }
         TexCoordPointer &getTexCoordArrayPointer() { return m_vertexDataArray.getTexCoord(m_activeTexture); }
 
+    public:
+        Clipper &getClipper() { return m_clipper; }
+        MatrixStack &getMatrixStack() { return m_matrixStack; }
+
     private:
         void addTriangle(Vertex &v1, Vertex &v2, Vertex &v3);
         void drawTriangles();
@@ -61,6 +65,8 @@ namespace SWGL {
         TriangleList m_triangles;
 
         VertexDataArray m_vertexDataArray;
+
         Clipper m_clipper;
+        MatrixStack m_matrixStack;
     };
 }

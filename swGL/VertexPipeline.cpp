@@ -19,9 +19,20 @@ namespace SWGL {
         m_primitiveType = primitiveType;
         m_isInsideGLBegin = true;
 
-        auto &matrixStack = Context::getCurrentContext()->getMatrixStack();
-        m_mvpMatrix = matrixStack.getProjectionMatrix() *
-                      matrixStack.getModelViewMatrix();
+        // Update matrices
+        bool wasProjMatUpdated = m_matrixStack.wasMatrixStackUpdated(MatrixStack::STACK_PROJECTION);
+        bool wasModelViewMatUpdated = m_matrixStack.wasMatrixStackUpdated(MatrixStack::STACK_MODELVIEW);
+
+        if (wasProjMatUpdated || wasModelViewMatUpdated) {
+
+            m_mvpMatrix = m_matrixStack.getProjectionMatrix() *
+                          m_matrixStack.getModelViewMatrix();
+        }
+
+        if (m_clipper.isAnyUserClippingPlaneEnabled() && wasProjMatUpdated) {
+
+            m_clipper.updateUserClippingPlanes(m_matrixStack.getProjectionMatrix());
+        }
     }
 
     void VertexPipeline::end() {

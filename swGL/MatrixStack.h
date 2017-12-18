@@ -27,14 +27,30 @@ namespace SWGL {
         void pop();
 
     public:
-        Matrix &getCurrentMatrix() { return *m_currentStack->currentMatrix; }
-        Matrix &getModelViewMatrix() { return *m_stack[STACK_MODELVIEW].currentMatrix; }
-        Matrix &getProjectionMatrix() { return *m_stack[STACK_PROJECTION].currentMatrix; }
-        Matrix &getColorMatrix() { return *m_stack[STACK_COLOR].currentMatrix; }
+        void updateCurrentMatrixStack() {
 
-        // TODO: Each texture unit has its own texture matrix stack... That 
-        //       here may have worked for OpenGL 1.1, but it doesn't for 1.3.
-        Matrix &getTextureMatrix() { return *m_stack[STACK_TEXTURE].currentMatrix; }
+            m_currentStack->wasUpdated = true;
+        }
+
+        bool wasMatrixStackUpdated(size_t stack) {
+        
+            bool wasUpdated = m_stack[stack].wasUpdated;
+            m_stack[stack].wasUpdated = false;
+
+            return wasUpdated;
+        }
+
+    public:
+        Matrix &getCurrentMatrix() const { return *m_currentStack->currentMatrix; }
+        Matrix &getModelViewMatrix() const { return *m_stack[STACK_MODELVIEW].currentMatrix; }
+        Matrix &getProjectionMatrix() const { return *m_stack[STACK_PROJECTION].currentMatrix; }
+        Matrix &getColorMatrix() const { return *m_stack[STACK_COLOR].currentMatrix; }
+        Matrix &getTextureMatrix() const {
+        
+            // TODO: Each texture unit has its own texture matrix stack... That 
+            //       here may have worked for OpenGL 1.1, but it doesn't for 1.3.
+            return *m_stack[STACK_TEXTURE].currentMatrix;
+        }
 
     private:
         GLenum m_matrixMode;
@@ -44,11 +60,12 @@ namespace SWGL {
 
             Matrix matrix[SWGL_MAX_MATRIXSTACK_DEPTH];
             Matrix *currentMatrix;
+            bool wasUpdated;
         };
         Stack m_stack[4];
         Stack *m_currentStack;
 
-    private:
+    public:
         static constexpr size_t STACK_MODELVIEW = 0U;
         static constexpr size_t STACK_PROJECTION = 1U;
         static constexpr size_t STACK_TEXTURE = 2U;

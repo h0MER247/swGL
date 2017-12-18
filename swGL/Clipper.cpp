@@ -3,9 +3,90 @@
 #include "OpenGL.h"
 #include "Vertex.h"
 #include "Triangle.h"
+#include "Matrix.h"
 #include "Clipper.h"
 
 namespace SWGL {
+
+    Clipper::Clipper()
+    
+        : m_clipPlaneEqs{
+        
+            Vector(0.0f, 0.0f, -1.0f, 1.0f), // Near
+            Vector(0.0f, 0.0f, 1.0f, 1.0f),  // Far
+            Vector(0.0f, -1.0f, 0.0f, 1.0f), // Top
+            Vector(0.0f, 1.0f, 0.0f, 1.0f),  // Bottom
+            Vector(-1.0f, 0.0f, 0.0f, 1.0f), // Right
+            Vector(1.0f, 0.0f, 0.0f, 1.0f)   // Left
+          },
+          m_userClipPlanesOrMask(Clipcode::None),
+          m_transInvProjMatrix(Matrix::getIdentity()) {
+
+    }
+
+
+
+    void Clipper::setClipPlaneEquation(int index, Vector planeEq) {
+
+        auto &userClipPlane = m_userClipPlanes[index];
+
+        userClipPlane.equation = planeEq;
+        if (userClipPlane.isEnabled) {
+        
+            updateUserClippingPlane(index);
+        }
+    }
+
+    void Clipper::setClipPlaneEnable(int index, bool isEnabled) {
+
+        if (isEnabled) {
+
+            m_userClipPlanes[index].isEnabled = true;
+            m_userClipPlanesOrMask |= 1 << (6 + index);
+
+            updateUserClippingPlane(index);
+        }
+        else {
+
+            m_userClipPlanes[index].isEnabled = false;
+            m_userClipPlanesOrMask &= ~(1 << (6 + index));
+        }
+    }
+
+    void Clipper::updateUserClippingPlanes(Matrix &projMatrix) {
+
+        m_transInvProjMatrix = projMatrix.getTransposedInverse();
+
+        for (int i = 0; i < SWGL_MAX_CLIP_PLANES; i++) {
+
+            if (m_userClipPlanes[i].isEnabled) {
+
+                updateUserClippingPlane(i);
+            }
+        }
+    }
+
+    Vector Clipper::getClipPlaneEquation(int index) {
+    
+        return m_userClipPlanes[index].equation;
+    }
+
+    bool Clipper::isClipPlaneEnabled(int index) {
+
+        return m_userClipPlanes[index].isEnabled;
+    }
+
+    bool Clipper::isAnyUserClippingPlaneEnabled() {
+
+        return m_userClipPlanesOrMask != 0;
+    }
+
+    void Clipper::updateUserClippingPlane(int index) {
+
+        m_clipPlaneEqs[6 + index] = m_userClipPlanes[index].equation * m_transInvProjMatrix;
+    }
+
+
 
     void Clipper::clipTriangles(TriangleList &triangles) {
 
@@ -14,7 +95,8 @@ namespace SWGL {
         for (auto &t : triangles) {
 
             // Generate the clipcodes for the triangle (Sutherland-Hodgman style)
-            int clipOr = Clipcode::None;
+            // This is used to determine clipping against the view frustum
+            int clipOr = m_userClipPlanesOrMask;
             int clipAnd = Clipcode::All;
 
             for (int i = 0; i < 3; i++) {
@@ -28,6 +110,10 @@ namespace SWGL {
                 if (v.proj.y() > v.proj.w()) clipCode |= Clipcode::Top;
                 if (v.proj.z() < -v.proj.w()) clipCode |= Clipcode::Far;
                 if (v.proj.z() > v.proj.w()) clipCode |= Clipcode::Near;
+
+                // TODO: Calculate clipcode for user defined clipping planes as the
+                //       "clipOr = m_userClipPlanesOrMask" is only a hack to get things
+                //       working.
 
                 clipOr |= clipCode;
                 clipAnd &= clipCode;
@@ -56,7 +142,7 @@ namespace SWGL {
 
     void Clipper::clipTriangle(Triangle &t, int clipcode, TriangleList &out) {
 
-        std::vector<Vertex> vInList({ t.v[0], t.v[1], t.v[2] });
+        std::vector<Vertex> vInList{t.v[0], t.v[1], t.v[2]};
         std::vector<Vertex> vOutList;
 
         unsigned long planeIdx;
@@ -79,8 +165,8 @@ namespace SWGL {
                 float d1 = Vector::dot(planeEq, current.proj);
                 float d2 = Vector::dot(planeEq, next.proj);
 
-                bool isCurrentInside = d1 > 0.0f;
-                bool isNextInside = d2 > 0.0f;
+                bool isCurrentInside = d1 >= 0.0f;
+                bool isNextInside = d2 >= 0.0f;
 
                 // If the current vertex is inside the clipping plane then add it to
                 // the output list.

@@ -35,6 +35,7 @@ namespace SWGL {
 
     public:
         Matrix getTranspose();
+        Matrix getTransposedInverse();
 
     public:
         static Matrix getIdentity();

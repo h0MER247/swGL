@@ -1,5 +1,8 @@
 ﻿#pragma once
 
+#include <array>
+#include "Matrix.h"
+
 namespace SWGL {
 
     //
@@ -8,14 +11,25 @@ namespace SWGL {
     class Clipper {
 
     public:
-        Clipper() = default;
+        Clipper();
         ~Clipper() = default;
+
+    public:
+        void setClipPlaneEquation(int index, Vector planeEq);
+        void setClipPlaneEnable(int index, bool isEnabled);
+
+        Vector getClipPlaneEquation(int index);
+        bool isClipPlaneEnabled(int index);
+
+        void updateUserClippingPlanes(Matrix &projMatrix);
+        bool isAnyUserClippingPlaneEnabled();
 
     public:
         void clipTriangles(TriangleList &triangles);
 
     private:
         void clipTriangle(Triangle &t, int clipcode, TriangleList &out);
+        void updateUserClippingPlane(int index);
 
     private:
         enum Clipcode : int {
@@ -29,14 +43,25 @@ namespace SWGL {
             Left = 32,
             All = 63
         };
-        const Vector m_clipPlaneEqs[6] = {
 
-            Vector( 0.0f,  0.0f, -1.0f, 1.0f), // Near
-            Vector( 0.0f,  0.0f,  1.0f, 1.0f), // Far
-            Vector( 0.0f, -1.0f,  0.0f, 1.0f), // Top
-            Vector( 0.0f,  1.0f,  0.0f, 1.0f), // Bottom
-            Vector(-1.0f,  0.0f,  0.0f, 1.0f), // Right
-            Vector( 1.0f,  0.0f,  0.0f, 1.0f)  // Left
+    private:
+        struct UserClippingPlane {
+
+            UserClippingPlane()
+
+                : equation(Vector(0.0f, 0.0f, 0.0f, 0.0f)),
+                  isEnabled(false) {
+
+            }
+
+            Vector equation;
+            bool isEnabled;
         };
+        std::array<UserClippingPlane, SWGL_MAX_CLIP_PLANES> m_userClipPlanes;
+        Matrix m_transInvProjMatrix;
+        int m_userClipPlanesOrMask;
+
+    private:
+        std::array<Vector, 6 + SWGL_MAX_CLIP_PLANES> m_clipPlaneEqs;
     };
 }

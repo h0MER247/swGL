@@ -5,9 +5,16 @@ namespace SWGL {
 
     MatrixStack::MatrixStack() {
         
-        for(int i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
 
-            m_stack[i].currentMatrix = &m_stack[i].matrix[0];
+            auto &stack = m_stack[i];
+
+            for (int j = 0; j < SWGL_MAX_MATRIXSTACK_DEPTH; j++) {
+            
+                stack.matrix[j] = Matrix::getIdentity();
+            }
+            stack.currentMatrix = &stack.matrix[0];
+            stack.wasUpdated = false;
         }
         setMatrixMode(GL_MODELVIEW);
     }
