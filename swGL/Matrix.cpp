@@ -1,7 +1,6 @@
 ﻿#include <cmath>
 #include <memory>
 #include "Vector.h"
-#include "Log.h"
 #include "Matrix.h"
 
 namespace SWGL {
