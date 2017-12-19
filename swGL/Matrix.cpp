@@ -192,9 +192,9 @@ namespace SWGL {
     // Return orthogonal projection matrix
     Matrix Matrix::getOrtho(float l, float r, float b, float t, float n, float f) {
 
-        float tx = -((r + l) / (r - l));
-        float ty = -((t + b) / (t - b));
-        float tz = -((f + n) / (f - n));
+        float tx = -(r + l) / (r - l);
+        float ty = -(t + b) / (t - b);
+        float tz = -(f + n) / (f - n);
 
         return Matrix(
         
@@ -208,18 +208,17 @@ namespace SWGL {
     // Return perspective projection matrix
     Matrix Matrix::getFrustum(float l, float r, float b, float t, float n, float f) {
 
-        float Q = 2.0f * n;
         float A = (r + l) / (r - l);
         float B = (t + b) / (t - b);
         float C = -(f + n) / (f - n);
-        float D = -(Q * f) / (f - n);
+        float D = (-2.0f * f * n) / (f - n);
         
         return Matrix(
         
-            Q / (r - l), 0.0f,        A,     0.0f,
-            0.0f,        Q / (t - b), B,     0.0f,
-            0.0f,        0.0f,        C,     D,
-            0.0f,        0.0f,        -1.0f, 0.0f
+            (2.0f * n) / (r - l), 0.0f,                 A,     0.0f,
+            0.0f,                 (2.0f * n) / (t - b), B,     0.0f,
+            0.0f,                 0.0f,                 C,     D,
+            0.0f,                 0.0f,                 -1.0f, 0.0f
         );
     }
 
