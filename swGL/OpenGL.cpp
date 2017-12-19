@@ -5005,12 +5005,39 @@ SWGLAPI void STDCALL glDrv_glDisableClientState(GLenum cap) {
 
 SWGLAPI void STDCALL glDrv_glDrawArrays(GLenum mode, GLint first, GLsizei count) {
 
-    LOG("Unimplemented");
+    LOG("Mode: %04x, First: %d, Count: %d", mode, first, count);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    // Check mode
+    switch (mode) {
+
+    case GL_POINTS:
+    case GL_LINES:
+    case GL_LINE_STRIP:
+    case GL_LINE_LOOP:
+    case GL_TRIANGLES:
+    case GL_TRIANGLE_STRIP:
+    case GL_TRIANGLE_FAN:
+    case GL_QUADS:
+    case GL_QUAD_STRIP:
+    case GL_POLYGON:
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    // Check count and first element
+    if (count < 0 || first < 0) {
+
+        ctx->getError().setState(GL_INVALID_VALUE);
+        return;
+    }
+
+    ctx->getVertexPipeline().drawArrayElements(mode, first, count);
 }
 
 SWGLAPI void STDCALL glDrv_glDrawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid *indices) {
@@ -5055,7 +5082,7 @@ SWGLAPI void STDCALL glDrv_glDrawElements(GLenum mode, GLsizei count, GLenum typ
         case GL_UNSIGNED_BYTE:
         case GL_UNSIGNED_SHORT:
         case GL_UNSIGNED_INT:
-            ctx->getVertexPipeline().drawArrayElements(mode, count, type, indices);
+            ctx->getVertexPipeline().drawIndexedArrayElements(mode, count, type, indices);
             break;
 
         default:

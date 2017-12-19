@@ -39,7 +39,8 @@ namespace SWGL {
     public:
         void lockArrayElements(int firstIndex, int count);
         void unlockArrayElements();
-        void drawArrayElements(GLenum mode, int count, GLenum type, const GLvoid *indices);
+        void drawIndexedArrayElements(GLenum mode, int count, GLenum type, const GLvoid *indices);
+        void drawArrayElements(GLenum mode, GLint first, GLsizei count);
 
     public:
         VertexPointer &getPositionArrayPointer() { return m_vertexDataArray.getPosition(); }

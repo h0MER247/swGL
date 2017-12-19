@@ -48,7 +48,7 @@ namespace SWGL {
         case GL_LINES:
         case GL_LINE_LOOP:
         case GL_LINE_STRIP:
-            LOG("Unimplemented");
+            LOG("Unimplemented primitive type: %04x", m_primitiveType);
             break;
 
         case GL_TRIANGLES:
@@ -198,7 +198,7 @@ namespace SWGL {
         m_vertexDataArray.unlock();
     }
 
-    void VertexPipeline::drawArrayElements(GLenum mode, int count, GLenum type, const GLvoid *indices) {
+    void VertexPipeline::drawIndexedArrayElements(GLenum mode, int count, GLenum type, const GLvoid *indices) {
 
         begin(mode); {
 
@@ -253,6 +253,27 @@ namespace SWGL {
                     }
                 }
                 break;
+            }
+        }
+        end();
+    }
+
+    void VertexPipeline::drawArrayElements(GLenum mode, GLint first, GLsizei count) {
+
+        begin(mode); {
+
+            m_vertexDataArray.prefetch(m_mvpMatrix, m_vertexState);
+
+            for (int i = first, n = first + count; i < n; i++) {
+
+                if (m_vertexDataArray.getPrefetchedVertex(i, m_vertexState)) {
+
+                    addVertex();
+                }
+                else {
+
+                    setArrayElement(i);
+                }
             }
         }
         end();
