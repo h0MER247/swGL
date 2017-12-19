@@ -83,7 +83,38 @@ namespace SWGL {
         addExtension("GL_EXT_texture_env_add");
         addExtension("GL_ARB_multitexture"); {
 
+            addProcedure("glMultiTexCoord1dARB", ADDRESS_OF(glDrv_glMultiTexCoord1d));
+            addProcedure("glMultiTexCoord1dvARB", ADDRESS_OF(glDrv_glMultiTexCoord1dv));
+            addProcedure("glMultiTexCoord1fARB", ADDRESS_OF(glDrv_glMultiTexCoord1f));
+            addProcedure("glMultiTexCoord1fvARB", ADDRESS_OF(glDrv_glMultiTexCoord1fv));
+            addProcedure("glMultiTexCoord1iARB", ADDRESS_OF(glDrv_glMultiTexCoord1i));
+            addProcedure("glMultiTexCoord1ivARB", ADDRESS_OF(glDrv_glMultiTexCoord1iv));
+            addProcedure("glMultiTexCoord1sARB", ADDRESS_OF(glDrv_glMultiTexCoord1s));
+            addProcedure("glMultiTexCoord1svARB", ADDRESS_OF(glDrv_glMultiTexCoord1sv));
+            addProcedure("glMultiTexCoord2dARB", ADDRESS_OF(glDrv_glMultiTexCoord2d));
+            addProcedure("glMultiTexCoord2dvARB", ADDRESS_OF(glDrv_glMultiTexCoord2dv));
             addProcedure("glMultiTexCoord2fARB", ADDRESS_OF(glDrv_glMultiTexCoord2f));
+            addProcedure("glMultiTexCoord2fvARB", ADDRESS_OF(glDrv_glMultiTexCoord2fv));
+            addProcedure("glMultiTexCoord2iARB", ADDRESS_OF(glDrv_glMultiTexCoord2i));
+            addProcedure("glMultiTexCoord2ivARB", ADDRESS_OF(glDrv_glMultiTexCoord2iv));
+            addProcedure("glMultiTexCoord2sARB", ADDRESS_OF(glDrv_glMultiTexCoord2s));
+            addProcedure("glMultiTexCoord2svARB", ADDRESS_OF(glDrv_glMultiTexCoord2sv));
+            addProcedure("glMultiTexCoord3dARB", ADDRESS_OF(glDrv_glMultiTexCoord3d));
+            addProcedure("glMultiTexCoord3dvARB", ADDRESS_OF(glDrv_glMultiTexCoord3dv));
+            addProcedure("glMultiTexCoord3fARB", ADDRESS_OF(glDrv_glMultiTexCoord3f));
+            addProcedure("glMultiTexCoord3fvARB", ADDRESS_OF(glDrv_glMultiTexCoord3fv));
+            addProcedure("glMultiTexCoord3iARB", ADDRESS_OF(glDrv_glMultiTexCoord3i));
+            addProcedure("glMultiTexCoord3ivARB", ADDRESS_OF(glDrv_glMultiTexCoord3iv));
+            addProcedure("glMultiTexCoord3sARB", ADDRESS_OF(glDrv_glMultiTexCoord3s));
+            addProcedure("glMultiTexCoord3svARB", ADDRESS_OF(glDrv_glMultiTexCoord3sv));
+            addProcedure("glMultiTexCoord4dARB", ADDRESS_OF(glDrv_glMultiTexCoord4d));
+            addProcedure("glMultiTexCoord4dvARB", ADDRESS_OF(glDrv_glMultiTexCoord4dv));
+            addProcedure("glMultiTexCoord4fARB", ADDRESS_OF(glDrv_glMultiTexCoord4f));
+            addProcedure("glMultiTexCoord4fvARB", ADDRESS_OF(glDrv_glMultiTexCoord4fv));
+            addProcedure("glMultiTexCoord4iARB", ADDRESS_OF(glDrv_glMultiTexCoord4i));
+            addProcedure("glMultiTexCoord4ivARB", ADDRESS_OF(glDrv_glMultiTexCoord4iv));
+            addProcedure("glMultiTexCoord4sARB", ADDRESS_OF(glDrv_glMultiTexCoord4s));
+            addProcedure("glMultiTexCoord4svARB", ADDRESS_OF(glDrv_glMultiTexCoord4sv));
             addProcedure("glActiveTextureARB", ADDRESS_OF(glDrv_glActiveTexture));
             addProcedure("glClientActiveTextureARB", ADDRESS_OF(glDrv_glClientActiveTexture));
         }
