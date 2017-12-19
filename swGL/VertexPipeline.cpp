@@ -29,9 +29,12 @@ namespace SWGL {
                           m_matrixStack.getModelViewMatrix();
         }
 
-        if (m_clipper.isAnyUserClippingPlaneEnabled() && wasProjMatUpdated) {
+        if (m_clipper.isAnyUserPlaneEnabled() && wasProjMatUpdated) {
 
-            m_clipper.updateUserClippingPlanes(m_matrixStack.getProjectionMatrix());
+            m_clipper.updateUserPlanes(
+            
+                m_matrixStack.getProjectionMatrix()
+            );
         }
     }
 

@@ -292,7 +292,7 @@ SWGLAPI void STDCALL glDrv_glClipPlane(GLenum plane, const GLdouble *equation) {
                 static_cast<float>(equation[2]),
                 static_cast<float>(equation[3])
             );
-            ctx->getVertexPipeline().getClipper().setClipPlaneEquation(
+            ctx->getVertexPipeline().getClipper().setUserPlaneEquation(
 
                 plane - GL_CLIP_PLANE0,
                 planeEq * mvMatrix.getTransposedInverse()
@@ -1037,7 +1037,7 @@ SWGLAPI void STDCALL glDrv_glDisable(GLenum cap) {
     case GL_CLIP_PLANE3:
     case GL_CLIP_PLANE4:
     case GL_CLIP_PLANE5:
-        ctx->getVertexPipeline().getClipper().setClipPlaneEnable(cap - GL_CLIP_PLANE0, false);
+        ctx->getVertexPipeline().getClipper().setUserPlaneEnable(cap - GL_CLIP_PLANE0, false);
         break;
 
     default:
@@ -1129,7 +1129,7 @@ SWGLAPI void STDCALL glDrv_glEnable(GLenum cap) {
     case GL_CLIP_PLANE3:
     case GL_CLIP_PLANE4:
     case GL_CLIP_PLANE5:
-        ctx->getVertexPipeline().getClipper().setClipPlaneEnable(cap - GL_CLIP_PLANE0, true);
+        ctx->getVertexPipeline().getClipper().setUserPlaneEnable(cap - GL_CLIP_PLANE0, true);
         break;
 
     default:
@@ -1435,7 +1435,7 @@ SWGLAPI void STDCALL glDrv_glGetClipPlane(GLenum plane, GLdouble *equation) {
         case GL_CLIP_PLANE3:
         case GL_CLIP_PLANE4:
         case GL_CLIP_PLANE5:
-            auto planeEq = ctx->getVertexPipeline().getClipper().getClipPlaneEquation(plane - GL_CLIP_PLANE0);
+            auto planeEq = ctx->getVertexPipeline().getClipper().getUserPlaneEquation(plane - GL_CLIP_PLANE0);
             equation[0] = planeEq.x();
             equation[1] = planeEq.y();
             equation[2] = planeEq.z();
@@ -1935,12 +1935,15 @@ SWGLAPI GLboolean STDCALL glDrv_glIsEnabled(GLenum cap) {
     case GL_CULL_FACE: result = ctx->getCulling().isEnabled(); break;
     case GL_POLYGON_OFFSET_FILL: result = ctx->getPolygonOffset().isFillEnabled(); break;
     case GL_DEPTH_TEST: result = ctx->getDepthTesting().isTestEnabled(); break;
-    case GL_CLIP_PLANE0: result = ctx->getVertexPipeline().getClipper().isClipPlaneEnabled(0); break;
-    case GL_CLIP_PLANE1: result = ctx->getVertexPipeline().getClipper().isClipPlaneEnabled(1); break;
-    case GL_CLIP_PLANE2: result = ctx->getVertexPipeline().getClipper().isClipPlaneEnabled(2); break;
-    case GL_CLIP_PLANE3: result = ctx->getVertexPipeline().getClipper().isClipPlaneEnabled(3); break;
-    case GL_CLIP_PLANE4: result = ctx->getVertexPipeline().getClipper().isClipPlaneEnabled(4); break;
-    case GL_CLIP_PLANE5: result = ctx->getVertexPipeline().getClipper().isClipPlaneEnabled(5); break;
+
+    case GL_CLIP_PLANE0:
+    case GL_CLIP_PLANE1:
+    case GL_CLIP_PLANE2:
+    case GL_CLIP_PLANE3:
+    case GL_CLIP_PLANE4:
+    case GL_CLIP_PLANE5:
+        result = ctx->getVertexPipeline().getClipper().isUserPlaneEnabled(cap - GL_CLIP_PLANE0);
+        break;
 
     default:
         LOG("Unimplemented");

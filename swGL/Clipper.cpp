@@ -12,48 +12,54 @@ namespace SWGL {
     
         : m_clipPlaneEqs{
         
-            Vector(0.0f, 0.0f, -1.0f, 1.0f), // Near
-            Vector(0.0f, 0.0f, 1.0f, 1.0f),  // Far
-            Vector(0.0f, -1.0f, 0.0f, 1.0f), // Top
-            Vector(0.0f, 1.0f, 0.0f, 1.0f),  // Bottom
-            Vector(-1.0f, 0.0f, 0.0f, 1.0f), // Right
-            Vector(1.0f, 0.0f, 0.0f, 1.0f)   // Left
+            Vector( 0.0f,  0.0f, -1.0f, 1.0f), // Near
+            Vector( 0.0f,  0.0f,  1.0f, 1.0f), // Far
+            Vector( 0.0f, -1.0f,  0.0f, 1.0f), // Top
+            Vector( 0.0f,  1.0f,  0.0f, 1.0f), // Bottom
+            Vector(-1.0f,  0.0f,  0.0f, 1.0f), // Right
+            Vector( 1.0f,  0.0f,  0.0f, 1.0f)  // Left
           },
-          m_userClipPlanesOrMask(Clipcode::None),
+          m_isAnyUserPlaneEnabled(false),
           m_transInvProjMatrix(Matrix::getIdentity()) {
 
     }
 
 
 
-    void Clipper::setClipPlaneEquation(int index, Vector planeEq) {
+    void Clipper::setUserPlaneEquation(int index, Vector planeEq) {
 
-        auto &userClipPlane = m_userClipPlanes[index];
+        auto &plane = m_userClipPlanes[index];
 
-        userClipPlane.equation = planeEq;
-        if (userClipPlane.isEnabled) {
+        plane.equation = planeEq;
+        if (plane.isEnabled) {
         
-            updateUserClippingPlane(index);
+            updateUserPlane(index);
         }
     }
 
-    void Clipper::setClipPlaneEnable(int index, bool isEnabled) {
+    void Clipper::setUserPlaneEnable(int index, bool isEnabled) {
 
+        m_userClipPlanes[index].isEnabled = isEnabled;
+        m_isAnyUserPlaneEnabled = isEnabled;
+        
         if (isEnabled) {
 
-            m_userClipPlanes[index].isEnabled = true;
-            m_userClipPlanesOrMask |= 1 << (6 + index);
-
-            updateUserClippingPlane(index);
+            updateUserPlane(index);
         }
         else {
 
-            m_userClipPlanes[index].isEnabled = false;
-            m_userClipPlanesOrMask &= ~(1 << (6 + index));
+            for (int i = 0; i < SWGL_MAX_CLIP_PLANES; i++) {
+
+                if (m_userClipPlanes[i].isEnabled) {
+
+                    m_isAnyUserPlaneEnabled = true;
+                    break;
+                }
+            }
         }
     }
 
-    void Clipper::updateUserClippingPlanes(Matrix &projMatrix) {
+    void Clipper::updateUserPlanes(Matrix &projMatrix) {
 
         m_transInvProjMatrix = projMatrix.getTransposedInverse();
 
@@ -61,29 +67,29 @@ namespace SWGL {
 
             if (m_userClipPlanes[i].isEnabled) {
 
-                updateUserClippingPlane(i);
+                updateUserPlane(i);
             }
         }
     }
 
-    Vector Clipper::getClipPlaneEquation(int index) {
+    Vector Clipper::getUserPlaneEquation(int index) {
     
         return m_userClipPlanes[index].equation;
     }
 
-    bool Clipper::isClipPlaneEnabled(int index) {
+    bool Clipper::isUserPlaneEnabled(int index) {
 
         return m_userClipPlanes[index].isEnabled;
     }
 
-    bool Clipper::isAnyUserClippingPlaneEnabled() {
+    bool Clipper::isAnyUserPlaneEnabled() {
 
-        return m_userClipPlanesOrMask != 0;
+        return m_isAnyUserPlaneEnabled;
     }
 
-    void Clipper::updateUserClippingPlane(int index) {
+    void Clipper::updateUserPlane(int index) {
 
-        m_clipPlaneEqs[6 + index] = m_userClipPlanes[index].equation * m_transInvProjMatrix;
+        m_clipPlaneEqs[OFFSET_USER_PLANES + index] = m_userClipPlanes[index].equation * m_transInvProjMatrix;
     }
 
 
@@ -94,9 +100,9 @@ namespace SWGL {
 
         for (auto &t : triangles) {
 
-            // Generate the clipcodes for the triangle (Sutherland-Hodgman style)
-            // This is used to determine clipping against the view frustum
-            int clipOr = m_userClipPlanesOrMask;
+            // Generate the Sutherland-Hodgman style clipcodes to determine if the
+            // triangle must be clipped against a plane of the view frustum.
+            int clipOr = Clipcode::None;
             int clipAnd = Clipcode::All;
 
             for (int i = 0; i < 3; i++) {
@@ -111,12 +117,26 @@ namespace SWGL {
                 if (v.proj.z() < -v.proj.w()) clipCode |= Clipcode::Far;
                 if (v.proj.z() > v.proj.w()) clipCode |= Clipcode::Near;
 
-                // TODO: Calculate clipcode for user defined clipping planes as the
-                //       "clipOr = m_userClipPlanesOrMask" is only a hack to get things
-                //       working.
-
                 clipOr |= clipCode;
                 clipAnd &= clipCode;
+            }
+
+            // Determine if the triangle must be clipped against a user defined plane
+            if (m_isAnyUserPlaneEnabled) {
+
+                for (int i = 0; i < SWGL_MAX_CLIP_PLANES; i++) {
+
+                    if (isUserPlaneEnabled(i)) {
+
+                        for (int j = 0; j < 3; j++) {
+
+                            if (Vector::dot(m_clipPlaneEqs[6 + i], t.v[j].proj) < 0.0f) {
+
+                                clipOr |= Clipcode::User << i;
+                            }
+                        }
+                    }
+                }
             }
 
             // Only process triangles that are not completely outside the view frustum
@@ -124,12 +144,14 @@ namespace SWGL {
 
                 if (clipOr == Clipcode::None) {
 
-                    // The triangle is completely inside the view frustum
+                    // The triangle is completely inside the view frustum and user defined
+                    // clipping planes
                     outputList.emplace_back(t);
                 }
                 else {
                     
-                    // The triangle is partially outside the view frustum and gets clipped
+                    // The triangle is partially outside the view frustum or one of
+                    // the user defined clipping planes and must be clipped
                     clipTriangle(t, clipOr, outputList);
                 }
             }

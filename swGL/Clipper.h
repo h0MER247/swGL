@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include <array>
 #include "Matrix.h"
 
 namespace SWGL {
@@ -15,25 +14,27 @@ namespace SWGL {
         ~Clipper() = default;
 
     public:
-        void setClipPlaneEquation(int index, Vector planeEq);
-        void setClipPlaneEnable(int index, bool isEnabled);
+        void setUserPlaneEquation(int index, Vector planeEq);
+        void setUserPlaneEnable(int index, bool isEnabled);
+        void updateUserPlanes(Matrix &projMatrix);
 
-        Vector getClipPlaneEquation(int index);
-        bool isClipPlaneEnabled(int index);
+        Vector getUserPlaneEquation(int index);
+        bool isUserPlaneEnabled(int index);
+        bool isAnyUserPlaneEnabled();
 
-        void updateUserClippingPlanes(Matrix &projMatrix);
-        bool isAnyUserClippingPlaneEnabled();
+    private:
+        void updateUserPlane(int index);
 
     public:
         void clipTriangles(TriangleList &triangles);
 
     private:
         void clipTriangle(Triangle &t, int clipcode, TriangleList &out);
-        void updateUserClippingPlane(int index);
 
     private:
         enum Clipcode : int {
 
+            // Frustum
             None = 0,
             Near = 1,
             Far = 2,
@@ -41,27 +42,31 @@ namespace SWGL {
             Bottom = 8,
             Right = 16,
             Left = 32,
-            All = 63
+            All = 63,
+
+            // User defined
+            User = 64
         };
 
-    private:
-        struct UserClippingPlane {
+        struct UserClipPlane {
 
-            UserClippingPlane()
+            UserClipPlane()
 
-                : equation(Vector(0.0f, 0.0f, 0.0f, 0.0f)),
-                  isEnabled(false) {
+                : isEnabled(false),
+                  equation(Vector(0.0f, 0.0f, 0.0f, 0.0f)) {
 
             }
 
-            Vector equation;
             bool isEnabled;
+            Vector equation;
         };
-        std::array<UserClippingPlane, SWGL_MAX_CLIP_PLANES> m_userClipPlanes;
-        Matrix m_transInvProjMatrix;
-        int m_userClipPlanesOrMask;
+
+        static constexpr size_t OFFSET_USER_PLANES = 6;
 
     private:
-        std::array<Vector, 6 + SWGL_MAX_CLIP_PLANES> m_clipPlaneEqs;
+        Matrix m_transInvProjMatrix;
+        bool m_isAnyUserPlaneEnabled;
+        UserClipPlane m_userClipPlanes[SWGL_MAX_CLIP_PLANES];
+        Vector m_clipPlaneEqs[6 + SWGL_MAX_CLIP_PLANES];
     };
 }
