@@ -33,7 +33,10 @@ Put `swGL.dll` into Half Life 1's `gldrv` directory and modify the file `drvmap.
 Put `swGL.dll` into Star Trek - Elite Force I's game directory. Modify the config file inside the `BaseEF` directory to use the new custom OpenGL driver. To do this, add the command `r_gldriver "swGL.dll"`.
 
 ### Supported Games
-As far as I can tell Quake 3, Star Trek Elite Force I & II, Half Life 1, Unreal Tournament 99 and Heavy Metal: F.A.K.K.² work pretty well.
+As far as I can tell Quake 3, Star Trek Elite Force I & II, Half Life 1, Unreal, Unreal Tournament 99 and Heavy Metal: F.A.K.K.² work pretty well (mostly).
+
+### What does somewhat work
+Homeworld and Serious Sam - The First & Second Encounter both work okay(ish). But there are a few unimplemented OpenGL procedures that have to be implemented first before these games really work.
 
 ### What doesn't work
 I can't give you any guarantees that software which isn't listed under "Supported Games" will run without glitches or crashes. Most of the OpenGL 1.3 features are still unimplemented or only partially implemented.
