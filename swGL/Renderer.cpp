@@ -6,7 +6,6 @@
 #include "Log.h"
 #include "CommandClearColor.h"
 #include "CommandClearDepth.h"
-#include "CommandClearStencil.h"
 #include "CommandDrawTriangle.h"
 #include "CommandPoisonPill.h"
 #include "CommandSyncPoint.h"
@@ -57,19 +56,6 @@ namespace SWGL {
             m_drawThreads[i]->addCommand(
 
                 std::make_unique<CommandClearDepth>(clearDepth)
-            );
-        }
-    }
-
-    void Renderer::clearStencilBuffer() {
-
-        auto clearStencil = Context::getCurrentContext()->getClearValues().getClearStencil();
-
-        for (int i = 0; i < SWGL_NUM_DRAW_THREADS; i++) {
-
-            m_drawThreads[i]->addCommand(
-
-                std::make_unique<CommandClearStencil>(clearStencil)
             );
         }
     }

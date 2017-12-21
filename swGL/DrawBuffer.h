@@ -12,7 +12,6 @@ namespace SWGL {
     // Type aliases
     using ColorBuffer = std::vector<unsigned int, AlignedAllocator<unsigned int, 16>>;
     using DepthBuffer = std::vector<float, AlignedAllocator<float, 16>>;
-    using StencilBuffer = std::vector<unsigned char, AlignedAllocator<unsigned char, 16>>;
     using DrawBufferPtr = std::shared_ptr<DrawBuffer>;
 
     //
@@ -36,7 +35,6 @@ namespace SWGL {
             auto size = m_width * m_height;
             m_color.resize(size);
             m_depth.resize(size);
-            m_stencil.resize(size);
         }
 
     public:
@@ -50,7 +48,6 @@ namespace SWGL {
 
         unsigned int *getColor() { return m_color.data(); }
         float *getDepth() { return m_depth.data(); }
-        unsigned char *getStencil() { return m_stencil.data(); }
 
     public:
         void clearColor(unsigned int value) {
@@ -63,11 +60,6 @@ namespace SWGL {
             std::fill(m_depth.begin(), m_depth.end(), value);
         }
 
-        void clearStencil(unsigned char value) {
-
-            std::fill(m_stencil.begin(), m_stencil.end(), value);
-        }
-
     private:
         int m_minY, m_maxY;
         int m_minX, m_maxX;
@@ -76,6 +68,5 @@ namespace SWGL {
     private:
         ColorBuffer m_color;
         DepthBuffer m_depth;
-        StencilBuffer m_stencil;
     };
 }

@@ -258,12 +258,12 @@ SWGLAPI void STDCALL glDrv_glClearIndex(GLfloat c) {
 
 SWGLAPI void STDCALL glDrv_glClearStencil(GLint s) {
 
-    LOG("Stencil = %d", s);
+    LOG("Unimplemented");
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getClearValues().setClearStencil(s);
+    // ...
 }
 
 SWGLAPI void STDCALL glDrv_glClipPlane(GLenum plane, const GLdouble *equation) {

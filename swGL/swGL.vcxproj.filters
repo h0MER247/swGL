@@ -222,9 +222,6 @@
     <ClInclude Include="TargaWriter.h">
       <Filter>Headerdateien\Utility\Targa Writer</Filter>
     </ClInclude>
-    <ClInclude Include="CommandClearStencil.h">
-      <Filter>Headerdateien\Rendering\Renderer\Commands</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Clipper.cpp">
@@ -280,9 +277,6 @@
     </ClCompile>
     <ClCompile Include="DrawSurface.cpp">
       <Filter>Quelldateien\Rendering\Renderer\Drawing Surface</Filter>
-    </ClCompile>
-    <ClCompile Include="CommandClearStencil.cpp">
-      <Filter>Quelldateien\Rendering\Renderer\Commands</Filter>
     </ClCompile>
     <ClCompile Include="DrawThread.cpp">
       <Filter>Quelldateien\Rendering\Renderer\Drawing Thread</Filter>

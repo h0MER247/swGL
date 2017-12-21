@@ -23,7 +23,6 @@ namespace SWGL {
         void init();
         void clearColorBuffer();
         void clearDepthBuffer();
-        void clearStencilBuffer();
         void drawTriangles(TriangleList &&triangles);
         void finish();
         void swapBuffers();

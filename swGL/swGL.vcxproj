@@ -18,7 +18,6 @@
     <ClInclude Include="AlignedAllocator.h" />
     <ClInclude Include="CommandClearColor.h" />
     <ClInclude Include="CommandClearDepth.h" />
-    <ClInclude Include="CommandClearStencil.h" />
     <ClInclude Include="CommandDrawTriangle.h" />
     <ClInclude Include="CommandPoisonPill.h" />
     <ClInclude Include="CommandSyncPoint.h" />
@@ -52,7 +51,6 @@
     <ClCompile Include="Clipper.cpp" />
     <ClCompile Include="CommandClearColor.cpp" />
     <ClCompile Include="CommandClearDepth.cpp" />
-    <ClCompile Include="CommandClearStencil.cpp" />
     <ClCompile Include="CommandDrawTriangle.cpp" />
     <ClCompile Include="CommandPoisonPill.cpp" />
     <ClCompile Include="CommandSyncPoint.cpp" />

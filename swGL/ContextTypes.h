@@ -297,8 +297,7 @@ namespace SWGL {
         ClearValues()
 
             : m_color(0),
-              m_depth(1.0f),
-              m_stencil(0) {
+              m_depth(1.0f) {
 
         }
         ~ClearValues() = default;
@@ -324,11 +323,6 @@ namespace SWGL {
             m_depth = std::clamp(static_cast<float>(depth), 0.0f, 1.0f);
         }
 
-        void setClearStencil(int stencil) {
-
-            m_stencil = static_cast<unsigned char>(stencil & 0xff);
-        }
-
     public:
         unsigned int getClearColor() {
 
@@ -338,11 +332,6 @@ namespace SWGL {
         float getClearDepth() {
 
             return m_depth;
-        }
-
-        unsigned char getClearStencil() {
-
-            return m_stencil;
         }
 
     public:
@@ -369,7 +358,6 @@ namespace SWGL {
     private:
         unsigned int m_color;
         float m_depth;
-        unsigned char m_stencil;
 
     private:
         float m_colorRed;
@@ -578,16 +566,4 @@ namespace SWGL {
         float m_scaleY, m_translateY;
         float m_scaleX, m_translateX;
     };
-
-
-
-    //
-    // Stencil test state (Page 160, 4.1.5 Stencil test, glspec13.pdf)
-    //
-    // TODO: Implement the stencil buffer (partially done) and the tests (nothing done)
-    //
-    //class StencilTesting {
-    //
-    //
-    //};
 }
