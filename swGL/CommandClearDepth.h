@@ -10,10 +10,14 @@ namespace SWGL {
     class CommandClearDepth : public CommandBase {
 
     public:
-        CommandClearDepth(float value)
-        
-            : m_value(value) {
-            
+        CommandClearDepth(float value, int minX, int minY, int maxX, int maxY)
+
+            : m_value(value),
+              m_minX(minX),
+              m_minY(minY),
+              m_maxX(maxX),
+              m_maxY(maxY) {
+
         }
         ~CommandClearDepth() = default;
 
@@ -22,5 +26,7 @@ namespace SWGL {
 
     private:
         float m_value;
+        int m_minX, m_minY;
+        int m_maxX, m_maxY;
     };
 }

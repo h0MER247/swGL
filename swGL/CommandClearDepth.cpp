@@ -3,12 +3,9 @@
 
 namespace SWGL {
 
-    //
-    // Clears the depth buffer with a specific depth value
-    //
     bool CommandClearDepth::execute(DrawThread *thread) {
 
-        thread->getDrawBuffer().clearDepth(m_value);
+        thread->getDrawBuffer().clearDepth(m_value, m_minX, m_minY, m_maxX, m_maxY);
 
         return true;
     }

@@ -271,6 +271,11 @@ namespace SWGL {
             return m_isEnabled;
         }
 
+        int getMinX() { return m_minX; }
+        int getMaxX() { return m_maxX; }
+        int getMinY() { return m_minY; }
+        int getMaxY() { return m_maxY; }
+
         void cut(int &minX, int &minY, int &maxX, int &maxY) {
 
             minX = std::max(minX, m_minX);
@@ -503,16 +508,13 @@ namespace SWGL {
             // Clamp width and height to a maximum of 2048 as this is the maximum
             // size that can be rasterized by the rasterizer without the risk of
             // integer overflows.
-            width = std::clamp(width, 0, 2048);
-            height = std::clamp(height, 0, 2048);
-
+            m_width = std::clamp(width, 0, 2048);;
+            m_height = std::clamp(height, 0, 2048);;
             m_x = x;
             m_y = y;
-            m_width = width;
-            m_height = height;
 
-            m_scaleX = static_cast<float>(width) * 0.5f;
-            m_scaleY = static_cast<float>(height) * 0.5f;
+            m_scaleX = static_cast<float>(m_width) * 0.5f;
+            m_scaleY = static_cast<float>(m_height) * 0.5f;
 
             // The offset of -0.5f is needed in order for the pixel center to be
             // correctly at (0.5,0.5). If this is missing texturing looks wrong.

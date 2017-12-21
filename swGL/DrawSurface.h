@@ -21,10 +21,8 @@ namespace SWGL {
     public:
         void setHDC(HDC hdc);
         HDC getHDC() { return m_hdc; }
-        
-    public:
-        int getClientWidth() { return m_clientWidth; }
-        int getClientHeight() { return m_clientHeight; }
+        int getWidth() const { return m_width; }
+        int getHeight() const { return m_height; }
 
     public:
         DrawBufferPtr getBuffer(int threadIdx) { return m_buffer[threadIdx]; }
@@ -49,12 +47,11 @@ namespace SWGL {
 
     private:
         HDC m_hdc;
-        int m_clientWidth;
-        int m_clientHeight;
         BITMAPINFO m_bmi;
-        
+        int m_width;
+        int m_height;
+
     private:
-        void unswizzleColorBuffer();
         ColorBuffer m_unswizzledColor;
 
     private:

@@ -3,12 +3,9 @@
 
 namespace SWGL {
 
-    //
-    // Clears the color buffer with a specific color
-    //
     bool CommandClearColor::execute(DrawThread *thread) {
 
-        thread->getDrawBuffer().clearColor(m_value);
+        thread->getDrawBuffer().clearColor(m_value, m_minX, m_minY, m_maxX, m_maxY);
 
         return true;
     }

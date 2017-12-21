@@ -46,18 +46,70 @@ namespace SWGL {
         int getWidth() { return m_width; }
         int getHeight() { return m_height; }
 
+    public:
         unsigned int *getColor() { return m_color.data(); }
         float *getDepth() { return m_depth.data(); }
 
     public:
-        void clearColor(unsigned int value) {
+        void unswizzleColor(unsigned int *dst, int dstWidth) {
 
-            std::fill(m_color.begin(), m_color.end(), value);
+            unswizzle(m_color.data(), dst, dstWidth);
         }
 
-        void clearDepth(float value) {
+        void clearColor(unsigned int value, int minX, int minY, int maxX, int maxY) {
 
-            std::fill(m_depth.begin(), m_depth.end(), value);
+            clear(m_color.data(), value, minX, minY, maxX, maxY);
+        }
+
+        void clearDepth(float value, int minX, int minY, int maxX, int maxY) {
+
+            clear(m_depth.data(), value, minX, minY, maxX, maxY);
+        }
+
+    private:
+        template<typename T>
+        void unswizzle(T *src, T *dst, int dstWidth) {
+
+            // Calculate offsets
+            auto startOffset = m_minX + (m_minY * dstWidth);
+            auto rowOffset = (dstWidth << 1) - m_width;
+
+            // Unswizzle the data
+            auto dstRow1 = dst + startOffset;
+            auto dstRow2 = dst + startOffset + dstWidth;
+
+            // TODO: Optimize this later.
+            for (int y = 0; y < m_height; y += 2) {
+
+                for (int x = 0; x < m_width; x += 2, src += 4) {
+
+                    *dstRow1++ = src[0]; // (x0,y0)
+                    *dstRow1++ = src[1]; // (x1,y0)
+                    *dstRow2++ = src[2]; // (x0,y1)
+                    *dstRow2++ = src[3]; // (x1,y1)
+                }
+
+                dstRow1 += rowOffset;
+                dstRow2 += rowOffset;
+            }
+        }
+
+        template<typename T>
+        void clear(T *dst, T value, int minX, int minY, int maxX, int maxY) {
+
+            minX = std::max(minX, m_minX) - m_minX;
+            minY = std::max(minY, m_minY) - m_minY;
+            maxX = std::min(maxX, m_maxX) - m_minX;
+            maxY = std::min(maxY, m_maxY) - m_minY;
+
+            // TODO: Optimize this later.
+            for (int y = minY; y < maxY; y++) {
+
+                for (int x = minX; x < maxX; x++) {
+
+                    dst[(((x & ~1) + (y & 1)) << 1) + (x & 1) + ((y & ~1) * m_width)] = value;
+                }
+            }
         }
 
     private:

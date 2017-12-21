@@ -36,26 +36,46 @@ namespace SWGL {
 
     void Renderer::clearColorBuffer() {
 
-        auto clearColor = Context::getCurrentContext()->getClearValues().getClearColor();
+        auto &ctx = Context::getCurrentContext();
+
+        auto &scissor = ctx->getScissor();
+        auto clearColor = ctx->getClearValues().getClearColor();
 
         for (int i = 0; i < SWGL_NUM_DRAW_THREADS; i++) {
 
             m_drawThreads[i]->addCommand(
 
-                std::make_unique<CommandClearColor>(clearColor)
+                std::make_unique<CommandClearColor>(
+
+                    clearColor,
+                    scissor.getMinX(),
+                    scissor.getMinY(),
+                    scissor.getMaxX(),
+                    scissor.getMaxY()
+                )
             );
         }
     }
 
     void Renderer::clearDepthBuffer() {
 
-        auto clearDepth = Context::getCurrentContext()->getClearValues().getClearDepth();
+        auto &ctx = Context::getCurrentContext();
+
+        auto &scissor = ctx->getScissor();
+        auto clearDepth = ctx->getClearValues().getClearDepth();
 
         for (int i = 0; i < SWGL_NUM_DRAW_THREADS; i++) {
 
             m_drawThreads[i]->addCommand(
 
-                std::make_unique<CommandClearDepth>(clearDepth)
+                std::make_unique<CommandClearDepth>(
+
+                    clearDepth,
+                    scissor.getMinX(),
+                    scissor.getMinY(),
+                    scissor.getMaxX(),
+                    scissor.getMaxY()
+                 )
             );
         }
     }

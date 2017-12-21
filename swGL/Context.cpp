@@ -22,8 +22,9 @@ namespace SWGL {
 
         // Initialize the dimenions of the viewport and scissor rect to the dimensions
         // of the device context
-        m_viewport.setDimensions(0, 0, drawSurface.getClientWidth(), drawSurface.getClientHeight());
-        m_scissor.setDimensions(0, 0, drawSurface.getClientWidth(), drawSurface.getClientHeight());
+        m_viewport.setDimensions(0, 0, drawSurface.getWidth(), drawSurface.getHeight());
+        m_scissor.setDimensions(0, 0, drawSurface.getWidth(), drawSurface.getHeight());
+
 
         // Register Open GL 1.2 procedures
         addProcedure("glDrawRangeElements", ADDRESS_OF(glDrv_glDrawRangeElements));

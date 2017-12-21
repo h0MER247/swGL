@@ -81,10 +81,10 @@ namespace SWGL {
         qDQDY = _mm_set1_ps(dqdy);
         qVAL = _mm_set_ps(
 
-            value,
-            value + dqdx,
+            value + dqdy + dqdx,
             value + dqdy,
-            value + dqdy + dqdx
+            value + dqdx,
+            value
         );
     }
 
@@ -103,10 +103,10 @@ namespace SWGL {
         eDEDY = _mm_set1_epi32((dedy << 1) - (dedx * width));
         eVAL = _mm_set_epi32(
 
-            value,
-            value + dedx,
+            value + dedy + dedx,
             value + dedy,
-            value + dedy + dedx
+            value + dedx,
+            value
         );
     }
 
