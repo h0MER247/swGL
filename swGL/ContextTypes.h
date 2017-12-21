@@ -512,6 +512,12 @@ namespace SWGL {
     public:
         void setDimensions(int x, int y, int width, int height) {
 
+            // Clamp width and height to a maximum of 2048 as this is the maximum
+            // size that can be rasterized by the rasterizer without the risk of
+            // integer overflows.
+            width = std::clamp(width, 0, 2048);
+            height = std::clamp(height, 0, 2048);
+
             m_x = x;
             m_y = y;
             m_width = width;
