@@ -31,10 +31,10 @@ namespace SWGL {
 
             m_width = maxX - minX;
             m_height = maxY - minY;
+            m_size = m_width * m_height;
 
-            auto size = m_width * m_height;
-            m_color.resize(size);
-            m_depth.resize(size);
+            m_color.resize(m_size);
+            m_depth.resize(m_size);
         }
 
     public:
@@ -102,12 +102,19 @@ namespace SWGL {
             maxX = std::min(maxX, m_maxX) - m_minX;
             maxY = std::min(maxY, m_maxY) - m_minY;
 
-            // TODO: Optimize this later.
-            for (int y = minY; y < maxY; y++) {
+            if(minX == 0 && minY == 0 && maxX == m_width && maxY == m_height) {
 
-                for (int x = minX; x < maxX; x++) {
+                std::fill(dst, dst + m_size, value);
+            }
+            else {
 
-                    dst[(((x & ~1) + (y & 1)) << 1) + (x & 1) + ((y & ~1) * m_width)] = value;
+                // TODO: Optimize this later.
+                for (int y = minY; y < maxY; y++) {
+                
+                    for (int x = minX; x < maxX; x++) {
+
+                        dst[(((x & ~1) + (y & 1)) << 1) + (x & 1) + ((y & ~1) * m_width)] = value;
+                    }
                 }
             }
         }
@@ -116,6 +123,7 @@ namespace SWGL {
         int m_minY, m_maxY;
         int m_minX, m_maxX;
         int m_width, m_height;
+        int m_size;
 
     private:
         ColorBuffer m_color;
