@@ -242,9 +242,7 @@ namespace SWGL {
               m_minX(0),
               m_minY(0),
               m_maxX(0),
-              m_maxY(0),
-              m_width(0),
-              m_height(0) {
+              m_maxY(0) {
 
         }
         ~Scissor() = default;
@@ -256,8 +254,6 @@ namespace SWGL {
             m_minY = y;
             m_maxX = x + width;
             m_maxY = y + height;
-            m_width = width;
-            m_height = height;
         }
 
         void setEnable(bool isEnabled) {
@@ -275,6 +271,8 @@ namespace SWGL {
         int getMaxX() { return m_maxX; }
         int getMinY() { return m_minY; }
         int getMaxY() { return m_maxY; }
+        int getWidth() { return m_maxX - m_minX; }
+        int getHeight() { return m_maxY - m_minY; }
 
         void cut(int &minX, int &minY, int &maxX, int &maxY) {
 
@@ -288,7 +286,6 @@ namespace SWGL {
         bool m_isEnabled;
         int m_minX, m_minY;
         int m_maxX, m_maxY;
-        int m_width, m_height;
     };
 
 
