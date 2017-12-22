@@ -179,8 +179,10 @@ namespace SWGL {
         // Bind or unbind a texture to/from a given target
         if (name != 0U) {
 
-            // Find the texture or create it if it doesn't exit yet
+            // Find the texture
             TextureObjectPtr texObj = getTextureObjectByName(name);
+
+            // Create a new texture object if the name doesn't exist yet
             if (texObj == nullptr) {
 
                 texTarget.texObj = createTextureObject(name, target);
@@ -189,6 +191,15 @@ namespace SWGL {
 
             // Bind the texture if the targets match
             if (texObj->target == target) {
+
+                texTarget.texObj = texObj;
+                return true;
+            }
+            
+            // If the texture is uninitialized set its target and bind it
+            if (texObj->target == TextureTargetID::Uninitialized) {
+
+                texObj->target = target;
 
                 texTarget.texObj = texObj;
                 return true;
@@ -215,7 +226,8 @@ namespace SWGL {
             for (int i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
                 auto &texTarget = getTextureTarget(&m_unit[i], texObj->target);
-                if (texTarget.texObj == texObj) {
+                if (texTarget.texObj != nullptr &&
+                    texTarget.texObj->name == name) {
 
                     texTarget.texObj = nullptr;
                 }
@@ -245,6 +257,8 @@ namespace SWGL {
 
             names[i] = m_freeTextures.front();
             m_freeTextures.pop_front();
+
+            createTextureObject(names[i], TextureTargetID::Uninitialized);
         }
     }
 

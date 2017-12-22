@@ -32,6 +32,8 @@ namespace SWGL {
     // The different texture targets
     enum class TextureTargetID : size_t {
 
+        Uninitialized,
+
         Target1D,
         Target2D,
         Target3D,
