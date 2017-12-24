@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <type_traits>
+#include <limits>
 #include "OpenGL.h"
 #include "Defines.h"
 
@@ -46,35 +48,18 @@ namespace SWGL {
         static float dot(const Vector &vA, const Vector &vB);
 
     public:
-        // Normalizes [0,4294967295] to [0,1]
-        static INLINED float normalizeInteger(GLuint value) {
+        template<typename T>
+        static INLINED std::enable_if_t<std::is_signed<T>::value, float> normalizeInteger(T value) {
 
-            return static_cast<float>(value) / 4294967295.0f;
+            return (static_cast<float>(value) * 2.0f + 1.0f) /
+                    static_cast<float>(std::numeric_limits<T>::max() - std::numeric_limits<T>::min());
         }
-        // Normalizes [0,65535] to [0,1]
-        static INLINED float normalizeInteger(GLushort value) {
 
-            return static_cast<float>(value) / 65535.0f;
-        }
-        // Normalizes [0,255] to [0,1]
-        static INLINED float normalizeInteger(GLubyte value) {
+        template<typename T>
+        static INLINED std::enable_if_t<std::is_unsigned<T>::value, float> normalizeInteger(T value) {
 
-            return static_cast<float>(value) / 255.0f;
-        }
-        // Normalizes [-2147483648,2147483647] to [-1,1]
-        static INLINED float normalizeInteger(GLint value) {
-
-            return -1.0f + ((2.0f * (static_cast<float>(value) + 2147483648.0f)) / 4294967295.0f);
-        }
-        // Normalizes [-32768,32767] to [-1,1]
-        static INLINED float normalizeInteger(GLshort value) {
-
-            return -1.0f + ((2.0f * (static_cast<float>(value) + 32768.0f)) / 65535.0f);
-        }
-        // Normalizes [-128,127] to [-1,1]
-        static INLINED float normalizeInteger(GLbyte value) {
-
-            return -1.0f + ((2.0f * (static_cast<float>(value) + 128.0f)) / 255.0f);
+            return static_cast<float>(value) /
+                   static_cast<float>(std::numeric_limits<T>::max());
         }
 
     private:
