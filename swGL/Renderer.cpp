@@ -92,6 +92,7 @@ namespace SWGL {
         auto drawState = std::make_shared<TriangleDrawCallState>();
 
         drawState->triangles = std::move(triangles);
+        drawState->scissor = scissor;
         drawState->alphaTesting = context.getAlphaTesting();
         drawState->depthTesting = context.getDepthTesting();
         drawState->blending = context.getBlending();

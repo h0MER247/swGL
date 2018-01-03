@@ -119,6 +119,7 @@ namespace SWGL {
 
         auto &drawBuffer = thread->getDrawBuffer();
 
+        auto &scissor = m_state->scissor;
         auto &depthTesting = m_state->depthTesting;
         auto &blending = m_state->blending;
         auto &alphaTesting = m_state->alphaTesting;
@@ -162,6 +163,12 @@ namespace SWGL {
             int maxY = std::min((std::max({ y1, y2, y3 }) + 0x0f) >> 4, drawBuffer.getMaxY());
             int minX = std::max((std::min({ x1, x2, x3 }) + 0x0f) >> 4, drawBuffer.getMinX());
             int maxX = std::min((std::max({ x1, x2, x3 }) + 0x0f) >> 4, drawBuffer.getMaxX());
+
+            if (scissor.isEnabled()) {
+            
+                scissor.cut(minX, minY, maxX, maxY);
+            }
+            
 
             // Make sure that we rasterize at the beginning of a quad (which is 2x2 pixel).
             // Then determine the width of the bounding box in full quads.

@@ -11,6 +11,7 @@ namespace SWGL {
 
         TriangleList triangles;
 
+        Scissor scissor;
         AlphaTesting alphaTesting;
         DepthTesting depthTesting;
         Blending blending;
