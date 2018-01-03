@@ -220,6 +220,8 @@ namespace SWGL {
             }
 
             m_prefetchedVertices.resize(1024);
+
+            unlock();
         }
         ~VertexDataArray() = default;
 
