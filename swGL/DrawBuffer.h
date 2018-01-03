@@ -102,7 +102,7 @@ namespace SWGL {
             maxX = std::min(maxX, m_maxX) - m_minX;
             maxY = std::min(maxY, m_maxY) - m_minY;
 
-            if(minX == 0 && minY == 0 && maxX == m_width && maxY == m_height) {
+            if (minX == 0 && minY == 0 && maxX == m_width && maxY == m_height) {
 
                 std::fill(dst, dst + m_size, value);
             }
@@ -110,10 +110,12 @@ namespace SWGL {
 
                 // TODO: Optimize this later.
                 for (int y = minY; y < maxY; y++) {
-                
+
+                    T *p = &dst[((y & 1) << 1) + ((y & ~1) * m_width)];
+
                     for (int x = minX; x < maxX; x++) {
 
-                        dst[(((x & ~1) + (y & 1)) << 1) + (x & 1) + ((y & ~1) * m_width)] = value;
+                        p[((x & ~1) << 1) + (x & 1)] = value;
                     }
                 }
             }
