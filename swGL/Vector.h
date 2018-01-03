@@ -49,14 +49,14 @@ namespace SWGL {
 
     public:
         template<typename T>
-        static INLINED std::enable_if_t<std::is_signed<T>::value, float> normalizeInteger(T value) {
+        static INLINED std::enable_if_t<std::is_integral<T>::value && std::is_signed<T>::value, float> normalizeInteger(T value) {
 
             return (static_cast<float>(value) * 2.0f + 1.0f) /
                     static_cast<float>(std::numeric_limits<T>::max() - std::numeric_limits<T>::min());
         }
 
         template<typename T>
-        static INLINED std::enable_if_t<std::is_unsigned<T>::value, float> normalizeInteger(T value) {
+        static INLINED std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, float> normalizeInteger(T value) {
 
             return static_cast<float>(value) /
                    static_cast<float>(std::numeric_limits<T>::max());
