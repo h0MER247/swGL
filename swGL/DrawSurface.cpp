@@ -1,4 +1,5 @@
 ﻿#include <memory>
+#include <algorithm>
 #include "Defines.h"
 #include "Log.h"
 #include "DrawSurface.h"
@@ -14,6 +15,19 @@ namespace SWGL {
         : m_width(0),
           m_height(0) {
 
+        // Calculate how often the drawing buffer can be subdivided with respect
+        // to the number of drawing threads
+        int numSubDivX = 1, numSubDivY = 1;
+        for (int n = SWGL_NUM_DRAW_THREADS; n > 1; ) {
+
+            numSubDivX++; n >>= 1;
+            if (n == 1) break;
+            numSubDivY++; n >>= 1;
+        }
+        m_numBuffersInX = 1 << (numSubDivX - 1);
+        m_numBuffersInY = 1 << (numSubDivY - 1);
+
+        // Initialize drawing buffer
         for (int i = 0; i < SWGL_NUM_DRAW_THREADS; i++) {
 
             m_buffer[i] = std::make_shared<DrawBuffer>();
@@ -29,8 +43,8 @@ namespace SWGL {
         RECT r;
         GetClientRect(WindowFromDC(m_hdc), &r);
 
-        auto width = r.right - r.left;
-        auto height = r.bottom - r.top;
+        int width = static_cast<int>(r.right - r.left);
+        int height = static_cast<int>(r.bottom - r.top);
 
         // Resize the drawing surface if needed
         if(width != m_width || height != m_height) {
@@ -38,10 +52,10 @@ namespace SWGL {
             m_width = width;
             m_height = height;
 
-            // Make sure that width and height are multiples of two. This is needed as 
+            // Make sure that width and height are multiples of four. This is needed as 
             // the drawing surfaces uses a quad pixel layout.
-            width = (width + 1) & ~1;
-            height = (height + 1) & ~1;
+            width = std::max((width + 3) & ~3, m_numBuffersInX * 2);
+            height = std::max((height + 3) & ~3, m_numBuffersInY * 2);
 
             // Init storage in which the unswizzled color buffer gets written into
             m_unswizzledColor.resize(width * height);
@@ -55,19 +69,7 @@ namespace SWGL {
             m_bmi.bmiHeader.biBitCount = 32;
             m_bmi.bmiHeader.biCompression = BI_RGB;
 
-            // Calculate how often we can subdivide the drawing buffer with respect
-            // to the number of drawing threads
-            int numDivX = 1, numDivY = 1;
-            for (int n = SWGL_NUM_DRAW_THREADS; n > 1; ) {
-
-                numDivX++; n >>= 1;
-                if (n == 1) break;
-                numDivY++; n >>= 1;
-            }
-
             // Initialize the buffer for each drawing thread
-            m_numBuffersInX = 1 << (numDivX - 1);
-            m_numBuffersInY = 1 << (numDivY - 1);
             m_bufferWidth = width / m_numBuffersInX;
             m_bufferHeight = height / m_numBuffersInY;
 
