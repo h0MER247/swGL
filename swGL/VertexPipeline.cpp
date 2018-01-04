@@ -53,7 +53,7 @@ namespace SWGL {
 
         case GL_TRIANGLES:
             if (m_vertices.size() < 3) break;
-            for (size_t i = 0, n = m_vertices.size(); i < n - 2; i += 3) {
+            for (size_t i = 0, n = m_vertices.size() - 2; i < n; i += 3) {
 
                 Vertex &v1 = m_vertices[i + 0];
                 Vertex &v2 = m_vertices[i + 1];
@@ -65,7 +65,7 @@ namespace SWGL {
 
         case GL_TRIANGLE_STRIP:
             if (m_vertices.size() < 3) break;
-            for (size_t i = 0, n = m_vertices.size(); i < n - 2; i++) {
+            for (size_t i = 0, n = m_vertices.size() - 2; i < n; i++) {
 
                 Vertex &v1 = m_vertices[i + 0];
                 Vertex &v2 = m_vertices[i + 1];
@@ -83,7 +83,7 @@ namespace SWGL {
         case GL_TRIANGLE_FAN:
         case GL_POLYGON:
             if (m_vertices.size() < 3) break;
-            for (size_t i = 1, n = m_vertices.size(); i < n - 1; i++) {
+            for (size_t i = 1, n = m_vertices.size() - 1; i < n; i++) {
 
                 Vertex &v1 = m_vertices[0];
                 Vertex &v2 = m_vertices[i];
@@ -95,7 +95,7 @@ namespace SWGL {
 
         case GL_QUADS:
             if (m_vertices.size() < 4) break;
-            for (size_t i = 0, n = m_vertices.size(); i < n - 3; i += 4) {
+            for (size_t i = 0, n = m_vertices.size() - 3; i < n; i += 4) {
 
                 Vertex &v1 = m_vertices[i + 0];
                 Vertex &v2 = m_vertices[i + 1];
@@ -109,7 +109,7 @@ namespace SWGL {
 
         case GL_QUAD_STRIP:
             if (m_vertices.size() < 4) break;
-            for (size_t i = 0, n = m_vertices.size(); i < n - 3; i += 2) {
+            for (size_t i = 0, n = m_vertices.size() - 3; i < n; i += 2) {
 
                 Vertex &v1 = m_vertices[i + 0];
                 Vertex &v2 = m_vertices[i + 1];
