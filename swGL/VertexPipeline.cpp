@@ -134,7 +134,10 @@ namespace SWGL {
 
     void VertexPipeline::addTriangle(Vertex &v1, Vertex &v2, Vertex &v3) {
 
-        m_triangles.emplace_back(Triangle(v1, v2, v3));
+        if (Context::getCurrentContext()->getCulling().isVisible(v1, v2, v3)) {
+        
+            m_triangles.emplace_back(Triangle(v1, v2, v3));
+        }
     }
 
 
@@ -289,67 +292,36 @@ namespace SWGL {
         //
         // Perspective division, viewport transformation and culling
         //
-        auto &viewport = Context::getCurrentContext()->getViewport();
-        auto &culling = Context::getCurrentContext()->getCulling();
+        if (!m_triangles.empty()) {
 
-        bool anyVisible = false;
-        for (auto &t : m_triangles) {
+            auto &viewport = Context::getCurrentContext()->getViewport();
+            auto &culling = Context::getCurrentContext()->getCulling();
 
-            for (int i = 0; i < 3; i++) {
+            for (auto &t : m_triangles) {
 
-                auto &proj = t.v[i].proj;
-                auto &raster = t.v[i].raster;
+                for (int i = 0; i < 3; i++) {
 
-                // Perspective division
-                auto rhw = 1.0f / proj.w();
+                    auto &proj = t.v[i].proj;
+                    auto &raster = t.v[i].raster;
 
-                raster.w() = rhw;
-                raster.z() = proj.z() * rhw;
-                raster.y() = proj.y() * rhw;
-                raster.x() = proj.x() * rhw;
+                    // Perspective division
+                    auto rhw = 1.0f / proj.w();
 
-                t.v[i].color *= rhw;
-                for (int j = 0; j < SWGL_MAX_TEXTURE_UNITS; j++) {
+                    raster.w() = rhw;
+                    raster.z() = proj.z() * rhw;
+                    raster.y() = proj.y() * rhw;
+                    raster.x() = proj.x() * rhw;
 
-                    t.v[i].texCoord[j] *= rhw;
+                    t.v[i].color *= rhw;
+                    for (int j = 0; j < SWGL_MAX_TEXTURE_UNITS; j++) {
+
+                        t.v[i].texCoord[j] *= rhw;
+                    }
+
+                    // Viewport transformation
+                    viewport.transform(raster);
                 }
-
-                // Viewport transformation
-                viewport.transform(raster);
             }
-
-            // Calculate area of the triangle
-            auto &v1 = t.v[0].raster;
-            auto &v2 = t.v[1].raster;
-            auto &v3 = t.v[2].raster;
-
-            float area = (v2.x() - v1.x()) * (v3.y() - v1.y()) -
-                         (v2.y() - v1.y()) * (v3.x() - v1.x());
-
-            // Reject triangles that have one or more vertices with w == 0.0f
-            // TODO: This is a hack as clipping must take care of that.
-            if (std::isnan(area)) {
-
-                t.isVisible = false;
-            }
-
-            // Reject triangles that are back facing
-            else if (culling.isBackfacing(area)) {
-
-                t.isVisible = false;
-            }
-
-            // Accept triangle
-            else {
-
-                anyVisible = true;
-
-                t.rcpArea = 1.0f / area;
-                t.isVisible = true;
-            }
-        }
-
-        if (anyVisible) {
 
             Context::getCurrentContext()->getRenderer().drawTriangles(std::move(m_triangles));
         }

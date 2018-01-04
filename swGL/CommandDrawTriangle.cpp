@@ -21,7 +21,7 @@
     QFloat GRADIENT_VALUE(NAME), GRADIENT_DX(NAME), GRADIENT_DY(NAME)
 
 #define SETUP_GRADIENT_EQ(NAME, Q1, Q2, Q3) \
-    setupGradientEquation(GRADIENT_VALUE(NAME), GRADIENT_DX(NAME), GRADIENT_DY(NAME), Q1, Q2, Q3, v1.x(), v1.y(), fdx21, fdy21, fdx31, fdy31, t.rcpArea)
+    setupGradientEquation(GRADIENT_VALUE(NAME), GRADIENT_DX(NAME), GRADIENT_DY(NAME), Q1, Q2, Q3, v1.x(), v1.y(), fdx21, fdy21, fdx31, fdy31, rcpArea)
 
 #define GET_GRADIENT_VALUE_AFFINE(NAME) \
     _mm_add_ps(qV ## NAME, _mm_add_ps(_mm_mul_ps(xxxx, GRADIENT_DX(NAME)), _mm_mul_ps(yyyy, GRADIENT_DY(NAME))))
@@ -135,13 +135,19 @@ namespace SWGL {
             auto &v3 = t.v[2].raster;
 
             //
+            // Calculate the triangles reciprocal area
+            //
+            float rcpArea = 1.0f / ((v2.x() - v1.x()) * (v3.y() - v1.y()) -
+                                    (v2.y() - v1.y()) * (v3.x() - v1.x()));
+
+            //
             // Calculate fixed point coordinates
             //
             int x1, y1, x2, y2, x3, y3;
 
             x1 = static_cast<int>(v1.x() * 16.0f);
             y1 = static_cast<int>(v1.y() * 16.0f);
-            if (t.rcpArea < 0.0f) {
+            if (rcpArea < 0.0f) {
 
                 x2 = static_cast<int>(v2.x() * 16.0f);
                 y2 = static_cast<int>(v2.y() * 16.0f);

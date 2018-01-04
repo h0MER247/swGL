@@ -26,7 +26,5 @@ namespace SWGL {
         }
         
         Vertex v[3];
-        float rcpArea;
-        bool isVisible;
     };
 }

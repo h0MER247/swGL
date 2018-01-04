@@ -419,9 +419,18 @@ namespace SWGL {
         }
 
     public:
-        bool isBackfacing(float area) {
+        bool isVisible(Vertex &v1, Vertex &v2, Vertex &v3) {
 
-            return m_isEnabled && ((area < 0.0f) ^ (m_cullFace == GL_BACK) ^ (m_frontFaceWinding == GL_CCW));
+            if (m_isEnabled) {
+            
+                float a = (v1.proj.x() * v2.proj.y() - v1.proj.y() * v2.proj.x()) * v3.proj.w() +
+                          (v1.proj.y() * v3.proj.x() - v1.proj.x() * v3.proj.y()) * v2.proj.w() +
+                          (v2.proj.x() * v3.proj.y() - v3.proj.x() * v2.proj.y()) * v1.proj.w();
+
+                return (a > 0.0f) ^ (m_cullFace == GL_FRONT) ^ (m_frontFaceWinding == GL_CW);
+            }
+
+            return true;
         }
 
     private:

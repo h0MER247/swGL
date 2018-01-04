@@ -132,10 +132,6 @@ namespace SWGL {
         for (int i = 0, n = drawState->triangles.size(); i < n; i++) {
 
             auto &t = drawState->triangles[i];
-            if (!t.isVisible) {
-
-                continue;
-            }
 
             auto &v1 = t.v[0].raster;
             auto &v2 = t.v[1].raster;
