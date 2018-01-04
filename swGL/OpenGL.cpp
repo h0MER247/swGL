@@ -4068,7 +4068,7 @@ SWGLAPI void STDCALL glDrv_glTexImage2D(GLenum target, GLint level, GLint intern
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    if (level < 0 || level >= SWGL_MAX_TEXTURE_LOD) {
+    if (level < 0 || level > SWGL_MAX_TEXTURE_LOD) {
 
         ctx->getError().setState(GL_INVALID_VALUE);
         return;
@@ -5286,7 +5286,7 @@ SWGLAPI void STDCALL glDrv_glTexSubImage2D(GLenum target, GLint level, GLint xof
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    if (level < 0 || level >= SWGL_MAX_TEXTURE_LOD) {
+    if (level < 0 || level > SWGL_MAX_TEXTURE_LOD) {
 
         ctx->getError().setState(GL_INVALID_VALUE);
         return;

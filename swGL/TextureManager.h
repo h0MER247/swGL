@@ -98,7 +98,7 @@ namespace SWGL {
         TextureBaseFormat format;
 
         int maxLOD;
-        std::array<TexturePixels, SWGL_MAX_TEXTURE_LOD> mips;
+        std::array<TexturePixels, SWGL_MAX_TEXTURE_LOD + 1> mips;
     };
 
     // A texture target
