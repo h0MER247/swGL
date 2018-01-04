@@ -134,7 +134,7 @@ namespace SWGL {
 
     void VertexPipeline::addTriangle(Vertex &v1, Vertex &v2, Vertex &v3) {
 
-        if (Context::getCurrentContext()->getCulling().isVisible(v1, v2, v3)) {
+        if (Context::getCurrentContext()->getCulling().isTriangleVisible(v1, v2, v3)) {
         
             m_triangles.emplace_back(Triangle(v1, v2, v3));
         }
@@ -286,12 +286,8 @@ namespace SWGL {
 
     void VertexPipeline::drawTriangles() {
 
-        // Clip the triangles
         m_clipper.clipTriangles(m_triangles);
 
-        //
-        // Perspective division, viewport transformation and culling
-        //
         if (!m_triangles.empty()) {
 
             auto &viewport = Context::getCurrentContext()->getViewport();

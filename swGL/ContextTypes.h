@@ -419,7 +419,7 @@ namespace SWGL {
         }
 
     public:
-        bool isVisible(Vertex &v1, Vertex &v2, Vertex &v3) {
+        bool isTriangleVisible(Vertex &v1, Vertex &v2, Vertex &v3) {
 
             if (m_isEnabled) {
             
