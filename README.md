@@ -1,5 +1,5 @@
 # swGL
-A multithreaded software rasterizer implementation of OpenGL 1.3(ish).
+A (reasonably fast) multithreaded software rasterizer implementation of OpenGL 1.3(ish).
 
 ### Screenshots
 <p align="center">
@@ -18,13 +18,10 @@ A multithreaded software rasterizer implementation of OpenGL 1.3(ish).
 </p>
 
 ### How fast is it
-It's reasonably fast. But don't expect rock-solid 60 fps in Full HD resolutions - it ain't gonna happen :).
-
-### How to compile
-The project compiles with Visual Studio 2017 just fine - no external dependencies needed. It should also compile with GCC 7.2, but I currently have no Makefile for that.
+Reasonably fast for a software rasterizer :). You'll get good framerates if you stick to 640x480 or 800x600 resolutions.
 
 ### How to get it running
-For most games it suffices if you put the resulting file `OpenGL32.dll` right into the game directory before starting the game. Games like *Half Life 1* or *Star Trek - Elite Force I* however need some config file modifications before they start using the custom OpenGL driver. For this games you have to rename the `OpenGL32.dll` file you just compiled to something else (like `swGL.dll` for example) - or they will just use the OpenGL driver provided from your graphics card vendor!
+For most games it's enough to put the resulting file `OpenGL32.dll` right into the game directory. Games like *Half Life 1* or *Star Trek - Elite Force I* however need some config file modifications before they use the custom OpenGL driver. For this games you have to rename the `OpenGL32.dll` file you just compiled to something else - like `swGL.dll` for example - or they will just use the OpenGL driver provided from your graphics card vendor!
 
 ##### Half Life 1
 Put `swGL.dll` into Half Life 1's `gldrv` directory and modify the file `drvmap.txt` accordingly. Then select the driver from the Options menu in Half Life 1.
@@ -33,12 +30,6 @@ Put `swGL.dll` into Half Life 1's `gldrv` directory and modify the file `drvmap.
 Put `swGL.dll` into Star Trek - Elite Force I's game directory. Modify the config file inside the `BaseEF` directory to use the new custom OpenGL driver. To do this, add the command `r_gldriver "swGL.dll"`.
 
 ### Supported Games
-As far as I can tell Quake 3, Star Trek Elite Force I & II, Half Life 1, Unreal, Unreal Tournament 99 and Heavy Metal: F.A.K.K.² work pretty well (mostly).
-
-### What does somewhat work
-Homeworld and Serious Sam - The First & Second Encounter both work okay(ish). But there are a few unimplemented OpenGL procedures that have to be implemented first before these games really work.
-
-### What doesn't work
-I can't give you any guarantees that software which isn't listed under "Supported Games" will run without glitches or crashes. Most of the OpenGL 1.3 features are still unimplemented or only partially implemented.
+As far as I can tell Quake 3, Star Trek Elite Force I & II, Half Life 1, Unreal, Unreal Tournament 99 and Heavy Metal: F.A.K.K.² work pretty well for the most part. Serious Sam - The First & Second Encounter both work okay(ish). Homeworld is quite hard to play as swGL can't draw lines (at the moment). Enclave and Severance - Blade Of Darkness aren't really playable as there are too many unimplemented OpenGL procedures :). I haven't tried other titles so far.
 
 Have fun.
