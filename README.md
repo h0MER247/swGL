@@ -21,13 +21,13 @@ A (reasonably fast) multithreaded software rasterizer implementation of OpenGL 1
 Reasonably fast for a software rasterizer :). You'll get good framerates if you stick to 640x480 or 800x600 resolutions.
 
 ### How to get it running
-For most games it's enough to put the resulting file `OpenGL32.dll` right into the game directory. Games like *Half Life 1* or *Star Trek - Elite Force I* however need some config file modifications before they use the custom OpenGL driver. For this games you have to rename the `OpenGL32.dll` file you just compiled to something else - like `swGL.dll` for example - or they will just use the OpenGL driver provided from your graphics card vendor!
+For most games it's enough to put the resulting file `OpenGL32.dll` right into the game directory. Games like *Half Life 1*, *Star Trek - Elite Force I* or *Heavy Metal F.A.K.K.²* however need some config file modifications before they use the custom OpenGL driver. For this games you have to rename the `OpenGL32.dll` file you just compiled to something else - like `swGL.dll` for example - or they will just use the OpenGL driver provided from your graphics card vendor!
 
 ##### Half Life 1
 Put `swGL.dll` into Half Life 1's `gldrv` directory and modify the file `drvmap.txt` accordingly. Then select the driver from the Options menu in Half Life 1.
 
-##### Star Trek - Elite Force I
-Put `swGL.dll` into Star Trek - Elite Force I's game directory. Modify the config file inside the `BaseEF` directory to use the new custom OpenGL driver. To do this, add the command `r_gldriver "swGL.dll"`.
+##### Star Trek - Elite Force I / Heavy Metal F.A.K.K.²
+Put `swGL.dll` into the game directory. Modify the config file inside the `BaseEF` / `fakk` directory to use the new custom OpenGL driver. To do this, add the command `r_gldriver "swGL.dll"`.
 
 ### Supported Games
 As far as I can tell Quake 3, Star Trek Elite Force I & II, Half Life 1, Unreal, Unreal Tournament 99 and Heavy Metal: F.A.K.K.² work pretty well for the most part. Serious Sam - The First & Second Encounter both work okay(ish). Homeworld is quite hard to play as swGL can't draw lines (at the moment). Enclave and Severance - Blade Of Darkness aren't really playable as there are too many unimplemented OpenGL procedures :). I haven't tried other titles so far.
