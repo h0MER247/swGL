@@ -107,7 +107,8 @@ namespace SWGL {
 
             if (unit.currentTarget != nullptr &&
                 unit.currentTarget->isEnabled &&
-                unit.currentTarget->texObj != nullptr) {
+                unit.currentTarget->texObj != nullptr &&
+                unit.currentTarget->texObj->maxLOD != -1) {
 
                 drawState->textures[i].texEnv = unit.texEnv;
                 drawState->textures[i].texObj = unit.currentTarget->texObj;
