@@ -117,16 +117,12 @@ namespace SWGL {
             newTexObj->maxLOD = texObj->maxLOD;
             for (int i = 0; i <= texObj->maxLOD; i++) {
 
-                if (i != mipLevel) {
-
-                    newTexObj->mips[i] = texObj->mips[i];
-                }
+                newTexObj->mips[i] = texObj->mips[i];
             }
 
             texObj = m_activeUnit->target2D.texObj = newTexObj;
         }
         // ----------------------------------------------------------------
-
 
         return readTextureData2D(x, y, width, height, externalFormat, externalType, pixels, texObj->mips[mipLevel].pixel.data());
     }
