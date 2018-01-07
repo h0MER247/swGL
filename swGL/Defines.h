@@ -43,7 +43,7 @@ static constexpr unsigned int SWGL_MAX_TEXTURE_SIZE = 1U << SWGL_MAX_TEXTURE_LOD
 static constexpr unsigned int SWGL_MAX_CLIP_PLANES = 6U;
 
 // Number of drawing threads
-static constexpr unsigned int SWGL_NUM_DRAW_THREADS = 8U;
+static constexpr unsigned int SWGL_NUM_DRAW_THREADS = 16U;
 
 // Maximum number of commands in the command queue of a drawing thread
 static constexpr unsigned int SWGL_COMMAND_QUEUE_SIZE = 64U;
