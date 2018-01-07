@@ -459,16 +459,16 @@ namespace SWGL {
                                     srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
                                 case TextureBaseFormat::Luminance:
                                 case TextureBaseFormat::RGB:
-                                    srcColor.r = SIMD::lerp(texColor.r, srcColor.r, _mm_set1_ps(texState.texEnv.colorR));
-                                    srcColor.g = SIMD::lerp(texColor.g, srcColor.g, _mm_set1_ps(texState.texEnv.colorG));
-                                    srcColor.b = SIMD::lerp(texColor.b, srcColor.b, _mm_set1_ps(texState.texEnv.colorB));
+                                    srcColor.r = SIMD::lerp(texColor.r, srcColor.r, _mm_set1_ps(texState.texEnv.colorConstR));
+                                    srcColor.g = SIMD::lerp(texColor.g, srcColor.g, _mm_set1_ps(texState.texEnv.colorConstG));
+                                    srcColor.b = SIMD::lerp(texColor.b, srcColor.b, _mm_set1_ps(texState.texEnv.colorConstB));
                                     break;
 
                                 case TextureBaseFormat::Intensity:
-                                    srcColor.a = SIMD::lerp(texColor.a, srcColor.a, _mm_set1_ps(texState.texEnv.colorA));
-                                    srcColor.r = SIMD::lerp(texColor.r, srcColor.r, _mm_set1_ps(texState.texEnv.colorR));
-                                    srcColor.g = SIMD::lerp(texColor.g, srcColor.g, _mm_set1_ps(texState.texEnv.colorG));
-                                    srcColor.b = SIMD::lerp(texColor.b, srcColor.b, _mm_set1_ps(texState.texEnv.colorB));
+                                    srcColor.a = SIMD::lerp(texColor.a, srcColor.a, _mm_set1_ps(texState.texEnv.colorConstA));
+                                    srcColor.r = SIMD::lerp(texColor.r, srcColor.r, _mm_set1_ps(texState.texEnv.colorConstR));
+                                    srcColor.g = SIMD::lerp(texColor.g, srcColor.g, _mm_set1_ps(texState.texEnv.colorConstG));
+                                    srcColor.b = SIMD::lerp(texColor.b, srcColor.b, _mm_set1_ps(texState.texEnv.colorConstB));
                                     break;
                                 }
                                 break;

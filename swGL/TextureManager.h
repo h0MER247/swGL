@@ -56,12 +56,26 @@ namespace SWGL {
     // Stores environment data of a texture unit (set with glTexEnv())
     struct TextureEnvironment {
 
+        // Environment mode
         GLenum mode = GL_MODULATE;
 
-        float colorA = 0.0f;
-        float colorR = 0.0f;
-        float colorG = 0.0f;
-        float colorB = 0.0f;
+        // Combine Mode (OpenGL 1.3)
+        GLenum combineModeAlpha = GL_MODULATE;
+        GLenum combineModeRGB = GL_MODULATE;
+        GLenum sourceAlpha[3] = { GL_TEXTURE, GL_PREVIOUS, GL_CONSTANT };
+        GLenum sourceRGB[3] = { GL_TEXTURE, GL_PREVIOUS, GL_CONSTANT };
+        GLenum operandAlpha[3] = { GL_SRC_ALPHA, GL_SRC_ALPHA, GL_SRC_ALPHA };
+        GLenum operandRGB[3] = { GL_SRC_COLOR, GL_SRC_COLOR, GL_SRC_ALPHA };
+
+        // Texture environment constant color
+        float colorConstA = 0.0f;
+        float colorConstR = 0.0f;
+        float colorConstG = 0.0f;
+        float colorConstB = 0.0f;
+
+        // Color scaling
+        float colorScaleA = 1.0f;
+        float colorScaleRGB = 1.0f;
     };
 
     // Stores parameters of a texture object (set with glTexParameter())

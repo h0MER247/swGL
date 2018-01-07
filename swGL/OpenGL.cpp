@@ -3757,12 +3757,13 @@ SWGLAPI void STDCALL glDrv_glTexCoord4sv(const GLshort *v) {
     );
 }
 
+
+
 SWGLAPI void STDCALL glDrv_glTexEnvModeCommon(const SWGL::ContextPtr &ctx, GLenum param) {
 
     switch (param) {
 
     case GL_COMBINE:
-        LOG("Unimplemented texture environment mode: GL_COMBINE");
     case GL_REPLACE:
     case GL_MODULATE:
     case GL_DECAL:
@@ -3781,10 +3782,168 @@ SWGLAPI void STDCALL glDrv_glTexEnvColorCommon(const SWGL::ContextPtr &ctx, floa
 
     auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
 
-    texEnv.colorA = std::clamp(a, 0.0f, 1.0f);
-    texEnv.colorR = std::clamp(r, 0.0f, 1.0f);
-    texEnv.colorG = std::clamp(g, 0.0f, 1.0f);
-    texEnv.colorB = std::clamp(b, 0.0f, 1.0f);
+    texEnv.colorConstA = std::clamp(a, 0.0f, 1.0f);
+    texEnv.colorConstR = std::clamp(r, 0.0f, 1.0f);
+    texEnv.colorConstG = std::clamp(g, 0.0f, 1.0f);
+    texEnv.colorConstB = std::clamp(b, 0.0f, 1.0f);
+}
+
+SWGLAPI void STDCALL glDrv_glTexEnvRGBScaleCommon(const SWGL::ContextPtr &ctx, float scaleRGB) {
+
+    if (scaleRGB != 1.0f || scaleRGB != 2.0f || scaleRGB != 4.0f) {
+
+        ctx->getError().setState(GL_INVALID_VALUE);
+        return;
+    }
+
+    auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
+
+    texEnv.colorScaleRGB = scaleRGB;
+}
+
+SWGLAPI void STDCALL glDrv_glTexEnvAlphaScaleCommon(const SWGL::ContextPtr &ctx, float scaleA) {
+
+    if (scaleA != 1.0f || scaleA != 2.0f || scaleA != 4.0f) {
+
+        ctx->getError().setState(GL_INVALID_VALUE);
+        return;
+    }
+
+    auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
+
+    texEnv.colorScaleA = scaleA;
+}
+
+SWGLAPI void STDCALL glDrv_glTexEnvCombineRGBCommon(const SWGL::ContextPtr &ctx, GLenum param) {
+
+    switch (param) {
+
+    case GL_REPLACE:
+    case GL_MODULATE:
+    case GL_ADD:
+    case GL_ADD_SIGNED:
+    case GL_INTERPOLATE:
+    case GL_SUBTRACT:
+    case GL_DOT3_RGB:
+    case GL_DOT3_RGBA:
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
+
+    texEnv.combineModeRGB = param;
+}
+
+SWGLAPI void STDCALL glDrv_glTexEnvCombineAlphaCommon(const SWGL::ContextPtr &ctx, GLenum param) {
+
+    switch (param) {
+
+    case GL_REPLACE:
+    case GL_MODULATE:
+    case GL_ADD:
+    case GL_ADD_SIGNED:
+    case GL_INTERPOLATE:
+    case GL_SUBTRACT:
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
+
+    texEnv.combineModeAlpha = param;
+}
+
+SWGLAPI void STDCALL glDrv_glTexEnvSourceRGBCommon(const SWGL::ContextPtr &ctx, int sourceIdx, GLenum param) {
+    
+    if (param < GL_TEXTURE0 ||
+        param >= GL_TEXTURE0 + SWGL_MAX_TEXTURE_UNITS) {
+
+        switch (param) {
+
+        case GL_TEXTURE:
+        case GL_CONSTANT:
+        case GL_PRIMARY_COLOR:
+        case GL_PREVIOUS:
+            break;
+
+        default:
+            ctx->getError().setState(GL_INVALID_ENUM);
+            return;
+        }
+    }
+
+    auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
+
+    texEnv.sourceRGB[sourceIdx] = param;
+}
+
+SWGLAPI void STDCALL glDrv_glTexEnvSourceAlphaCommon(const SWGL::ContextPtr &ctx, int sourceIdx, GLenum param) {
+
+    if (param < GL_TEXTURE0 ||
+        param >= GL_TEXTURE0 + SWGL_MAX_TEXTURE_UNITS) {
+
+        switch (param) {
+
+        case GL_TEXTURE:
+        case GL_CONSTANT:
+        case GL_PRIMARY_COLOR:
+        case GL_PREVIOUS:
+            break;
+
+        default:
+            ctx->getError().setState(GL_INVALID_ENUM);
+            return;
+        }
+    }
+
+    auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
+
+    texEnv.sourceAlpha[sourceIdx] = param;
+}
+
+SWGLAPI void STDCALL glDrv_glTexEnvOperandRGBCommon(const SWGL::ContextPtr &ctx, int operandIdx, GLenum param) {
+
+    switch (param) {
+
+    case GL_SRC_COLOR:
+    case GL_ONE_MINUS_SRC_COLOR:
+    case GL_SRC_ALPHA:
+    case GL_ONE_MINUS_SRC_ALPHA:
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
+
+    texEnv.operandRGB[operandIdx] = param;
+}
+
+SWGLAPI void STDCALL glDrv_glTexEnvOperandAlphaCommon(const SWGL::ContextPtr &ctx, int operandIdx, GLenum param) {
+
+    switch (param) {
+
+    case GL_SRC_ALPHA:
+    case GL_ONE_MINUS_SRC_ALPHA:
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
+
+    texEnv.operandAlpha[operandIdx] = param;
 }
 
 SWGLAPI void STDCALL glDrv_glTexEnvf(GLenum target, GLenum pname, GLfloat param) {
@@ -3810,21 +3969,44 @@ SWGLAPI void STDCALL glDrv_glTexEnvf(GLenum target, GLenum pname, GLfloat param)
         glDrv_glTexEnvColorCommon(ctx, param, param, param, param);
         break;
 
+    case GL_RGB_SCALE:
+        glDrv_glTexEnvRGBScaleCommon(ctx, param);
+        break;
+
+    case GL_ALPHA_SCALE:
+        glDrv_glTexEnvAlphaScaleCommon(ctx, param);
+        break;
+
     case GL_COMBINE_RGB:
+        glDrv_glTexEnvCombineRGBCommon(ctx, static_cast<GLenum>(param));
+        break;
+
     case GL_COMBINE_ALPHA:
-    case GL_SOURCE0_ALPHA:
+        glDrv_glTexEnvCombineAlphaCommon(ctx, static_cast<GLenum>(param));
+        break;
+
     case GL_SOURCE0_RGB:
-    case GL_SOURCE1_ALPHA:
     case GL_SOURCE1_RGB:
-    case GL_SOURCE2_ALPHA:
     case GL_SOURCE2_RGB:
-    case GL_OPERAND0_ALPHA:
+        glDrv_glTexEnvSourceRGBCommon(ctx, static_cast<int>(pname - GL_SOURCE0_RGB), static_cast<GLenum>(param));
+        break;
+
+    case GL_SOURCE0_ALPHA:
+    case GL_SOURCE1_ALPHA:
+    case GL_SOURCE2_ALPHA:
+        glDrv_glTexEnvSourceAlphaCommon(ctx, static_cast<int>(pname - GL_SOURCE0_ALPHA), static_cast<GLenum>(param));
+        break;
+
     case GL_OPERAND0_RGB:
-    case GL_OPERAND1_ALPHA:
     case GL_OPERAND1_RGB:
-    case GL_OPERAND2_ALPHA:
     case GL_OPERAND2_RGB:
-        LOG("Unimplemented texture combiner parameter name: %04x, value: %f", pname, param);
+        glDrv_glTexEnvOperandRGBCommon(ctx, static_cast<int>(pname - GL_OPERAND0_RGB), static_cast<GLenum>(param));
+        break;
+
+    case GL_OPERAND0_ALPHA:
+    case GL_OPERAND1_ALPHA:
+    case GL_OPERAND2_ALPHA:
+        glDrv_glTexEnvOperandAlphaCommon(ctx, static_cast<int>(pname - GL_OPERAND0_ALPHA), static_cast<GLenum>(param));
         break;
 
     default:
@@ -3858,21 +4040,44 @@ SWGLAPI void STDCALL glDrv_glTexEnvfv(GLenum target, GLenum pname, const GLfloat
             glDrv_glTexEnvColorCommon(ctx, params[0], params[1], params[2], params[3]);
             break;
 
+        case GL_RGB_SCALE:
+            glDrv_glTexEnvRGBScaleCommon(ctx, params[0]);
+            break;
+
+        case GL_ALPHA_SCALE:
+            glDrv_glTexEnvAlphaScaleCommon(ctx, params[0]);
+            break;
+
         case GL_COMBINE_RGB:
+            glDrv_glTexEnvCombineRGBCommon(ctx, static_cast<GLenum>(params[0]));
+            break;
+
         case GL_COMBINE_ALPHA:
+            glDrv_glTexEnvCombineAlphaCommon(ctx, static_cast<GLenum>(params[0]));
+            break;
+
         case GL_SOURCE0_ALPHA:
-        case GL_SOURCE0_RGB:
         case GL_SOURCE1_ALPHA:
-        case GL_SOURCE1_RGB:
         case GL_SOURCE2_ALPHA:
+            glDrv_glTexEnvSourceAlphaCommon(ctx, static_cast<int>(pname - GL_SOURCE0_ALPHA), static_cast<GLenum>(params[0]));
+            break;
+
+        case GL_SOURCE0_RGB:
+        case GL_SOURCE1_RGB:
         case GL_SOURCE2_RGB:
+            glDrv_glTexEnvSourceRGBCommon(ctx, static_cast<int>(pname - GL_SOURCE0_RGB), static_cast<GLenum>(params[0]));
+            break;
+
         case GL_OPERAND0_ALPHA:
-        case GL_OPERAND0_RGB:
         case GL_OPERAND1_ALPHA:
-        case GL_OPERAND1_RGB:
         case GL_OPERAND2_ALPHA:
+            glDrv_glTexEnvOperandAlphaCommon(ctx, static_cast<int>(pname - GL_OPERAND0_ALPHA), static_cast<GLenum>(params[0]));
+            break;
+
+        case GL_OPERAND0_RGB:
+        case GL_OPERAND1_RGB:
         case GL_OPERAND2_RGB:
-            LOG("Unimplemented texture combiner parameter name: %04x, value: %f", pname, params[0]);
+            glDrv_glTexEnvOperandRGBCommon(ctx, static_cast<int>(pname - GL_OPERAND0_RGB), static_cast<GLenum>(params[0]));
             break;
 
         default:
@@ -3912,21 +4117,44 @@ SWGLAPI void STDCALL glDrv_glTexEnvi(GLenum target, GLenum pname, GLint param) {
         );
         break;
 
+    case GL_RGB_SCALE:
+        glDrv_glTexEnvRGBScaleCommon(ctx, SWGL::Vector::normalizeInteger(param));
+        break;
+
+    case GL_ALPHA_SCALE:
+        glDrv_glTexEnvAlphaScaleCommon(ctx, SWGL::Vector::normalizeInteger(param));
+        break;
+
     case GL_COMBINE_RGB:
+        glDrv_glTexEnvCombineRGBCommon(ctx, static_cast<GLenum>(param));
+        break;
+
     case GL_COMBINE_ALPHA:
+        glDrv_glTexEnvCombineAlphaCommon(ctx, static_cast<GLenum>(param));
+        break;
+
     case GL_SOURCE0_ALPHA:
-    case GL_SOURCE0_RGB:
     case GL_SOURCE1_ALPHA:
-    case GL_SOURCE1_RGB:
     case GL_SOURCE2_ALPHA:
+        glDrv_glTexEnvSourceAlphaCommon(ctx, static_cast<int>(pname - GL_SOURCE0_ALPHA), static_cast<GLenum>(param));
+        break;
+
+    case GL_SOURCE0_RGB:
+    case GL_SOURCE1_RGB:
     case GL_SOURCE2_RGB:
+        glDrv_glTexEnvSourceRGBCommon(ctx, static_cast<int>(pname - GL_SOURCE0_RGB), static_cast<GLenum>(param));
+        break;
+
     case GL_OPERAND0_ALPHA:
-    case GL_OPERAND0_RGB:
     case GL_OPERAND1_ALPHA:
-    case GL_OPERAND1_RGB:
     case GL_OPERAND2_ALPHA:
+        glDrv_glTexEnvOperandAlphaCommon(ctx, static_cast<int>(pname - GL_OPERAND0_ALPHA), static_cast<GLenum>(param));
+        break;
+
+    case GL_OPERAND0_RGB:
+    case GL_OPERAND1_RGB:
     case GL_OPERAND2_RGB:
-        LOG("Unimplemented texture combiner parameter name: %04x, value: %d", pname, param);
+        glDrv_glTexEnvOperandRGBCommon(ctx, static_cast<int>(pname - GL_OPERAND0_RGB), static_cast<GLenum>(param));
         break;
 
     default:
@@ -3967,21 +4195,44 @@ SWGLAPI void STDCALL glDrv_glTexEnviv(GLenum target, GLenum pname, const GLint *
             );
             break;
 
+        case GL_RGB_SCALE:
+            glDrv_glTexEnvRGBScaleCommon(ctx, SWGL::Vector::normalizeInteger(params[0]));
+            break;
+
+        case GL_ALPHA_SCALE:
+            glDrv_glTexEnvAlphaScaleCommon(ctx, SWGL::Vector::normalizeInteger(params[0]));
+            break;
+
         case GL_COMBINE_RGB:
+            glDrv_glTexEnvCombineRGBCommon(ctx, static_cast<GLenum>(params[0]));
+            break;
+
         case GL_COMBINE_ALPHA:
+            glDrv_glTexEnvCombineAlphaCommon(ctx, static_cast<GLenum>(params[0]));
+            break;
+
         case GL_SOURCE0_ALPHA:
-        case GL_SOURCE0_RGB:
         case GL_SOURCE1_ALPHA:
-        case GL_SOURCE1_RGB:
         case GL_SOURCE2_ALPHA:
+            glDrv_glTexEnvSourceAlphaCommon(ctx, static_cast<int>(pname - GL_SOURCE0_ALPHA), static_cast<GLenum>(params[0]));
+            break;
+
+        case GL_SOURCE0_RGB:
+        case GL_SOURCE1_RGB:
         case GL_SOURCE2_RGB:
+            glDrv_glTexEnvSourceRGBCommon(ctx, static_cast<int>(pname - GL_SOURCE0_RGB), static_cast<GLenum>(params[0]));
+            break;
+
         case GL_OPERAND0_ALPHA:
-        case GL_OPERAND0_RGB:
         case GL_OPERAND1_ALPHA:
-        case GL_OPERAND1_RGB:
         case GL_OPERAND2_ALPHA:
+            glDrv_glTexEnvOperandAlphaCommon(ctx, static_cast<int>(pname - GL_OPERAND0_ALPHA), static_cast<GLenum>(params[0]));
+            break;
+
+        case GL_OPERAND0_RGB:
+        case GL_OPERAND1_RGB:
         case GL_OPERAND2_RGB:
-            LOG("Unimplemented texture combiner parameter name: %04x, value: %d", pname, params[0]);
+            glDrv_glTexEnvOperandRGBCommon(ctx, static_cast<int>(pname - GL_OPERAND0_RGB), static_cast<GLenum>(params[0]));
             break;
 
         default:
