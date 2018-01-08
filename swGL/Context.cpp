@@ -81,7 +81,10 @@ namespace SWGL {
         addProcedure("glMultTransposeMatrixd", ADDRESS_OF(glDrv_glMultTransposeMatrixd));
 
         // Register the implemented extensions
-        addExtension("GL_EXT_texture_env_add");
+        addExtension("GL_ARB_texture_env_add");
+        addExtension("GL_ARB_texture_env_combine");
+        addExtension("GL_ARB_texture_cube_map");
+        addExtension("GL_ARB_texture_env_dot3");
         addExtension("GL_ARB_multitexture"); {
 
             addProcedure("glMultiTexCoord1dARB", ADDRESS_OF(glDrv_glMultiTexCoord1d));
