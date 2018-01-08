@@ -10,6 +10,7 @@
 #include "ContextTypes.h"
 #include "MatrixStack.h"
 #include "VertexDataArray.h"
+#include "TexCoordGen.h"
 
 namespace SWGL {
 
@@ -37,6 +38,12 @@ namespace SWGL {
         void setArrayElement(int idx);
 
     public:
+        void setTexGenEnable(int texCoordIdx, bool isEnabled);
+        void setTexGenMode(int texCoordIdx, GLenum mode);
+        void setTexGenObjectPlane(int texCoordIdx, Vector planeEq);
+        void setTexGenEyePlane(int texCoordIdx, Vector planeEq);
+
+    public:
         void lockArrayElements(int firstIndex, int count);
         void unlockArrayElements();
         void drawIndexedArrayElements(GLenum mode, int count, GLenum type, const GLvoid *indices);
@@ -61,6 +68,8 @@ namespace SWGL {
         GLenum m_primitiveType;
         size_t m_activeTexture;
         Matrix m_mvpMatrix;
+
+        TexCoordGen m_texCoordGen;
 
         VertexList m_vertices;
         TriangleList m_triangles;

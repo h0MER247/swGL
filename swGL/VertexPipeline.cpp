@@ -7,7 +7,8 @@ namespace SWGL {
 
     VertexPipeline::VertexPipeline()
     
-        : m_isInsideGLBegin(false) {
+        : m_isInsideGLBegin(false),
+          m_texCoordGen(m_vertexState) {
 
         setActiveTexture(0U);
     }
@@ -154,10 +155,16 @@ namespace SWGL {
 
     void VertexPipeline::setPosition(const Vector &position) {
 
+        m_vertexState.obj = position;
         m_vertexState.proj = position * m_mvpMatrix;
     }
 
     void VertexPipeline::addVertex() {
+
+        if (m_texCoordGen.isEnabled()) {
+
+            m_texCoordGen.generate();
+        }
 
         m_vertices.emplace_back(m_vertexState);
     }
@@ -187,6 +194,33 @@ namespace SWGL {
             setPosition(m_vertexDataArray.getPosition().read(idx));
             addVertex();
         }
+    }
+
+
+
+    void VertexPipeline::setTexGenEnable(int texCoordIdx, bool isEnabled) {
+
+        m_texCoordGen.setEnable(m_activeTexture, texCoordIdx, isEnabled);
+    }
+
+    void VertexPipeline::setTexGenMode(int texCoordIdx, GLenum mode) {
+
+        m_texCoordGen.setMode(m_activeTexture, texCoordIdx, mode);
+    }
+
+    void VertexPipeline::setTexGenObjectPlane(int texCoordIdx, Vector planeEq) {
+
+        m_texCoordGen.setObjectPlane(m_activeTexture, texCoordIdx, planeEq);
+    }
+
+    void VertexPipeline::setTexGenEyePlane(int texCoordIdx, Vector planeEq) {
+
+        m_texCoordGen.setEyePlane(
+
+            m_activeTexture,
+            texCoordIdx,
+            planeEq * m_matrixStack.getModelViewMatrix().getTransposedInverse()
+        );
     }
 
 

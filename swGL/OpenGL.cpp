@@ -1003,6 +1003,13 @@ SWGLAPI void STDCALL glDrv_glDisable(GLenum cap) {
 
     switch (cap) {
 
+    case GL_TEXTURE_GEN_S:
+    case GL_TEXTURE_GEN_T:
+    case GL_TEXTURE_GEN_R:
+    case GL_TEXTURE_GEN_Q:
+        ctx->getVertexPipeline().setTexGenEnable(static_cast<int>(cap - GL_TEXTURE_GEN_S), false);
+        break;
+
     case GL_CULL_FACE:
         ctx->getCulling().setEnable(false);
         break;
@@ -1094,6 +1101,13 @@ SWGLAPI void STDCALL glDrv_glEnable(GLenum cap) {
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
     switch (cap) {
+
+    case GL_TEXTURE_GEN_S:
+    case GL_TEXTURE_GEN_T:
+    case GL_TEXTURE_GEN_R:
+    case GL_TEXTURE_GEN_Q:
+        ctx->getVertexPipeline().setTexGenEnable(static_cast<int>(cap - GL_TEXTURE_GEN_S), true);
+        break;
 
     case GL_CULL_FACE:
         ctx->getCulling().setEnable(true);
@@ -4242,64 +4256,274 @@ SWGLAPI void STDCALL glDrv_glTexEnviv(GLenum target, GLenum pname, const GLint *
     }
 }
 
+SWGLAPI void STDCALL glDrv_glTexGenModeCommon(const SWGL::ContextPtr &ctx, GLenum coord, GLenum mode) {
+
+    switch (coord) {
+
+    case GL_S:
+    case GL_T:
+    case GL_R:
+    case GL_Q:
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    switch (mode) {
+
+    case GL_EYE_LINEAR:
+    case GL_OBJECT_LINEAR:
+    case GL_SPHERE_MAP:
+        ctx->getVertexPipeline().setTexGenMode(static_cast<int>(coord - GL_S), mode);
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        break;
+    }
+}
+
+SWGLAPI void STDCALL glDrv_glTexGenEyePlaneCommon(const SWGL::ContextPtr &ctx, GLenum coord, SWGL::Vector planeEq) {
+
+    switch (coord) {
+
+    case GL_S:
+    case GL_T:
+    case GL_R:
+    case GL_Q:
+        ctx->getVertexPipeline().setTexGenEyePlane(static_cast<int>(coord - GL_S), planeEq);
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        break;
+    }
+}
+
+SWGLAPI void STDCALL glDrv_glTexGenObjectPlaneCommon(const SWGL::ContextPtr &ctx, GLenum coord, SWGL::Vector planeEq) {
+
+    switch (coord) {
+
+    case GL_S:
+    case GL_T:
+    case GL_R:
+    case GL_Q:
+        ctx->getVertexPipeline().setTexGenObjectPlane(static_cast<int>(coord - GL_S), planeEq);
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        break;
+    }
+}
+
 SWGLAPI void STDCALL glDrv_glTexGend(GLenum coord, GLenum pname, GLdouble param) {
 
-    LOG("Unimplemented");
+    LOG("Coord: %04x, Parameter: %04x, Value: %f", coord, pname, param);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (pname != GL_TEXTURE_GEN_MODE) {
+
+        ctx->getError().setState(GL_INVALID_ENUM);
+    }
+    else {
+
+        glDrv_glTexGenModeCommon(ctx, coord, static_cast<GLenum>(param));
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexGendv(GLenum coord, GLenum pname, const GLdouble *params) {
 
-    LOG("Unimplemented");
+    LOG("Coord: %04x, Parameter: %04x, Value Address: %p", coord, pname, params);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (params != nullptr) {
+
+        switch (pname) {
+
+        case GL_TEXTURE_GEN_MODE:
+            glDrv_glTexGenModeCommon(ctx, coord, static_cast<GLenum>(params[0]));
+            break;
+
+        case GL_OBJECT_PLANE:
+            glDrv_glTexGenObjectPlaneCommon(
+
+                ctx,
+                coord,
+                SWGL::Vector(
+
+                    static_cast<float>(params[0]),
+                    static_cast<float>(params[1]),
+                    static_cast<float>(params[2]),
+                    static_cast<float>(params[3])
+                )
+            );
+            break;
+
+        case GL_EYE_PLANE:
+            glDrv_glTexGenEyePlaneCommon(
+
+                ctx,
+                coord,
+                SWGL::Vector(
+
+                    static_cast<float>(params[0]),
+                    static_cast<float>(params[1]),
+                    static_cast<float>(params[2]),
+                    static_cast<float>(params[3])
+                )
+            );
+            break;
+
+        default:
+            ctx->getError().setState(GL_INVALID_ENUM);
+            return;
+        }
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexGenf(GLenum coord, GLenum pname, GLfloat param) {
 
-    LOG("Unimplemented");
+    LOG("Coord: %04x, Parameter: %04x, Value: %f", coord, pname, param);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (pname != GL_TEXTURE_GEN_MODE) {
+
+        ctx->getError().setState(GL_INVALID_ENUM);
+    }
+    else {
+
+        glDrv_glTexGenModeCommon(ctx, coord, static_cast<GLenum>(param));
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexGenfv(GLenum coord, GLenum pname, const GLfloat *params) {
 
-    LOG("Unimplemented");
+    LOG("Coord: %04x, Parameter: %04x, Addr: %p", coord, pname, params);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (params != nullptr) {
+
+        switch (pname) {
+
+        case GL_TEXTURE_GEN_MODE:
+            glDrv_glTexGenModeCommon(ctx, coord, static_cast<GLenum>(params[0]));
+            break;
+
+        case GL_OBJECT_PLANE:
+            glDrv_glTexGenObjectPlaneCommon(
+
+                ctx,
+                coord,
+                SWGL::Vector(
+
+                    static_cast<float>(params[0]),
+                    static_cast<float>(params[1]),
+                    static_cast<float>(params[2]),
+                    static_cast<float>(params[3])
+                )
+            );
+            break;
+
+        case GL_EYE_PLANE:
+            glDrv_glTexGenEyePlaneCommon(
+
+                ctx,
+                coord,
+                SWGL::Vector(
+
+                    static_cast<float>(params[0]),
+                    static_cast<float>(params[1]),
+                    static_cast<float>(params[2]),
+                    static_cast<float>(params[3])
+                )
+            );
+            break;
+
+        default:
+            ctx->getError().setState(GL_INVALID_ENUM);
+            return;
+        }
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexGeni(GLenum coord, GLenum pname, GLint param) {
 
-    LOG("Unimplemented");
+    LOG("Coord: %04x, Parameter: %04x, Value: %04x", coord, pname, param);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (pname != GL_TEXTURE_GEN_MODE) {
+
+        ctx->getError().setState(GL_INVALID_ENUM);
+    }
+    else {
+
+        glDrv_glTexGenModeCommon(ctx, coord, static_cast<GLenum>(param));
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexGeniv(GLenum coord, GLenum pname, const GLint *params) {
 
-    LOG("Unimplemented");
+    LOG("Coord: %04x, Parameter: %04x, Value Address: %p", coord, pname, params);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (params != nullptr) {
+
+        switch (pname) {
+
+        case GL_TEXTURE_GEN_MODE:
+            glDrv_glTexGenModeCommon(ctx, coord, static_cast<GLenum>(params[0]));
+            break;
+
+        case GL_OBJECT_PLANE:
+            glDrv_glTexGenObjectPlaneCommon(
+
+                ctx,
+                coord,
+                SWGL::Vector(
+
+                    SWGL::Vector::normalizeInteger(params[0]),
+                    SWGL::Vector::normalizeInteger(params[1]),
+                    SWGL::Vector::normalizeInteger(params[2]),
+                    SWGL::Vector::normalizeInteger(params[3])
+                )
+            );
+            break;
+
+        case GL_EYE_PLANE:
+            glDrv_glTexGenEyePlaneCommon(
+
+                ctx,
+                coord,
+                SWGL::Vector(
+
+                    SWGL::Vector::normalizeInteger(params[0]),
+                    SWGL::Vector::normalizeInteger(params[1]),
+                    SWGL::Vector::normalizeInteger(params[2]),
+                    SWGL::Vector::normalizeInteger(params[3])
+                )
+            );
+            break;
+
+        default:
+            ctx->getError().setState(GL_INVALID_ENUM);
+            return;
+        }
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexImage1D(GLenum target, GLint level, GLint internalFormat, GLsizei width, GLint border, GLenum format, GLenum type, const GLvoid *pixels) {

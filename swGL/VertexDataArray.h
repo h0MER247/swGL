@@ -305,11 +305,13 @@ namespace SWGL {
                     // Update position
                     if (!m_position.isEnabled()) {
 
+                        v.obj = vertexState.obj;
                         v.proj = vertexState.proj;
                     }
                     else if (m_position.hasStateChanged()) {
 
-                        v.proj = m_position.read(i) * mvpMatrix;
+                        v.obj = m_position.read(i);
+                        v.proj = v.obj * mvpMatrix;
                     }
                 }
 
