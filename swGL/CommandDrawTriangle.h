@@ -16,6 +16,7 @@ namespace SWGL {
         DepthTesting depthTesting;
         Blending blending;
         PolygonOffset polygonOffset;
+        ColorMask colorMask;
         bool deferedDepthWrite;
 
         struct TextureState {

@@ -55,6 +55,15 @@ namespace SWGL {
             );
         }
 
+        INLINED QInt mask(QInt valueA, QInt valueB, QInt mask) {
+
+            return _mm_or_si128(
+
+                _mm_and_si128(mask, valueA),
+                _mm_andnot_si128(mask, valueB)
+            );
+        }
+
         INLINED QInt multiplyAdd(QInt valueA, QInt valueB, QInt valueC) {
 
             return _mm_add_epi32(_mm_mullo_epi32(valueA, valueB), valueC);

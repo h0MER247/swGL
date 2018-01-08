@@ -126,6 +126,7 @@ namespace SWGL {
         auto &polygonOffset = m_state->polygonOffset;
         auto &textureState = m_state->textures;
         auto &deferedDepthWrite = m_state->deferedDepthWrite;
+        auto &colorMask = m_state->colorMask;
 
         for (auto triangleIdx : m_indices) {
 
@@ -707,6 +708,17 @@ namespace SWGL {
                         }
 
                         quadBlendingResult = getIntegerRGBA(srcColor);
+
+
+                        //
+                        // Color masking
+                        //
+                        quadBlendingResult = SIMD::mask(
+
+                            quadBlendingResult,
+                            quadBackbuffer,
+                            _mm_set1_epi32(colorMask.getMask())
+                        );
 
 
                         //

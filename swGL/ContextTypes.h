@@ -11,6 +11,39 @@
 namespace SWGL {
 
     //
+    // Color Mask
+    //
+    class ColorMask {
+
+    public:
+        ColorMask()
+
+            : m_mask(-1) {
+
+        }
+        ~ColorMask() = default;
+
+    public:
+        void setMask(bool alpha, bool red, bool green, bool blue) {
+
+            int mask = 0;
+
+            if (alpha) { mask |= 0xff000000; }
+            if (red) { mask |= 0x00ff0000; }
+            if (green) { mask |= 0x0000ff00; }
+            if (blue) { mask |= 0x000000ff; }
+
+            m_mask = mask;
+        }
+
+    public:
+        int getMask() { return m_mask; }
+
+    private:
+        int m_mask;
+    };
+
+    //
     // Polygon offset state (Page 77, 3.5.5 Depth Offset, glspec13.pdf)
     //
     class PolygonOffset {

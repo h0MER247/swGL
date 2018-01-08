@@ -51,6 +51,7 @@ namespace SWGL {
         Blending &getBlending() { return m_blending; }
         TextureManager &getTextureManager() { return m_textureManager; }
         PolygonOffset &getPolygonOffset() { return m_polygonOffset; }
+        ColorMask &getColorMask() { return m_colorMask; }
         Renderer &getRenderer() { return m_renderer; }
         GLError &getError() { return m_error; }
 
@@ -80,6 +81,7 @@ namespace SWGL {
         AlphaTesting m_alphaTesting;
         DepthTesting m_depthTesting;
         Blending m_blending;
+        ColorMask m_colorMask;
         TextureManager m_textureManager;
         Renderer m_renderer;
 

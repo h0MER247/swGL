@@ -97,6 +97,7 @@ namespace SWGL {
         drawState->depthTesting = context.getDepthTesting();
         drawState->blending = context.getBlending();
         drawState->polygonOffset = context.getPolygonOffset();
+        drawState->colorMask = context.getColorMask();
         drawState->deferedDepthWrite = context.getAlphaTesting().isEnabled() &&
                                        context.getDepthTesting().isWriteEnabled() &&
                                        context.getDepthTesting().isTestEnabled();

@@ -892,12 +892,18 @@ SWGLAPI void STDCALL glDrv_glColor4usv(const GLushort *v) {
 
 SWGLAPI void STDCALL glDrv_glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) {
 
-    LOG("Unimplemented");
+    LOG("Red: %d, Green: %d, Blue: %d, Alpha: %d", red, green, blue, alpha);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    ctx->getColorMask().setMask(
+
+        alpha == GL_TRUE,
+        red == GL_TRUE,
+        green == GL_TRUE,
+        blue == GL_TRUE
+    );
 }
 
 SWGLAPI void STDCALL glDrv_glColorMaterial(GLenum face, GLenum mode) {
