@@ -5875,17 +5875,16 @@ SWGLAPI void STDCALL glDrv_glActiveTexture(GLenum texture) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    switch (texture) {
+    auto texIdx = texture - GL_TEXTURE0;
+    if (texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
-    case GL_TEXTURE0:
-    case GL_TEXTURE1:
-        ctx->getTextureManager().setActiveTextureUnit(texture - GL_TEXTURE0);
-        break;
+        ctx->getTextureManager().setActiveTextureUnit(texIdx);
+    }
+    else {
 
-    default:
         LOG("Invalid texture unit");
+
         ctx->getError().setState(GL_INVALID_ENUM);
-        break;
     }
 }
 
@@ -5977,13 +5976,16 @@ SWGLAPI void STDCALL glDrv_glClientActiveTexture(GLenum texture) {
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
     auto texIdx = texture - GL_TEXTURE0;
-    if (texIdx < 0 || texIdx >= SWGL_MAX_TEXTURE_UNITS) {
+    if (texIdx < SWGL_MAX_TEXTURE_UNITS) {
+
+        ctx->getVertexPipeline().setActiveTexture(texIdx);
+    }
+    else {
+
+        LOG("Invalid texture unit");
 
         ctx->getError().setState(GL_INVALID_ENUM);
-        return;
     }
-
-    ctx->getVertexPipeline().setActiveTexture(texIdx);
 }
 
 SWGLAPI void STDCALL glDrv_glMultiTexCoord1d(GLenum target, GLdouble s) {
