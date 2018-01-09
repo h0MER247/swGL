@@ -1,8 +1,7 @@
 #pragma once
 
-#include "Defines.h"
+#include "OpenGL.h"
 #include "Vector.h"
-#include "Vertex.h"
 
 namespace SWGL {
 
@@ -11,7 +10,7 @@ namespace SWGL {
     //
     struct TexCoordGenState {
 
-        int enableMask;
+        int enableMask = 0;
 
         struct {
 
@@ -19,7 +18,13 @@ namespace SWGL {
             Vector objectPlane;
             Vector eyePlane;
 
-        } data[4];
+        } data[4] = {
+
+            { GL_EYE_LINEAR, Vector(1.0f, 0.0f, 0.0f, 0.0f), Vector(1.0f, 0.0f, 0.0f, 0.0f) },
+            { GL_EYE_LINEAR, Vector(0.0f, 1.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f, 0.0f) },
+            { GL_EYE_LINEAR, Vector(0.0f, 0.0f, 0.0f, 0.0f), Vector(0.0f, 0.0f, 0.0f, 0.0f) },
+            { GL_EYE_LINEAR, Vector(0.0f, 0.0f, 0.0f, 0.0f), Vector(0.0f, 0.0f, 0.0f, 0.0f) }
+        };
     };
 
     //

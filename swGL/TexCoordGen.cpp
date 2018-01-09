@@ -1,12 +1,14 @@
 #include "Defines.h"
 #include "Log.h"
+#include "Vertex.h"
 #include "TexCoordGen.h"
 
 namespace SWGL {
 
     TexCoordGen::TexCoordGen(Vertex &vertexState)
 
-        : m_vertexState(vertexState) {
+        : m_vertexState(vertexState),
+          m_enableMask(0) {
 
     }
 
