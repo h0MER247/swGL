@@ -33,6 +33,7 @@
     <ClInclude Include="SIMD.h" />
     <ClInclude Include="SWGammaRamp.h" />
     <ClInclude Include="TargaWriter.h" />
+    <ClInclude Include="TexCoordGen.h" />
     <ClInclude Include="TextureManager.h" />
     <ClInclude Include="VertexDataArray.h" />
     <ClInclude Include="Clipper.h" />
@@ -63,6 +64,7 @@
     <ClCompile Include="OpenGL.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="DrawSurface.cpp" />
+    <ClCompile Include="TexCoordGen.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="TextureSampler.cpp" />
     <ClCompile Include="Vector.cpp" />

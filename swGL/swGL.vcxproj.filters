@@ -127,6 +127,12 @@
     <Filter Include="Headerdateien\Rendering\Texture Manager">
       <UniqueIdentifier>{8736d5d0-5a08-442f-a2a3-8f22acfc027a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Quelldateien\Vertex Pipeline\Texture Coordinate Generation">
+      <UniqueIdentifier>{1225c2bf-087a-4b38-b9fd-f1db2afceea4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Vertex Pipeline\Texture Coordinate Generation">
+      <UniqueIdentifier>{d19cad30-5212-48cf-8fd1-a4e17c02bf1a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Context.h">
@@ -222,6 +228,9 @@
     <ClInclude Include="TargaWriter.h">
       <Filter>Headerdateien\Utility\Targa Writer</Filter>
     </ClInclude>
+    <ClInclude Include="TexCoordGen.h">
+      <Filter>Headerdateien\Vertex Pipeline\Texture Coordinate Generation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Clipper.cpp">
@@ -283,6 +292,9 @@
     </ClCompile>
     <ClCompile Include="Main.cpp">
       <Filter>Quelldateien\DLL</Filter>
+    </ClCompile>
+    <ClCompile Include="TexCoordGen.cpp">
+      <Filter>Quelldateien\Vertex Pipeline\Texture Coordinate Generation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
