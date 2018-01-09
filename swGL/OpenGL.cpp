@@ -4282,6 +4282,8 @@ SWGLAPI void STDCALL glDrv_glTexGenModeCommon(const SWGL::ContextPtr &ctx, GLenu
     case GL_EYE_LINEAR:
     case GL_OBJECT_LINEAR:
     case GL_SPHERE_MAP:
+    case GL_NORMAL_MAP:
+    case GL_REFLECTION_MAP:
         ctx->getVertexPipeline().setTexGenMode(static_cast<int>(coord - GL_S), mode);
         break;
 

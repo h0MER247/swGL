@@ -49,20 +49,30 @@ namespace SWGL {
 
         const auto &data = state.data[texCoordIdx];
 
-        if (data.mode == GL_OBJECT_LINEAR) {
+        switch (data.mode) {
 
-            return Vector::dot(m_vertexState.obj, data.objectPlane);
-        }
-        else if (data.mode == GL_EYE_LINEAR) {
-
+        case GL_EYE_LINEAR:
             LOG("Unimplemented GL_EYE_LINEAR");
             return 0.0f;
-        }
-        else {
 
+        case GL_OBJECT_LINEAR:
+            return Vector::dot(m_vertexState.obj, data.objectPlane);
+
+        case GL_SPHERE_MAP:
             LOG("Unimplemented GL_SPHERE_MAP");
             return 0.0f;
+
+        case GL_NORMAL_MAP:
+            LOG("Unimplemented GL_NORMAL_MAP");
+            return 0.0f;
+
+        case GL_REFLECTION_MAP:
+            LOG("Unimplemented GL_REFLECTION_MAP");
+            return 0.0f;
         }
+
+        LOG("Invalid mode");
+        return 0.0f;
     }
 
 
