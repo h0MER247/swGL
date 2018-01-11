@@ -5881,11 +5881,11 @@ SWGLAPI void STDCALL glDrv_glActiveTexture(GLenum texture) {
     if (texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getTextureManager().setActiveTextureUnit(texIdx);
+        ctx->getVertexPipeline().getMatrixStack().setActiveTexture(texIdx);
     }
     else {
 
         LOG("Invalid texture unit");
-
         ctx->getError().setState(GL_INVALID_ENUM);
     }
 }

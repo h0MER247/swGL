@@ -33,7 +33,7 @@ namespace SWGL {
         }
 
         bool wasMatrixStackUpdated(size_t stack) {
-        
+
             bool wasUpdated = m_stack[stack].wasUpdated;
             m_stack[stack].wasUpdated = false;
 
@@ -41,18 +41,20 @@ namespace SWGL {
         }
 
     public:
+        void setActiveTexture(size_t activeTexture) {
+
+            m_activeTexture = activeTexture;
+        }
+
+    public:
         Matrix &getCurrentMatrix() const { return *m_currentStack->currentMatrix; }
         Matrix &getModelViewMatrix() const { return *m_stack[STACK_MODELVIEW].currentMatrix; }
         Matrix &getProjectionMatrix() const { return *m_stack[STACK_PROJECTION].currentMatrix; }
         Matrix &getColorMatrix() const { return *m_stack[STACK_COLOR].currentMatrix; }
-        Matrix &getTextureMatrix() const {
-        
-            // TODO: Each texture unit has its own texture matrix stack... That 
-            //       here may have worked for OpenGL 1.1, but it doesn't for 1.3.
-            return *m_stack[STACK_TEXTURE].currentMatrix;
-        }
+        Matrix &getTextureMatrix() const { return *m_stack[STACK_TEXTURE_0 + m_activeTexture].currentMatrix; }
 
     private:
+        size_t m_activeTexture;
         GLenum m_matrixMode;
 
     private:
@@ -62,13 +64,13 @@ namespace SWGL {
             Matrix *currentMatrix;
             bool wasUpdated;
         };
-        Stack m_stack[4];
+        Stack m_stack[3 + SWGL_MAX_TEXTURE_UNITS];
         Stack *m_currentStack;
 
     public:
         static constexpr size_t STACK_MODELVIEW = 0U;
         static constexpr size_t STACK_PROJECTION = 1U;
-        static constexpr size_t STACK_TEXTURE = 2U;
-        static constexpr size_t STACK_COLOR = 3U;
+        static constexpr size_t STACK_COLOR = 2U;
+        static constexpr size_t STACK_TEXTURE_0 = 3U;
     };
 }

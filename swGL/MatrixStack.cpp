@@ -3,19 +3,22 @@
 
 namespace SWGL {
 
-    MatrixStack::MatrixStack() {
-        
-        for (int i = 0; i < 4; i++) {
+    MatrixStack::MatrixStack()
+
+        : m_activeTexture(0) {
+
+        for (int i = 0; i < 3 + SWGL_MAX_TEXTURE_UNITS; i++) {
 
             auto &stack = m_stack[i];
 
             for (int j = 0; j < SWGL_MAX_MATRIXSTACK_DEPTH; j++) {
-            
+
                 stack.matrix[j] = Matrix::getIdentity();
             }
             stack.currentMatrix = &stack.matrix[0];
             stack.wasUpdated = false;
         }
+
         setMatrixMode(GL_MODELVIEW);
     }
 
@@ -25,12 +28,12 @@ namespace SWGL {
 
         m_matrixMode = matrixMode;
 
-        switch(matrixMode) {
+        switch (matrixMode) {
 
-            case GL_MODELVIEW: m_currentStack = &m_stack[STACK_MODELVIEW]; break;
-            case GL_PROJECTION: m_currentStack = &m_stack[STACK_PROJECTION]; break;
-            case GL_TEXTURE: m_currentStack = &m_stack[STACK_TEXTURE]; break;
-            case GL_COLOR: m_currentStack = &m_stack[STACK_COLOR]; break;
+        case GL_MODELVIEW: m_currentStack = &m_stack[STACK_MODELVIEW]; break;
+        case GL_PROJECTION: m_currentStack = &m_stack[STACK_PROJECTION]; break;
+        case GL_TEXTURE: m_currentStack = &m_stack[STACK_TEXTURE_0 + m_activeTexture]; break;
+        case GL_COLOR: m_currentStack = &m_stack[STACK_COLOR]; break;
         }
     }
 
