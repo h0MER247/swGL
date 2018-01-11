@@ -100,6 +100,17 @@ namespace SWGL {
 
 
 
+    // Returns true if this matrix is the identity matrix
+    bool Matrix::isIdentity() {
+
+        Matrix &M = *this;
+
+        return M(0, 0) == 1.0f && M(0, 1) == 0.0f && M(0, 2) == 0.0f && M(0, 3) == 0.0f &&
+               M(1, 0) == 0.0f && M(1, 1) == 1.0f && M(1, 2) == 0.0f && M(1, 3) == 0.0f &&
+               M(2, 0) == 0.0f && M(2, 1) == 0.0f && M(2, 2) == 1.0f && M(2, 3) == 0.0f &&
+               M(3, 0) == 0.0f && M(3, 1) == 0.0f && M(3, 2) == 0.0f && M(3, 3) == 1.0f;
+    }
+
     // Return the transpose of this matrix
     Matrix Matrix::getTranspose() {
 

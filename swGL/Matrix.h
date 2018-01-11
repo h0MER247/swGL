@@ -34,6 +34,7 @@ namespace SWGL {
         friend Vector operator*(const Vector &lhs, const Matrix &rhs);
 
     public:
+        bool isIdentity();
         Matrix getTranspose();
         Matrix getTransposedInverse();
 
