@@ -11,6 +11,11 @@ namespace SWGL {
           m_texCoordGen(m_vertexState) {
 
         setActiveTexture(0U);
+        setColor(Vector(1.0f, 1.0f, 1.0f, 1.0f));
+        for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+
+            setTexCoord(i, Vector(0.0f, 0.0f, 0.0f, 1.0f));
+        }
     }
 
 
