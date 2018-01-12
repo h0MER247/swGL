@@ -226,12 +226,16 @@ namespace SWGL {
             DEFINE_GRADIENT(a);
             SETUP_GRADIENT_EQ(a, t.v[0].color.a(), t.v[1].color.a(), t.v[2].color.a());
 
-            DEFINE_GRADIENT(u[SWGL_MAX_TEXTURE_UNITS]);
-            DEFINE_GRADIENT(v[SWGL_MAX_TEXTURE_UNITS]);
+            DEFINE_GRADIENT(texS[SWGL_MAX_TEXTURE_UNITS]);
+            DEFINE_GRADIENT(texT[SWGL_MAX_TEXTURE_UNITS]);
+            DEFINE_GRADIENT(texR[SWGL_MAX_TEXTURE_UNITS]);
+            DEFINE_GRADIENT(texQ[SWGL_MAX_TEXTURE_UNITS]);
             for (size_t i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
-                SETUP_GRADIENT_EQ(u[i], t.v[0].texCoord[i].x(), t.v[1].texCoord[i].x(), t.v[2].texCoord[i].x());
-                SETUP_GRADIENT_EQ(v[i], t.v[0].texCoord[i].y(), t.v[1].texCoord[i].y(), t.v[2].texCoord[i].y());
+                SETUP_GRADIENT_EQ(texS[i], t.v[0].texCoord[i].x(), t.v[1].texCoord[i].x(), t.v[2].texCoord[i].x());
+                SETUP_GRADIENT_EQ(texT[i], t.v[0].texCoord[i].y(), t.v[1].texCoord[i].y(), t.v[2].texCoord[i].y());
+                SETUP_GRADIENT_EQ(texR[i], t.v[0].texCoord[i].z(), t.v[1].texCoord[i].z(), t.v[2].texCoord[i].z());
+                SETUP_GRADIENT_EQ(texQ[i], t.v[0].texCoord[i].w(), t.v[1].texCoord[i].w(), t.v[2].texCoord[i].w());
             }
 
             //
@@ -353,8 +357,10 @@ namespace SWGL {
                             }
 
                             // Get texture sample
-                            texCoords.u = GET_GRADIENT_VALUE_PERSP(u[i]);
-                            texCoords.v = GET_GRADIENT_VALUE_PERSP(v[i]);
+                            texCoords.s = GET_GRADIENT_VALUE_PERSP(texS[i]);
+                            texCoords.t = GET_GRADIENT_VALUE_PERSP(texT[i]);
+                            texCoords.r = GET_GRADIENT_VALUE_PERSP(texR[i]);
+                            texCoords.q = GET_GRADIENT_VALUE_PERSP(texQ[i]);
                             sampleTexels(texState.texObj, texState.texParams, texCoords, texColor);
 
                             // Execute the texturing function

@@ -124,14 +124,14 @@
     <Filter Include="Quelldateien\Rendering\Texture">
       <UniqueIdentifier>{8d82d405-0905-410f-b22b-f3e6a9475526}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headerdateien\Rendering\Texture Manager">
-      <UniqueIdentifier>{8736d5d0-5a08-442f-a2a3-8f22acfc027a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Quelldateien\Vertex Pipeline\Texture Coordinate Generation">
       <UniqueIdentifier>{1225c2bf-087a-4b38-b9fd-f1db2afceea4}</UniqueIdentifier>
     </Filter>
     <Filter Include="Headerdateien\Vertex Pipeline\Texture Coordinate Generation">
       <UniqueIdentifier>{d19cad30-5212-48cf-8fd1-a4e17c02bf1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Rendering\Texture">
+      <UniqueIdentifier>{8736d5d0-5a08-442f-a2a3-8f22acfc027a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -202,7 +202,7 @@
       <Filter>Headerdateien\Utility\SIMD</Filter>
     </ClInclude>
     <ClInclude Include="TextureManager.h">
-      <Filter>Headerdateien\Rendering\Texture Manager</Filter>
+      <Filter>Headerdateien\Rendering\Texture</Filter>
     </ClInclude>
     <ClInclude Include="LockFreeQueue.h">
       <Filter>Headerdateien\Utility\Lockfree Queue</Filter>

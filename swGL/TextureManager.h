@@ -141,9 +141,10 @@ namespace SWGL {
     // Texture coordinates
     struct TextureCoordinates {
 
-        QFloat u;
-        QFloat v;
-        // ...
+        QFloat s;
+        QFloat t;
+        QFloat r;
+        QFloat q;
     };
 
     // Color

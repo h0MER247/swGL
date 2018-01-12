@@ -7,13 +7,10 @@ namespace SWGL {
 
     static float getLambda(TextureObjectPtr &tex, TextureCoordinates &texCoords) {
 
-        auto u = texCoords.u;
-        auto v = texCoords.v;
-
         // Calculate the partial derivatives for each texture coordinate. Those tell us how much we
         // have to "move" inside texture space for one pixel in screen space.
-        float u1 = SIMD::extract<1>(u), u2 = SIMD::extract<2>(u), u3 = SIMD::extract<3>(u);
-        float v1 = SIMD::extract<1>(v), v2 = SIMD::extract<2>(v), v3 = SIMD::extract<3>(v);
+        float u1 = SIMD::extract<1>(texCoords.s), u2 = SIMD::extract<2>(texCoords.s), u3 = SIMD::extract<3>(texCoords.s);
+        float v1 = SIMD::extract<1>(texCoords.t), v2 = SIMD::extract<2>(texCoords.t), v3 = SIMD::extract<3>(texCoords.t);
 
         float w = static_cast<float>(tex->mips[0].width);
         float h = static_cast<float>(tex->mips[0].height);
@@ -70,8 +67,8 @@ namespace SWGL {
         QInt wrapHeight = _mm_set1_epi32(mip.height - 1);
 
         // Scale u and v according to the textures dimensions
-        QFloat scaledU = _mm_sub_ps(_mm_mul_ps(texCoords.u, _mm_cvtepi32_ps(width)), _mm_set1_ps(0.5f));
-        QFloat scaledV = _mm_sub_ps(_mm_mul_ps(texCoords.v, _mm_cvtepi32_ps(height)), _mm_set1_ps(0.5f));
+        QFloat scaledU = _mm_sub_ps(_mm_mul_ps(texCoords.s, _mm_cvtepi32_ps(width)), _mm_set1_ps(0.5f));
+        QFloat scaledV = _mm_sub_ps(_mm_mul_ps(texCoords.t, _mm_cvtepi32_ps(height)), _mm_set1_ps(0.5f));
         QFloat flooredU = SIMD::floor(scaledU);
         QFloat flooredV = SIMD::floor(scaledV);
 
@@ -166,8 +163,8 @@ namespace SWGL {
         QInt wrapHeight = _mm_set1_epi32(mip.height - 1);
 
         // Scale u and v according to the texture dimension
-        QInt scaledU = _mm_cvttps_epi32(SIMD::floor(_mm_mul_ps(texCoords.u, _mm_cvtepi32_ps(width))));
-        QInt scaledV = _mm_cvttps_epi32(SIMD::floor(_mm_mul_ps(texCoords.v, _mm_cvtepi32_ps(height))));
+        QInt scaledU = _mm_cvttps_epi32(SIMD::floor(_mm_mul_ps(texCoords.s, _mm_cvtepi32_ps(width))));
+        QInt scaledV = _mm_cvttps_epi32(SIMD::floor(_mm_mul_ps(texCoords.t, _mm_cvtepi32_ps(height))));
 
         // Determine the texel x- and y-coordinates according to the selected wrapping mode
         QInt texelX, texelY;
