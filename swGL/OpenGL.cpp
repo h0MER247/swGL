@@ -2304,7 +2304,19 @@ SWGLAPI void STDCALL glDrv_glMatrixMode(GLenum mode) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().getMatrixStack().setMatrixMode(mode);
+    switch (mode) {
+
+    case GL_MODELVIEW:
+    case GL_PROJECTION:
+    case GL_TEXTURE:
+    case GL_COLOR:
+        ctx->getVertexPipeline().getMatrixStack().setMatrixMode(mode);
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        break;
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glMultMatrixd(const GLdouble *m) {
