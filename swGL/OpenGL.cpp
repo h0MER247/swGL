@@ -1013,7 +1013,7 @@ SWGLAPI void STDCALL glDrv_glDisable(GLenum cap) {
     case GL_TEXTURE_GEN_T:
     case GL_TEXTURE_GEN_R:
     case GL_TEXTURE_GEN_Q:
-        ctx->getVertexPipeline().setTexGenEnable(static_cast<int>(cap - GL_TEXTURE_GEN_S), false);
+        ctx->getVertexPipeline().getTexGen().setEnable(cap - GL_TEXTURE_GEN_S, false);
         break;
 
     case GL_CULL_FACE:
@@ -1112,7 +1112,7 @@ SWGLAPI void STDCALL glDrv_glEnable(GLenum cap) {
     case GL_TEXTURE_GEN_T:
     case GL_TEXTURE_GEN_R:
     case GL_TEXTURE_GEN_Q:
-        ctx->getVertexPipeline().setTexGenEnable(static_cast<int>(cap - GL_TEXTURE_GEN_S), true);
+        ctx->getVertexPipeline().getTexGen().setEnable(cap - GL_TEXTURE_GEN_S, true);
         break;
 
     case GL_CULL_FACE:
@@ -4284,7 +4284,7 @@ SWGLAPI void STDCALL glDrv_glTexGenModeCommon(const SWGL::ContextPtr &ctx, GLenu
     case GL_SPHERE_MAP:
     case GL_NORMAL_MAP:
     case GL_REFLECTION_MAP:
-        ctx->getVertexPipeline().setTexGenMode(static_cast<int>(coord - GL_S), mode);
+        ctx->getVertexPipeline().getTexGen().setMode(coord - GL_S, mode);
         break;
 
     default:
@@ -4295,13 +4295,19 @@ SWGLAPI void STDCALL glDrv_glTexGenModeCommon(const SWGL::ContextPtr &ctx, GLenu
 
 SWGLAPI void STDCALL glDrv_glTexGenEyePlaneCommon(const SWGL::ContextPtr &ctx, GLenum coord, SWGL::Vector planeEq) {
 
+    auto &mvMatrix = ctx->getVertexPipeline().getMatrixStack().getModelViewMatrix();
+
     switch (coord) {
 
     case GL_S:
     case GL_T:
     case GL_R:
     case GL_Q:
-        ctx->getVertexPipeline().setTexGenEyePlane(static_cast<int>(coord - GL_S), planeEq);
+        ctx->getVertexPipeline().getTexGen().setEyePlane(
+        
+            coord - GL_S,
+            planeEq * mvMatrix.getTransposedInverse()
+        );
         break;
 
     default:
@@ -4318,7 +4324,11 @@ SWGLAPI void STDCALL glDrv_glTexGenObjectPlaneCommon(const SWGL::ContextPtr &ctx
     case GL_T:
     case GL_R:
     case GL_Q:
-        ctx->getVertexPipeline().setTexGenObjectPlane(static_cast<int>(coord - GL_S), planeEq);
+        ctx->getVertexPipeline().getTexGen().setObjectPlane(
+        
+            coord - GL_S,
+            planeEq
+        );
         break;
 
     default:
@@ -5882,6 +5892,7 @@ SWGLAPI void STDCALL glDrv_glActiveTexture(GLenum texture) {
 
         ctx->getTextureManager().setActiveTextureUnit(texIdx);
         ctx->getVertexPipeline().getMatrixStack().setActiveTexture(texIdx);
+        ctx->getVertexPipeline().getTexGen().setActiveTexture(texIdx);
     }
     else {
 

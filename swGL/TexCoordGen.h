@@ -10,7 +10,7 @@ namespace SWGL {
     //
     struct TexCoordGenState {
 
-        int enableMask = 0;
+        unsigned int enableMask = 0U;
 
         struct {
 
@@ -37,20 +37,22 @@ namespace SWGL {
         ~TexCoordGen() = default;
 
     public:
-        void setEnable(int activeTexture, int texCoordIdx, bool isEnabled);
-        void setMode(int activeTexture, int texCoordIdx, GLenum mode);
-        void setObjectPlane(int activeTexture, int texCoordIdx, Vector plane);
-        void setEyePlane(int activeTexture, int texCoordIdx, Vector plane);
+        void setEnable(unsigned int texCoordIdx, bool isEnabled);
+        void setMode(unsigned int texCoordIdx, GLenum mode);
+        void setObjectPlane(unsigned int texCoordIdx, Vector plane);
+        void setEyePlane(unsigned int texCoordIdx, Vector plane);
+        void setActiveTexture(unsigned int activeTexture);
 
     private:
-        float generateTexCoord(int texCoordIdx, TexCoordGenState &state);
+        float generateTexCoord(unsigned int texCoordIdx, TexCoordGenState &state);
 
     public:
         bool isEnabled();
         void generate();
 
     private:
-        int m_enableMask;
+        unsigned int m_activeTexture;
+        unsigned int m_enableMask;
         Vertex &m_vertexState;
         TexCoordGenState m_state[SWGL_MAX_TEXTURE_UNITS];
     };

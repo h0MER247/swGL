@@ -8,44 +8,50 @@ namespace SWGL {
     TexCoordGen::TexCoordGen(Vertex &vertexState)
 
         : m_vertexState(vertexState),
-          m_enableMask(0) {
+          m_enableMask(0U),
+          m_activeTexture(0U) {
 
     }
 
 
 
-    void TexCoordGen::setEnable(int activeTexture, int texCoordIdx, bool isEnabled) {
+    void TexCoordGen::setEnable(unsigned int texCoordIdx, bool isEnabled) {
 
         if (isEnabled) {
 
-            m_enableMask |= 1 << activeTexture;
-            m_state[activeTexture].enableMask |= 1 << texCoordIdx;
+            m_enableMask |= 1U << m_activeTexture;
+            m_state[m_activeTexture].enableMask |= 1U << texCoordIdx;
         }
         else {
 
-            m_enableMask &= ~(1 << activeTexture);
-            m_state[activeTexture].enableMask &= ~(1 << texCoordIdx);
+            m_enableMask &= ~(1U << m_activeTexture);
+            m_state[m_activeTexture].enableMask &= ~(1U << texCoordIdx);
         }
     }
 
-    void TexCoordGen::setMode(int activeTexture, int texCoordIdx, GLenum mode) {
+    void TexCoordGen::setMode(unsigned int texCoordIdx, GLenum mode) {
 
-        m_state[activeTexture].data[texCoordIdx].mode = mode;
+        m_state[m_activeTexture].data[texCoordIdx].mode = mode;
     }
 
-    void TexCoordGen::setObjectPlane(int activeTexture, int texCoordIdx, Vector plane) {
+    void TexCoordGen::setObjectPlane(unsigned int texCoordIdx, Vector plane) {
 
-        m_state[activeTexture].data[texCoordIdx].objectPlane = plane;
+        m_state[m_activeTexture].data[texCoordIdx].objectPlane = plane;
     }
 
-    void TexCoordGen::setEyePlane(int activeTexture, int texCoordIdx, Vector plane) {
+    void TexCoordGen::setEyePlane(unsigned int texCoordIdx, Vector plane) {
 
-        m_state[activeTexture].data[texCoordIdx].eyePlane = plane;
+        m_state[m_activeTexture].data[texCoordIdx].eyePlane = plane;
+    }
+
+    void TexCoordGen::setActiveTexture(unsigned int activeTexture) {
+
+        m_activeTexture = activeTexture;
     }
 
 
 
-    float TexCoordGen::generateTexCoord(int texCoordIdx, TexCoordGenState &state) {
+    float TexCoordGen::generateTexCoord(unsigned int texCoordIdx, TexCoordGenState &state) {
 
         const auto &data = state.data[texCoordIdx];
 
@@ -79,22 +85,22 @@ namespace SWGL {
 
     bool TexCoordGen::isEnabled() {
 
-        return m_enableMask != 0;
+        return m_enableMask != 0U;
     }
 
     void TexCoordGen::generate() {
 
-        for (size_t i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+        for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
             auto &state = m_state[i];
-            if (state.enableMask != 0) {
+            if (state.enableMask != 0U) {
 
                 auto &texCoord = m_vertexState.texCoord[i];
 
-                if ((state.enableMask & 1) != 0) { texCoord.x() = generateTexCoord(0, state); }
-                if ((state.enableMask & 2) != 0) { texCoord.y() = generateTexCoord(1, state); }
-                if ((state.enableMask & 4) != 0) { texCoord.z() = generateTexCoord(2, state); }
-                if ((state.enableMask & 8) != 0) { texCoord.w() = generateTexCoord(3, state); }
+                if ((state.enableMask & 1U) != 0U) { texCoord.x() = generateTexCoord(0U, state); }
+                if ((state.enableMask & 2U) != 0U) { texCoord.y() = generateTexCoord(1U, state); }
+                if ((state.enableMask & 4U) != 0U) { texCoord.z() = generateTexCoord(2U, state); }
+                if ((state.enableMask & 8U) != 0U) { texCoord.w() = generateTexCoord(3U, state); }
             }
         }
     }

@@ -38,12 +38,6 @@ namespace SWGL {
         void setArrayElement(int idx);
 
     public:
-        void setTexGenEnable(int texCoordIdx, bool isEnabled);
-        void setTexGenMode(int texCoordIdx, GLenum mode);
-        void setTexGenObjectPlane(int texCoordIdx, Vector planeEq);
-        void setTexGenEyePlane(int texCoordIdx, Vector planeEq);
-
-    public:
         void lockArrayElements(int firstIndex, int count);
         void unlockArrayElements();
         void drawIndexedArrayElements(GLenum mode, int count, GLenum type, const GLvoid *indices);
@@ -57,6 +51,7 @@ namespace SWGL {
     public:
         Clipper &getClipper() { return m_clipper; }
         MatrixStack &getMatrixStack() { return m_matrixStack; }
+        TexCoordGen &getTexGen() { return m_texCoordGen; }
 
     private:
         void addTriangle(Vertex &v1, Vertex &v2, Vertex &v3);

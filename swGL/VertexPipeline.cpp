@@ -198,33 +198,6 @@ namespace SWGL {
 
 
 
-    void VertexPipeline::setTexGenEnable(int texCoordIdx, bool isEnabled) {
-
-        m_texCoordGen.setEnable(m_activeTexture, texCoordIdx, isEnabled);
-    }
-
-    void VertexPipeline::setTexGenMode(int texCoordIdx, GLenum mode) {
-
-        m_texCoordGen.setMode(m_activeTexture, texCoordIdx, mode);
-    }
-
-    void VertexPipeline::setTexGenObjectPlane(int texCoordIdx, Vector planeEq) {
-
-        m_texCoordGen.setObjectPlane(m_activeTexture, texCoordIdx, planeEq);
-    }
-
-    void VertexPipeline::setTexGenEyePlane(int texCoordIdx, Vector planeEq) {
-
-        m_texCoordGen.setEyePlane(
-
-            m_activeTexture,
-            texCoordIdx,
-            planeEq * m_matrixStack.getModelViewMatrix().getTransposedInverse()
-        );
-    }
-
-
-
     void VertexPipeline::lockArrayElements(int firstIndex, int count) {
 
         m_vertexDataArray.lock(firstIndex, count);
