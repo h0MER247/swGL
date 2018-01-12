@@ -4,7 +4,7 @@
 #include <array>
 #include "DrawBuffer.h"
 #if !SWGL_USE_HARDWARE_GAMMA
-#include "SWGammaRamp.h"
+#include "GammaRamp.h"
 #endif
 
 namespace SWGL {
@@ -36,13 +36,13 @@ namespace SWGL {
 
     #if !SWGL_USE_HARDWARE_GAMMA
     public:
-        static SWGammaRamp &getGammaRamp() {
+        static GammaRamp &getGammaRamp() {
         
             return m_gammaRamp;
         }
 
     private:
-        static SWGammaRamp m_gammaRamp;
+        static GammaRamp m_gammaRamp;
     #endif
 
     private:

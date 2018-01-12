@@ -26,12 +26,12 @@
     <ClInclude Include="CommandBase.h" />
     <ClInclude Include="DrawThread.h" />
     <ClInclude Include="ContextTypes.h" />
+    <ClInclude Include="GammaRamp.h" />
     <ClInclude Include="LockFreeQueue.h" />
     <ClInclude Include="DrawBuffer.h" />
     <ClInclude Include="DrawSurface.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="SIMD.h" />
-    <ClInclude Include="SWGammaRamp.h" />
     <ClInclude Include="TargaWriter.h" />
     <ClInclude Include="TexCoordGen.h" />
     <ClInclude Include="TextureManager.h" />

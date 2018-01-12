@@ -7,11 +7,11 @@
 namespace SWGL {
 
 #if !SWGL_USE_HARDWARE_GAMMA
-    SWGammaRamp DrawSurface::m_gammaRamp;
+    GammaRamp DrawSurface::m_gammaRamp;
 #endif
 
     DrawSurface::DrawSurface()
-    
+
         : m_width(0),
           m_height(0) {
 
@@ -47,7 +47,7 @@ namespace SWGL {
         int height = static_cast<int>(r.bottom - r.top);
 
         // Resize the drawing surface if needed
-        if(width != m_width || height != m_height) {
+        if (width != m_width || height != m_height) {
 
             m_width = width;
             m_height = height;
@@ -103,7 +103,7 @@ namespace SWGL {
         }
 
 #if !SWGL_USE_HARDWARE_GAMMA
-        // Software emulated Gamma correction
+        // Software emulated gamma correction
         m_gammaRamp.correct(
 
             m_unswizzledColor.data(), m_unswizzledColor.size()

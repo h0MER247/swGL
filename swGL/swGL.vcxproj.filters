@@ -103,9 +103,6 @@
     <Filter Include="Headerdateien\Vertex Pipeline\Vertex Array">
       <UniqueIdentifier>{b1665e70-4f63-4129-8bb8-d0c66207134b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Headerdateien\Utility\Software Gamma Ramp">
-      <UniqueIdentifier>{a75a963c-ba8d-4dad-9fbd-ff13a131d3c1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Headerdateien\Rendering\Renderer\Drawing Thread">
       <UniqueIdentifier>{e4773a46-6258-4784-a019-9b3a2b4c1b09}</UniqueIdentifier>
     </Filter>
@@ -132,6 +129,9 @@
     </Filter>
     <Filter Include="Headerdateien\Rendering\Texture">
       <UniqueIdentifier>{8736d5d0-5a08-442f-a2a3-8f22acfc027a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headerdateien\Utility\Gamma Ramp">
+      <UniqueIdentifier>{a75a963c-ba8d-4dad-9fbd-ff13a131d3c1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -210,9 +210,6 @@
     <ClInclude Include="Wiggle.h">
       <Filter>Headerdateien\DLL</Filter>
     </ClInclude>
-    <ClInclude Include="SWGammaRamp.h">
-      <Filter>Headerdateien\Utility\Software Gamma Ramp</Filter>
-    </ClInclude>
     <ClInclude Include="DrawThread.h">
       <Filter>Headerdateien\Rendering\Renderer\Drawing Thread</Filter>
     </ClInclude>
@@ -230,6 +227,9 @@
     </ClInclude>
     <ClInclude Include="TexCoordGen.h">
       <Filter>Headerdateien\Vertex Pipeline\Texture Coordinate Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="GammaRamp.h">
+      <Filter>Headerdateien\Utility\Gamma Ramp</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

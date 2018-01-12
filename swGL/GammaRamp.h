@@ -5,10 +5,10 @@ namespace SWGL {
     //
     // Implements a software based rgb gamma correction table
     //
-    class SWGammaRamp {
+    class GammaRamp {
 
     public:
-        SWGammaRamp() {
+        GammaRamp() {
 
             for (int i = 0; i < 256; i++) {
 
@@ -17,7 +17,7 @@ namespace SWGL {
                 m_blue[i] = static_cast<char>(i);
             }
         }
-        ~SWGammaRamp() = default;
+        ~GammaRamp() = default;
 
     public:
         void set(unsigned short *ramp) {
