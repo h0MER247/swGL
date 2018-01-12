@@ -197,9 +197,21 @@ SWGLAPI BOOL STDCALL glDrv_wglSwapBuffers(HDC hdc) {
     return FALSE;
 }
 
-SWGLAPI BOOL STDCALL glDrv_wglSwapLayerBuffers(HDC hdc, UINT i) {
+SWGLAPI BOOL STDCALL glDrv_wglSwapLayerBuffers(HDC hdc, UINT planes) {
 
-    LOG("Unimplemented");
+    LOG("HDC: %p, Planes: %08x", hdc, planes);
+
+    auto &context = SWGL::Context::getCurrentContext();
+    if (context != nullptr) {
+
+        if ((planes & WGL_SWAP_MAIN_PLANE) != 0U) {
+
+            context->getRenderer().swapBuffers();
+        }
+
+        return TRUE;
+    }
+
     return FALSE;
 }
 

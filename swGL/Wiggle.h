@@ -23,7 +23,7 @@ SWGLAPI int STDCALL glDrv_wglSetLayerPaletteEntries(HDC hdc, int iLayerPlane, in
 SWGLAPI BOOL STDCALL glDrv_wglSetPixelFormat(HDC hdc, int format, CONST PIXELFORMATDESCRIPTOR *ppfd);
 SWGLAPI BOOL STDCALL glDrv_wglShareLists(HGLRC hglrc, HGLRC hglrc2);
 SWGLAPI BOOL STDCALL glDrv_wglSwapBuffers(HDC hdc);
-SWGLAPI BOOL STDCALL glDrv_wglSwapLayerBuffers(HDC hdc, UINT i);
+SWGLAPI BOOL STDCALL glDrv_wglSwapLayerBuffers(HDC hdc, UINT planes);
 SWGLAPI BOOL STDCALL glDrv_wglUseFontBitmapsA(HDC hdc, DWORD dw1, DWORD dw2, DWORD dw3);
 SWGLAPI BOOL STDCALL glDrv_wglUseFontBitmapsW(HDC hdc, DWORD dw1, DWORD dw2, DWORD dw3);
 SWGLAPI BOOL STDCALL glDrv_wglUseFontOutlinesA(HDC hdc, DWORD dw1, DWORD dw2, DWORD dw3, FLOAT f1, FLOAT f2, int i, LPGLYPHMETRICSFLOAT pgmf);
