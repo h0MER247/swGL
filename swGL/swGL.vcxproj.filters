@@ -189,9 +189,6 @@
     <ClInclude Include="CommandPoisonPill.h">
       <Filter>Headerdateien\Rendering\Renderer\Commands</Filter>
     </ClInclude>
-    <ClInclude Include="CommandSyncPoint.h">
-      <Filter>Headerdateien\Rendering\Renderer\Commands</Filter>
-    </ClInclude>
     <ClInclude Include="AlignedAllocator.h">
       <Filter>Headerdateien\Utility\Aligned Allocator</Filter>
     </ClInclude>
@@ -230,6 +227,9 @@
     </ClInclude>
     <ClInclude Include="GammaRamp.h">
       <Filter>Headerdateien\Utility\Gamma Ramp</Filter>
+    </ClInclude>
+    <ClInclude Include="CommandSynchronize.h">
+      <Filter>Headerdateien\Rendering\Renderer\Commands</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -272,9 +272,6 @@
     <ClCompile Include="CommandDrawTriangle.cpp">
       <Filter>Quelldateien\Rendering\Renderer\Commands</Filter>
     </ClCompile>
-    <ClCompile Include="CommandSyncPoint.cpp">
-      <Filter>Quelldateien\Rendering\Renderer\Commands</Filter>
-    </ClCompile>
     <ClCompile Include="CommandPoisonPill.cpp">
       <Filter>Quelldateien\Rendering\Renderer\Commands</Filter>
     </ClCompile>
@@ -295,6 +292,9 @@
     </ClCompile>
     <ClCompile Include="TexCoordGen.cpp">
       <Filter>Quelldateien\Vertex Pipeline\Texture Coordinate Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="CommandSynchronize.cpp">
+      <Filter>Quelldateien\Rendering\Renderer\Commands</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

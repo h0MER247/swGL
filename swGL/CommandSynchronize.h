@@ -7,15 +7,15 @@ namespace SWGL {
     //
     // Used to synchronize all draw threads with a countdown latch
     //
-    class CommandSyncPoint : public CommandBase {
+    class CommandSynchronize : public CommandBase {
 
     public:
-        CommandSyncPoint(CountDownLatch &latch)
+        CommandSynchronize(CountDownLatch &latch)
         
             : m_latch(latch) {
                 
         }
-        ~CommandSyncPoint() = default;
+        ~CommandSynchronize() = default;
 
     public:
         bool isFlushingQueue() override {

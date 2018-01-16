@@ -20,7 +20,7 @@
     <ClInclude Include="CommandClearDepth.h" />
     <ClInclude Include="CommandDrawTriangle.h" />
     <ClInclude Include="CommandPoisonPill.h" />
-    <ClInclude Include="CommandSyncPoint.h" />
+    <ClInclude Include="CommandSynchronize.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="CountDownLatch.h" />
     <ClInclude Include="CommandBase.h" />
@@ -54,7 +54,7 @@
     <ClCompile Include="CommandClearDepth.cpp" />
     <ClCompile Include="CommandDrawTriangle.cpp" />
     <ClCompile Include="CommandPoisonPill.cpp" />
-    <ClCompile Include="CommandSyncPoint.cpp" />
+    <ClCompile Include="CommandSynchronize.cpp" />
     <ClCompile Include="Context.cpp" />
     <ClCompile Include="DrawThread.cpp" />
     <ClCompile Include="Main.cpp" />

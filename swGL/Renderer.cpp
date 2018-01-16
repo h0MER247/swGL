@@ -8,7 +8,7 @@
 #include "CommandClearDepth.h"
 #include "CommandDrawTriangle.h"
 #include "CommandPoisonPill.h"
-#include "CommandSyncPoint.h"
+#include "CommandSynchronize.h"
 #include "Renderer.h"
 
 namespace SWGL {
@@ -235,7 +235,7 @@ namespace SWGL {
 
             m_drawThreads[i]->addCommand(
 
-                std::make_unique<CommandSyncPoint>(m_latch)
+                std::make_unique<CommandSynchronize>(m_latch)
             );
         }
 
