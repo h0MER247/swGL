@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <memory>
 #include "Vector.h"
 #include "Vertex.h"
 #include "Matrix.h"
@@ -12,37 +13,40 @@ namespace SWGL {
     //
     // Reads data from client memory into Vector's
     //
-    template<bool normalize>
-    class VectorReaderBase {
+    class VectorReader {
 
     public:
-        VectorReaderBase() = default;
-        virtual ~VectorReaderBase() { }
+        VectorReader(bool normalizeValues, bool setWTo1) :
+
+            m_normalizeValues(normalizeValues),
+            m_setWTo1(setWTo1),
+            m_isEnabled(false) {
+
+        }
+        ~VectorReader() = default;
 
     public:
-        void setSource(const void *addr, GLenum type, size_t stride, size_t numArgs) {
+        void setSource(const void *addr, GLenum type, unsigned int stride, unsigned int numArgs) {
 
             switch (type) {
 
-            case GL_BYTE:           initSource<GLbyte>(stride, numArgs, normalize); break;
-            case GL_UNSIGNED_BYTE:  initSource<GLubyte>(stride, numArgs, normalize); break;
-            case GL_SHORT:          initSource<GLshort>(stride, numArgs, normalize); break;
-            case GL_UNSIGNED_SHORT: initSource<GLushort>(stride, numArgs, normalize); break;
-            case GL_INT:            initSource<GLint>(stride, numArgs, normalize); break;
-            case GL_UNSIGNED_INT:   initSource<GLuint>(stride, numArgs, normalize); break;
-            case GL_FLOAT:          initSource<GLfloat>(stride, numArgs, normalize); break;
-            case GL_DOUBLE:         initSource<GLdouble>(stride, numArgs, normalize); break;
+            case GL_BYTE:           initSource<GLbyte>(stride, numArgs); break;
+            case GL_UNSIGNED_BYTE:  initSource<GLubyte>(stride, numArgs); break;
+            case GL_SHORT:          initSource<GLshort>(stride, numArgs); break;
+            case GL_UNSIGNED_SHORT: initSource<GLushort>(stride, numArgs); break;
+            case GL_INT:            initSource<GLint>(stride, numArgs); break;
+            case GL_UNSIGNED_INT:   initSource<GLuint>(stride, numArgs); break;
+            case GL_FLOAT:          initSource<GLfloat>(stride, numArgs); break;
+            case GL_DOUBLE:         initSource<GLdouble>(stride, numArgs); break;
             }
 
             m_addr = reinterpret_cast<const char *>(addr);
             m_numArgs = numArgs;
-            m_hasStateChanged = true;
         }
 
         void setEnable(bool isEnabled) {
 
             m_isEnabled = isEnabled;
-            m_hasStateChanged = true;
         }
 
         bool isEnabled() {
@@ -50,157 +54,116 @@ namespace SWGL {
             return m_isEnabled;
         }
 
-        bool hasStateChanged() {
-
-            return m_hasStateChanged;
-        }
-
-        void updateState() {
-
-            m_hasStateChanged = false;
-        }
-
     public:
-        virtual Vector read(size_t index) = 0;
+        Vector read(unsigned int index) {
 
-    private:
-        template<typename T>
-        inline void initSource(size_t stride, size_t numArgs, bool doNormalize) {
-
-            m_stride = (stride == 0U) ? sizeof(T) * numArgs : stride;
-
-            if (doNormalize) {
-
-                m_reader = std::bind(&VectorReaderBase::readValueAndNormalize<T>, this, std::placeholders::_1, std::placeholders::_2);
-            }
-            else {
-
-                m_reader = std::bind(&VectorReaderBase::readValue<T>, this, std::placeholders::_1, std::placeholders::_2);
-            }
+            return m_reader(index);
         }
 
     private:
         template<typename T>
-        float readValue(const char *addr, size_t arg) {
+        inline void initSource(unsigned int stride, unsigned int numArgs) {
 
-            return static_cast<float>(reinterpret_cast<const T *>(addr)[arg]);
+            m_stride = stride == 0U ? sizeof(T) * numArgs : stride;
+
+            #define DEFINE_READER(ARG1, ARG2, ARG3, ARG4)                               \
+                m_reader = [&addr = m_addr, &stride = m_stride] (unsigned int index) {  \
+                                                                                        \
+                    auto p = reinterpret_cast<const T *>(addr + stride * index);        \
+                    return Vector(ARG1, ARG2, ARG3, ARG4);                              \
+                }
+
+            switch (numArgs) {
+
+            case 1U:
+                if (m_normalizeValues && m_setWTo1) {
+
+                    DEFINE_READER(toNormalizedFloat(p[0]), 0.0f, 0.0f, 1.0f);
+                }
+                else if (m_normalizeValues && !m_setWTo1) {
+
+                    DEFINE_READER(toNormalizedFloat(p[0]), 0.0f, 0.0f, 0.0f);
+                }
+                else if (!m_normalizeValues && m_setWTo1) {
+
+                    DEFINE_READER(static_cast<float>(p[0]), 0.0f, 0.0f, 1.0f);
+                }
+                else if (!m_normalizeValues && !m_setWTo1) {
+
+                    DEFINE_READER(static_cast<float>(p[0]), 0.0f, 0.0f, 0.0f);
+                }
+                break;
+
+            case 2U:
+                if (m_normalizeValues && m_setWTo1) {
+
+                    DEFINE_READER(toNormalizedFloat(p[0]), toNormalizedFloat(p[1]), 0.0f, 1.0f);
+                }
+                else if (m_normalizeValues && !m_setWTo1) {
+
+                    DEFINE_READER(toNormalizedFloat(p[0]), toNormalizedFloat(p[1]), 0.0f, 0.0f);
+                }
+                else if (!m_normalizeValues && m_setWTo1) {
+
+                    DEFINE_READER(static_cast<float>(p[0]), static_cast<float>(p[1]), 0.0f, 1.0f);
+                }
+                else if (!m_normalizeValues && !m_setWTo1) {
+
+                    DEFINE_READER(static_cast<float>(p[0]), static_cast<float>(p[1]), 0.0f, 0.0f);
+                }
+                break;
+
+            case 3U:
+                if (m_normalizeValues && m_setWTo1) {
+
+                    DEFINE_READER(toNormalizedFloat(p[0]), toNormalizedFloat(p[1]), toNormalizedFloat(p[2]), 1.0f);
+                }
+                else if (m_normalizeValues && !m_setWTo1) {
+
+                    DEFINE_READER(toNormalizedFloat(p[0]), toNormalizedFloat(p[1]), toNormalizedFloat(p[2]), 0.0f);
+                }
+                else if (!m_normalizeValues && m_setWTo1) {
+
+                    DEFINE_READER(static_cast<float>(p[0]), static_cast<float>(p[1]), static_cast<float>(p[2]), 1.0f);
+                }
+                else if (!m_normalizeValues && !m_setWTo1) {
+
+                    DEFINE_READER(static_cast<float>(p[0]), static_cast<float>(p[1]), static_cast<float>(p[2]), 0.0f);
+                }
+                break;
+
+            case 4U:
+                if (m_normalizeValues) {
+
+                    DEFINE_READER(toNormalizedFloat(p[0]), toNormalizedFloat(p[1]), toNormalizedFloat(p[2]), toNormalizedFloat(p[3]));
+                }
+                else {
+
+                    DEFINE_READER(static_cast<float>(p[0]), static_cast<float>(p[1]), static_cast<float>(p[2]), static_cast<float>(p[3]));
+                }
+                break;
+            }
+
+            #undef DEFINE_READER
         }
 
+    private:
         template<typename T>
-        float readValueAndNormalize(const char *addr, size_t arg) {
+        static constexpr float toNormalizedFloat(T t) { return Vector::normalizeInteger(t); }
+        static constexpr float toNormalizedFloat(float t) { return t; }
+        static constexpr float toNormalizedFloat(double t) { return static_cast<float>(t); }
 
-            return toNormalizedFloat(reinterpret_cast<const T *>(addr)[arg]);
-        }
-
-        template<typename T>
-        inline float toNormalizedFloat(T t) { return Vector::normalizeInteger(t); }
-        inline float toNormalizedFloat(float t) { return t; }
-        inline float toNormalizedFloat(double t) { return static_cast<float>(t); }
-
-    protected:
-        std::function<float(const char *, size_t)> m_reader;
+    private:
+        std::function<Vector(unsigned int)> m_reader;
         bool m_isEnabled;
         const char *m_addr;
-        size_t m_numArgs;
-        size_t m_stride;
-        bool m_normalize;
-
-    private:
-        bool m_hasStateChanged;
+        unsigned int m_numArgs;
+        unsigned int m_stride;
+        bool m_normalizeValues;
+        bool m_setWTo1;
     };
 
-
-
-    //
-    // Reads color values from client memory
-    //
-    class ColorPointer : public VectorReaderBase<true> {
-
-    public:
-        ColorPointer() = default;
-        ~ColorPointer() = default;
-
-    public:
-        Vector read(size_t index) override {
-
-            auto p = m_addr + (m_stride * index);
-
-            if (m_numArgs == 3) {
-
-                return Vector(m_reader(p, 0U), m_reader(p, 1U), m_reader(p, 2U), 1.0f);
-            }
-            else {
-
-                return Vector(m_reader(p, 0U), m_reader(p, 1U), m_reader(p, 2U), m_reader(p, 3U));
-            }
-        }
-    };
-
-
-
-    //
-    // Reads vertex positions from client memory
-    //
-    class VertexPointer : public VectorReaderBase<false> {
-
-    public:
-        VertexPointer() = default;
-        ~VertexPointer() = default;
-
-    public:
-        Vector read(size_t index) override {
-
-            auto p = m_addr + (m_stride * index);
-
-            if (m_numArgs == 2) {
-
-                return Vector(m_reader(p, 0U), m_reader(p, 1U), 0.0f, 1.0f);
-            }
-            else if (m_numArgs == 3) {
-
-                return Vector(m_reader(p, 0U), m_reader(p, 1U), m_reader(p, 2U), 1.0f);
-            }
-            else {
-
-                return Vector(m_reader(p, 0U), m_reader(p, 1U), m_reader(p, 2U), m_reader(p, 3U));
-            }
-        }
-    };
-
-
-
-    //
-    // Reads texture coordinates from client memory
-    //
-    class TexCoordPointer : public VectorReaderBase<false> {
-
-    public:
-        TexCoordPointer() = default;
-        ~TexCoordPointer() = default;
-
-    public:
-        Vector read(size_t index) override {
-
-            auto p = m_addr + (m_stride * index);
-
-            if (m_numArgs == 1) {
-
-                return Vector(m_reader(p, 0U), 0.0f, 0.0f, 1.0f);
-            }
-            else if (m_numArgs == 2) {
-
-                return Vector(m_reader(p, 0U), m_reader(p, 1U), 0.0f, 1.0f);
-            }
-            else if (m_numArgs == 3) {
-
-                return Vector(m_reader(p, 0U), m_reader(p, 1U), m_reader(p, 2U), 1.0f);
-            }
-            else {
-
-                return Vector(m_reader(p, 0U), m_reader(p, 1U), m_reader(p, 2U), m_reader(p, 3U));
-            }
-        }
-    };
+    using VectorReaderPtr = std::unique_ptr<VectorReader>;
 
 
 
@@ -210,129 +173,123 @@ namespace SWGL {
     class VertexDataArray {
 
     public:
-        VertexDataArray() {
+        VertexDataArray(Vertex &vertexState)
 
-            m_position.setEnable(false);
-            m_color.setEnable(false);
-            for (int i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+            : m_isLocked(false),
+              m_vertexState(vertexState) {
 
-                m_texCoord[i].setEnable(false);
+            m_position = std::make_unique<VectorReader>(false, true);
+            m_color = std::make_unique<VectorReader>(true, true);
+
+            for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+
+                m_texCoord[i] = std::make_unique<VectorReader>(false, true);
             }
 
-            m_prefetchedVertices.resize(1024);
-
-            unlock();
+            m_prefetchedVertices.resize(MAX_VERTICES);
         }
         ~VertexDataArray() = default;
 
     public:
-        VertexPointer &getPosition() {
-        
-            return m_position;
+        VectorReader & getPosition() {
+
+            return *m_position;
         }
 
-        ColorPointer &getColor() {
-        
-            return m_color;
+        VectorReader &getColor() {
+
+            return *m_color;
         }
 
-        TexCoordPointer &getTexCoord(int unit) {
-        
-            return m_texCoord[unit];
+        VectorReader &getTexCoord(unsigned int unit) {
+
+            return *m_texCoord[unit];
         }
 
-    // This takes advantage of locked vertex arrays by caching vertices and only updating
-    // state that has changed. Not the best implementation but it gives some extra fps.
     public:
-        void lock(int firstIdx, int count) {
+        void lock(unsigned int firstIdx, unsigned int count) {
 
             m_isLocked = true;
 
             m_firstIdx = firstIdx;
-            m_lastIdx = firstIdx + std::min(count, 1024) - 1;
+            m_lastIdx = firstIdx + std::min(count, MAX_VERTICES) - 1U;
         }
 
         void unlock() {
 
             m_isLocked = false;
-
-            m_firstIdx = -1;
-            m_lastIdx = -1;
         }
 
-        bool getPrefetchedVertex(int index, Vertex &vertexOut) {
+        bool getPrefetchedVertex(unsigned int index) {
 
             if (m_isLocked && index >= m_firstIdx && index <= m_lastIdx) {
 
-                vertexOut = m_prefetchedVertices[index - m_firstIdx];
+                m_vertexState = m_prefetchedVertices[index - m_firstIdx];
                 return true;
             }
 
             return false;
         }
 
-        void prefetch(Matrix &mvpMatrix, Vertex &vertexState) {
+        void prefetch(Matrix &mvpMatrix) {
 
-            if(m_isLocked) {
+            if (m_isLocked) {
 
-                for (int i = m_firstIdx, j = 0; i <= m_lastIdx; i++, j++) {
+                for (auto i = m_firstIdx, j = 0U; i <= m_lastIdx; i++, j++) {
 
                     auto &v = m_prefetchedVertices[j];
 
-                    // Update color
-                    if (!m_color.isEnabled()) {
-
-                        v.color = vertexState.color;
-                    }
-                    else if (m_color.hasStateChanged()) {
-
-                        v.color = m_color.read(i);
-                    }
-
-                    // Update texture coordiante
-                    for (int k = 0; k < SWGL_MAX_TEXTURE_UNITS; k++) {
-
-                        if (!m_texCoord[k].isEnabled()) {
-
-                            v.texCoord[k] = vertexState.texCoord[k];
-                        }
-                        else if (m_texCoord[k].hasStateChanged()) {
-
-                            v.texCoord[k] = m_texCoord[k].read(i);
-                        }
-                    }
-
                     // Update position
-                    if (!m_position.isEnabled()) {
+                    if (m_position->isEnabled()) {
 
-                        v.obj = vertexState.obj;
-                        v.proj = vertexState.proj;
-                    }
-                    else if (m_position.hasStateChanged()) {
-
-                        v.obj = m_position.read(i);
+                        v.obj = m_position->read(i);
                         v.proj = v.obj * mvpMatrix;
                     }
-                }
+                    else {
 
-                m_color.updateState();
-                for (int i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+                        v.obj = m_vertexState.obj;
+                        v.proj = m_vertexState.proj;
+                    }
 
-                    m_texCoord[i].updateState();
+                    // Update color
+                    if (m_color->isEnabled()) {
+
+                        v.color = m_color->read(i);
+                    }
+                    else {
+
+                        v.color = m_vertexState.color;
+                    }
+
+                    // Update texture coordinate(s)
+                    for (auto j = 0U; j < SWGL_MAX_TEXTURE_UNITS; j++) {
+
+                        if (m_texCoord[j]->isEnabled()) {
+
+                            v.texCoord[j] = m_texCoord[j]->read(i);
+                        }
+                        else {
+
+                            v.texCoord[j] = m_vertexState.texCoord[j];
+                        }
+                    }
                 }
-                m_position.updateState();
             }
         }
 
     private:
-        VertexPointer m_position;
-        ColorPointer m_color;
-        TexCoordPointer m_texCoord[SWGL_MAX_TEXTURE_UNITS];
+        VectorReaderPtr m_position;
+        VectorReaderPtr m_color;
+        VectorReaderPtr m_texCoord[SWGL_MAX_TEXTURE_UNITS];
 
     private:
         bool m_isLocked;
-        int m_firstIdx;
-        int m_lastIdx;
+        unsigned int m_firstIdx;
+        unsigned int m_lastIdx;
+        Vertex &m_vertexState;
         VertexList m_prefetchedVertices;
+
+    private:
+        static constexpr unsigned int MAX_VERTICES = 4096U;
     };
 }

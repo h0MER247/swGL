@@ -8,7 +8,8 @@ namespace SWGL {
     VertexPipeline::VertexPipeline()
     
         : m_isInsideGLBegin(false),
-          m_texCoordGen(m_vertexState) {
+          m_texCoordGen(m_vertexState),
+          m_vertexDataArray(m_vertexState) {
 
         setActiveTexture(0U);
         setColor(Vector(1.0f, 1.0f, 1.0f, 1.0f));
@@ -217,7 +218,7 @@ namespace SWGL {
 
         begin(mode); {
 
-            m_vertexDataArray.prefetch(m_mvpMatrix, m_vertexState);
+            m_vertexDataArray.prefetch(m_mvpMatrix);
 
             switch (type) {
 
@@ -226,7 +227,7 @@ namespace SWGL {
 
                     unsigned char index = reinterpret_cast<const unsigned char *>(indices)[i];
 
-                    if (m_vertexDataArray.getPrefetchedVertex(index, m_vertexState)) {
+                    if (m_vertexDataArray.getPrefetchedVertex(index)) {
                     
                         addVertex();
                     }
@@ -242,7 +243,7 @@ namespace SWGL {
 
                     unsigned short index = reinterpret_cast<const unsigned short *>(indices)[i];
 
-                    if (m_vertexDataArray.getPrefetchedVertex(index, m_vertexState)) {
+                    if (m_vertexDataArray.getPrefetchedVertex(index)) {
                     
                         addVertex();
                     }
@@ -258,7 +259,7 @@ namespace SWGL {
 
                     unsigned int index = reinterpret_cast<const unsigned int *>(indices)[i];
 
-                    if (m_vertexDataArray.getPrefetchedVertex(index, m_vertexState)) {
+                    if (m_vertexDataArray.getPrefetchedVertex(index)) {
 
                         addVertex();
                     }
@@ -277,11 +278,11 @@ namespace SWGL {
 
         begin(mode); {
 
-            m_vertexDataArray.prefetch(m_mvpMatrix, m_vertexState);
+            m_vertexDataArray.prefetch(m_mvpMatrix);
 
             for (int i = first, n = first + count; i < n; i++) {
 
-                if (m_vertexDataArray.getPrefetchedVertex(i, m_vertexState)) {
+                if (m_vertexDataArray.getPrefetchedVertex(i)) {
 
                     addVertex();
                 }

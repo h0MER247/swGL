@@ -44,9 +44,9 @@ namespace SWGL {
         void drawArrayElements(GLenum mode, GLint first, GLsizei count);
 
     public:
-        VertexPointer &getPositionArrayPointer() { return m_vertexDataArray.getPosition(); }
-        ColorPointer &getColorArrayPointer() { return m_vertexDataArray.getColor(); }
-        TexCoordPointer &getTexCoordArrayPointer() { return m_vertexDataArray.getTexCoord(m_activeTexture); }
+        VectorReader &getPositionArrayPointer() { return m_vertexDataArray.getPosition(); }
+        VectorReader &getColorArrayPointer() { return m_vertexDataArray.getColor(); }
+        VectorReader &getTexCoordArrayPointer() { return m_vertexDataArray.getTexCoord(m_activeTexture); }
 
     public:
         Clipper &getClipper() { return m_clipper; }
