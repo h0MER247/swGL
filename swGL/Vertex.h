@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-#include <array>
 #include <vector>
 #include "Vector.h"
 
@@ -27,6 +26,6 @@ namespace SWGL {
 
         // Varyings
         Vector color;
-        std::array<Vector, SWGL_MAX_TEXTURE_UNITS> texCoord;
+        Vector texCoord[SWGL_MAX_TEXTURE_UNITS];
     };
 }

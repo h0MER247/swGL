@@ -16,34 +16,23 @@ namespace SWGL {
 
     // Forward declarations
     struct TextureObject;
+    struct TextureData;
+    struct TextureMipMap;
     struct TextureParameter;
     struct TextureCoordinates;
     struct ARGBColor;
 
     // Type aliases
     using TextureObjectPtr = std::shared_ptr<TextureObject>;
-    using SamplerMethod = void(*)(TextureObjectPtr &, TextureParameter &, int, TextureCoordinates &, ARGBColor &);
+    using TextureDataPtr = std::shared_ptr<TextureData>;
+    using SamplerMethod = void(*)(TextureMipMap &, TextureParameter &, TextureCoordinates &, ARGBColor &);
 
     // Texture sampling methods from TextureSampler.cpp
-    extern void sampleTexelsNearest(TextureObjectPtr &tex, TextureParameter &texParams, int lod, TextureCoordinates &texCoords, ARGBColor &color);
-    extern void sampleTexelsLinear(TextureObjectPtr &tex, TextureParameter &texParams, int lod, TextureCoordinates &texCoords, ARGBColor &color);
-    extern void sampleTexels(TextureObjectPtr &tex, TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &color);
+    extern void sampleTexelsNearest(TextureMipMap &texMipMap, TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &color);
+    extern void sampleTexelsLinear(TextureMipMap &texMipMap, TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &color);
 
-    // The different texture targets
-    enum class TextureTargetID : size_t {
-
-        Uninitialized,
-
-        Target1D,
-        Target2D,
-        Target3D,
-        TargetCubeMap
-
-        // ...
-    };
-
-    // This describes the format in which swGL stored a texture
-    enum class TextureBaseFormat : size_t {
+    // This describes the format in which swGL stores a texture internally
+    enum class TextureBaseFormat : unsigned int {
 
         Alpha,
         Luminance,
@@ -96,26 +85,65 @@ namespace SWGL {
     };
 
     // Stores the actual pixels of a texture
-    struct TexturePixels {
+    struct TextureMipMap {
 
         int width;
         int height;
         std::vector<unsigned int, AlignedAllocator<unsigned int, 16>> pixel;
     };
+    using TextureMipMaps = std::array<std::vector<TextureMipMap>, SWGL_MAX_TEXTURE_LOD + 1>;
+
+    struct TextureData {
+
+        TextureBaseFormat format;
+
+        int maxLOD;
+        TextureMipMaps mips;
+
+        virtual ~TextureData() { }
+        virtual void sampleTexels(TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &colorOut) = 0;
+    };
+
+    struct TextureData1D : public TextureData {
+
+        void sampleTexels(TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &colorOut) override;
+    };
+
+    struct TextureData2D : public TextureData {
+
+        void sampleTexels(TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &colorOut) override;
+    };
+
+    struct TextureData3D : public TextureData {
+
+        void sampleTexels(TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &colorOut) override;
+    };
+
+    struct TextureDataCubeMap : public TextureData {
+
+        void sampleTexels(TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &colorOut) override;
+    };
+
+
 
     // Stores all the state of a texture
     struct TextureObject {
 
         GLuint name;
-        TextureTargetID target;
+        GLenum target;
         TextureParameter parameter;
-        TextureBaseFormat format;
-
-        int maxLOD;
-        std::array<TexturePixels, SWGL_MAX_TEXTURE_LOD + 1> mips;
+        TextureDataPtr data;
     };
 
     // A texture target
+    enum TextureTargetIndex : unsigned int {
+
+        Target1D = 3U,
+        Target2D = 2U,
+        Target3D = 1U,
+        TargetCubeMap = 0U
+    };
+
     struct TextureTarget {
 
         TextureObjectPtr texObj = nullptr;
@@ -125,16 +153,14 @@ namespace SWGL {
     // A texture unit
     struct TextureUnit {
 
-        // The four different texture targets of a texture unit (Cubemap, 3D, 2D, 1D)
-        // and a pointer to the target with the highest priority
-        TextureTarget target1D;
-        TextureTarget target2D;
-        TextureTarget target3D;
-        TextureTarget targetCubeMap;
+        // The four different texture targets of a texture unit
+        // (0 = Cubemap, 1 = 3D, 2 = 2D, 3 = 1D) and a pointer to
+        // the target with the highest priority
+        TextureTarget targets[4];
         TextureTarget *currentTarget = nullptr;
 
-        // Stores texture environment information that is used to blend texture colors
-        // with incoming fragment colors
+        // Stores texture environment information that is used to blend
+        // texture colors with incoming fragment colors
         TextureEnvironment texEnv;
     };
 
@@ -174,26 +200,25 @@ namespace SWGL {
         bool readTextureData2D(GLsizei offsX, GLsizei offsY, GLsizei width, GLsizei height, GLenum externalFormat, GLenum externalType, const GLvoid *src, unsigned int *dst);
 
     public:
-        bool bindTexture(TextureTargetID target, GLuint name);
+        bool bindTexture(GLenum target, GLuint name);
         void deleteTexture(GLuint name);
-        bool containsTexture(GLuint name);
+        void setActiveTextureUnit(unsigned int unitIdx);
+        void setTargetEnable(GLenum target, bool isEnabled);
+
+    public:
+        bool isTextureResident(GLuint name);
+        bool isTextureTargetBound(GLenum target);
         void getFreeTextureNames(GLint count, GLuint *names);
-
-        void setActiveTextureUnit(size_t unitIdx);
-        void setTargetEnable(TextureTargetID target, bool isEnabled);
-        bool isTextureTargetBound(TextureTargetID target);
         TextureEnvironment &getActiveTextureEnvironment();
-        TextureParameter &getTextureParameter(TextureTargetID target);
-
-        TextureUnit &getTextureUnit(size_t idx);
-
+        TextureParameter &getTextureParameter(GLenum target);
+        TextureUnit &getTextureUnit(unsigned int idx);
         bool getCompatibleFormat(GLenum desiredFormat, TextureBaseFormat &compatibleFormat);
-        bool getTextureTargetID(GLenum target, TextureTargetID &targetID);
 
     private:
-        TextureObjectPtr createTextureObject(GLuint name, TextureTargetID target);
+        TextureObjectPtr createTextureObject(GLuint name, GLenum target);
         TextureObjectPtr getTextureObjectByName(GLuint name);
-        TextureTarget &getTextureTarget(TextureUnit *unit, TextureTargetID target);
+        TextureObjectPtr getTextureObjectByTarget(GLenum target, unsigned int &faceIdxOut);
+        TextureTarget *getTextureTarget(TextureUnit *unit, GLenum target);
 
     private:
         TextureUnit m_unit[SWGL_MAX_TEXTURE_UNITS];
@@ -201,9 +226,6 @@ namespace SWGL {
 
     private:
         std::map<GLuint, TextureObjectPtr> m_textureObjects;
-
-    private:
         std::deque<GLuint> m_freeTextures;
-        void generateFreeTextureNames();
     };
 }

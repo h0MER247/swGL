@@ -21,7 +21,7 @@ namespace SWGL {
 
         struct TextureState {
 
-            TextureObjectPtr texObj;
+            TextureDataPtr texData;
             TextureParameter texParams;
             TextureEnvironment texEnv;
 

@@ -102,25 +102,28 @@ namespace SWGL {
                                        context.getDepthTesting().isWriteEnabled() &&
                                        context.getDepthTesting().isTestEnabled();
 
-        for (size_t i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+        for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
-            TextureUnit &unit = texManager.getTextureUnit(i);
+            auto &unit = texManager.getTextureUnit(i);
 
-            if (unit.currentTarget != nullptr &&
-                unit.currentTarget->isEnabled &&
-                unit.currentTarget->texObj != nullptr &&
-                unit.currentTarget->texObj->maxLOD != -1) {
+            if (unit.currentTarget != nullptr) {
 
-                drawState->textures[i].texEnv = unit.texEnv;
-                drawState->textures[i].texObj = unit.currentTarget->texObj;
-                drawState->textures[i].texParams = unit.currentTarget->texObj->parameter;
-            }
-            else {
+                auto &texState = drawState->textures[i];
+                texState.texEnv = unit.texEnv;
 
-                drawState->textures[i].texObj = nullptr;
+                auto &texObj = unit.currentTarget->texObj;
+                if (texObj != nullptr &&
+                    texObj->data != nullptr) {
+
+                    texState.texData = texObj->data;
+                    texState.texParams = texObj->parameter;
+                }
+                else {
+
+                    texState.texData = nullptr;
+                }
             }
         }
-
 
         // Figure out which triangle must be rendered by which thread
         std::array<std::vector<int>, SWGL_NUM_DRAW_THREADS> bins;
@@ -180,7 +183,7 @@ namespace SWGL {
         }
 
         // Add draw command
-        for (int i = 0; i < SWGL_NUM_DRAW_THREADS; i++) {
+        for (auto i = 0U; i < SWGL_NUM_DRAW_THREADS; i++) {
 
             if (!bins[i].empty()) {
 

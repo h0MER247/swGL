@@ -5,15 +5,18 @@
 
 namespace SWGL {
 
-    static float getLambda(TextureObjectPtr &tex, TextureCoordinates &texCoords) {
+    static float getLambda(TextureData *texData, TextureCoordinates &texCoords) {
+
+        auto &u = texCoords.s;
+        auto &v = texCoords.t;
 
         // Calculate the partial derivatives for each texture coordinate. Those tell us how much we
         // have to "move" inside texture space for one pixel in screen space.
-        float u1 = SIMD::extract<1>(texCoords.s), u2 = SIMD::extract<2>(texCoords.s), u3 = SIMD::extract<3>(texCoords.s);
-        float v1 = SIMD::extract<1>(texCoords.t), v2 = SIMD::extract<2>(texCoords.t), v3 = SIMD::extract<3>(texCoords.t);
+        float u1 = SIMD::extract<1>(u), u2 = SIMD::extract<2>(u), u3 = SIMD::extract<3>(u);
+        float v1 = SIMD::extract<1>(v), v2 = SIMD::extract<2>(v), v3 = SIMD::extract<3>(v);
 
-        float w = static_cast<float>(tex->mips[0].width);
-        float h = static_cast<float>(tex->mips[0].height);
+        float w = static_cast<float>(texData->mips[0][0].width);
+        float h = static_cast<float>(texData->mips[0][0].height);
 
         float dudx = (u2 - u3) * w, dvdx = (v2 - v3) * h;
         float dudy = (u1 - u3) * w, dvdy = (v1 - v3) * h;
@@ -56,15 +59,13 @@ namespace SWGL {
 
 
 
-    void sampleTexelsLinear(TextureObjectPtr &tex, TextureParameter &texParams, int lod, TextureCoordinates &texCoords, ARGBColor &color) {
-
-        auto &mip = tex->mips[lod];
+    void sampleTexelsLinear(TextureMipMap &texMipMap, TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &color) {
 
         // Get the dimension of the texture
-        QInt width = _mm_set1_epi32(mip.width);
-        QInt height = _mm_set1_epi32(mip.height);
-        QInt wrapWidth = _mm_set1_epi32(mip.width - 1);
-        QInt wrapHeight = _mm_set1_epi32(mip.height - 1);
+        QInt width = _mm_set1_epi32(texMipMap.width);
+        QInt height = _mm_set1_epi32(texMipMap.height);
+        QInt wrapWidth = _mm_set1_epi32(texMipMap.width - 1);
+        QInt wrapHeight = _mm_set1_epi32(texMipMap.height - 1);
 
         // Scale u and v according to the textures dimensions
         QFloat scaledU = _mm_sub_ps(_mm_mul_ps(texCoords.s, _mm_cvtepi32_ps(width)), _mm_set1_ps(0.5f));
@@ -83,11 +84,12 @@ namespace SWGL {
         QFloat fracX1 = _mm_sub_ps(_mm_set1_ps(1.0f), fracX0);
         QFloat fracY1 = _mm_sub_ps(_mm_set1_ps(1.0f), fracY0);
 
-        // Calculate the blending weights
-        QFloat wx1y1 = _mm_mul_ps(fracX0, fracY0);
-        QFloat wx0y1 = _mm_mul_ps(fracX1, fracY0);
-        QFloat wx1y0 = _mm_mul_ps(fracX0, fracY1);
-        QFloat wx0y0 = _mm_mul_ps(fracX1, fracY1);
+        // Calculate the blending weights as Q1.8 fixed point values
+        const QFloat shift = _mm_set1_ps(256.0f);
+        QInt wx1y1 = _mm_cvtps_epi32(_mm_mul_ps(_mm_mul_ps(fracX0, fracY0), shift));
+        QInt wx0y1 = _mm_cvtps_epi32(_mm_mul_ps(_mm_mul_ps(fracX1, fracY0), shift));
+        QInt wx1y0 = _mm_cvtps_epi32(_mm_mul_ps(_mm_mul_ps(fracX0, fracY1), shift));
+        QInt wx0y0 = _mm_cvtps_epi32(_mm_mul_ps(_mm_mul_ps(fracX1, fracY1), shift));
 
         // Determine the texel x- and y-coordinates according to the selected wrapping mode
         if (texParams.wrappingModeS == GL_REPEAT) {
@@ -117,50 +119,52 @@ namespace SWGL {
         QInt texelOffsetX1Y0 = SIMD::multiplyAdd(texelY0, width, texelX1);
         QInt texelOffsetX0Y0 = SIMD::multiplyAdd(texelY0, width, texelX0);
 
-        auto data = reinterpret_cast<const int *>(mip.pixel.data());
+        auto data = reinterpret_cast<const int *>(texMipMap.pixel.data());
         QInt sampleX1Y1 = SIMD::gather(data, texelOffsetX1Y1);
         QInt sampleX0Y1 = SIMD::gather(data, texelOffsetX0Y1);
         QInt sampleX1Y0 = SIMD::gather(data, texelOffsetX1Y0);
         QInt sampleX0Y0 = SIMD::gather(data, texelOffsetX0Y0);
 
+        // Extract alpha/green and red/blue channels
+        const QInt maskAG = _mm_set1_epi32(0xff00ff00);
+        const QInt maskRB = _mm_set1_epi32(0x00ff00ff);
+
+        QInt ag[4], rb[4];
+        ag[0] = _mm_srli_epi32(_mm_and_si128(sampleX0Y0, maskAG), 8);
+        ag[1] = _mm_srli_epi32(_mm_and_si128(sampleX1Y0, maskAG), 8);
+        ag[2] = _mm_srli_epi32(_mm_and_si128(sampleX0Y1, maskAG), 8);
+        ag[3] = _mm_srli_epi32(_mm_and_si128(sampleX1Y1, maskAG), 8);
+        rb[0] = _mm_and_si128(sampleX0Y0, maskRB);
+        rb[1] = _mm_and_si128(sampleX1Y0, maskRB);
+        rb[2] = _mm_and_si128(sampleX0Y1, maskRB);
+        rb[3] = _mm_and_si128(sampleX1Y1, maskRB);
+
+        // Blend samples
+        QInt ag_ = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_mullo_epi32(ag[0], wx0y0), _mm_mullo_epi32(ag[1], wx1y0)), _mm_mullo_epi32(ag[2], wx0y1)), _mm_mullo_epi32(ag[3], wx1y1));
+        QInt rb_ = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_mullo_epi32(rb[0], wx0y0), _mm_mullo_epi32(rb[1], wx1y0)), _mm_mullo_epi32(rb[2], wx0y1)), _mm_mullo_epi32(rb[3], wx1y1));
+
         // Convert the rgba-channels to their floating point representation
         const QFloat normalize = _mm_set1_ps(1.0f / 255.0f);
         const QInt mask = _mm_set1_epi32(0xff);
 
-        QFloat a_[4], r_[4], g_[4], b_[4];
-        a_[0] = _mm_cvtepi32_ps(_mm_srli_epi32(sampleX0Y0, 24));
-        a_[1] = _mm_cvtepi32_ps(_mm_srli_epi32(sampleX1Y0, 24));
-        a_[2] = _mm_cvtepi32_ps(_mm_srli_epi32(sampleX0Y1, 24));
-        a_[3] = _mm_cvtepi32_ps(_mm_srli_epi32(sampleX1Y1, 24));
-        r_[0] = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(sampleX0Y0, 16), mask));
-        r_[1] = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(sampleX1Y0, 16), mask));
-        r_[2] = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(sampleX0Y1, 16), mask));
-        r_[3] = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(sampleX1Y1, 16), mask));
-        g_[0] = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(sampleX0Y0, 8), mask));
-        g_[1] = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(sampleX1Y0, 8), mask));
-        g_[2] = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(sampleX0Y1, 8), mask));
-        g_[3] = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(sampleX1Y1, 8), mask));
-        b_[0] = _mm_cvtepi32_ps(_mm_and_si128(sampleX0Y0, mask));
-        b_[1] = _mm_cvtepi32_ps(_mm_and_si128(sampleX1Y0, mask));
-        b_[2] = _mm_cvtepi32_ps(_mm_and_si128(sampleX0Y1, mask));
-        b_[3] = _mm_cvtepi32_ps(_mm_and_si128(sampleX1Y1, mask));
+        QFloat a = _mm_cvtepi32_ps(_mm_srli_epi32(ag_, 24));
+        QFloat g = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(ag_, 8), mask));
+        QFloat r = _mm_cvtepi32_ps(_mm_srli_epi32(rb_, 24));
+        QFloat b = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(rb_, 8), mask));
 
-        // Blend samples
-        color.a = _mm_mul_ps(normalize, _mm_add_ps(_mm_add_ps(_mm_mul_ps(a_[0], wx0y0), _mm_mul_ps(a_[1], wx1y0)), _mm_add_ps(_mm_mul_ps(a_[2], wx0y1), _mm_mul_ps(a_[3], wx1y1))));
-        color.r = _mm_mul_ps(normalize, _mm_add_ps(_mm_add_ps(_mm_mul_ps(r_[0], wx0y0), _mm_mul_ps(r_[1], wx1y0)), _mm_add_ps(_mm_mul_ps(r_[2], wx0y1), _mm_mul_ps(r_[3], wx1y1))));
-        color.g = _mm_mul_ps(normalize, _mm_add_ps(_mm_add_ps(_mm_mul_ps(g_[0], wx0y0), _mm_mul_ps(g_[1], wx1y0)), _mm_add_ps(_mm_mul_ps(g_[2], wx0y1), _mm_mul_ps(g_[3], wx1y1))));
-        color.b = _mm_mul_ps(normalize, _mm_add_ps(_mm_add_ps(_mm_mul_ps(b_[0], wx0y0), _mm_mul_ps(b_[1], wx1y0)), _mm_add_ps(_mm_mul_ps(b_[2], wx0y1), _mm_mul_ps(b_[3], wx1y1))));
+        color.a = _mm_mul_ps(a, normalize);
+        color.r = _mm_mul_ps(r, normalize);
+        color.g = _mm_mul_ps(g, normalize);
+        color.b = _mm_mul_ps(b, normalize);
     }
 
-    void sampleTexelsNearest(TextureObjectPtr &tex, TextureParameter &texParams, int lod, TextureCoordinates &texCoords, ARGBColor &color) {
-
-        auto &mip = tex->mips[lod];
+    void sampleTexelsNearest(TextureMipMap &texMipMap, TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &color) {
 
         // Get the dimension of the texture
-        QInt width = _mm_set1_epi32(mip.width);
-        QInt height = _mm_set1_epi32(mip.height);
-        QInt wrapWidth = _mm_set1_epi32(mip.width - 1);
-        QInt wrapHeight = _mm_set1_epi32(mip.height - 1);
+        QInt width = _mm_set1_epi32(texMipMap.width);
+        QInt height = _mm_set1_epi32(texMipMap.height);
+        QInt wrapWidth = _mm_set1_epi32(texMipMap.width - 1);
+        QInt wrapHeight = _mm_set1_epi32(texMipMap.height - 1);
 
         // Scale u and v according to the texture dimension
         QInt scaledU = _mm_cvttps_epi32(SIMD::floor(_mm_mul_ps(texCoords.s, _mm_cvtepi32_ps(width))));
@@ -189,7 +193,7 @@ namespace SWGL {
         QInt texelOffset = SIMD::multiplyAdd(texelY, width, texelX);
         QInt samples = SIMD::gather(
 
-            reinterpret_cast<const int *>(mip.pixel.data()),
+            reinterpret_cast<const int *>(texMipMap.pixel.data()),
             texelOffset
         );
 
@@ -197,23 +201,30 @@ namespace SWGL {
         const QFloat normalize = _mm_set1_ps(1.0f / 255.0f);
         const QInt mask = _mm_set1_epi32(0xff);
 
-        color.a = _mm_mul_ps(normalize, _mm_cvtepi32_ps(_mm_srli_epi32(samples, 24)));
-        color.r = _mm_mul_ps(normalize, _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(samples, 16), mask)));
-        color.g = _mm_mul_ps(normalize, _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(samples, 8), mask)));
-        color.b = _mm_mul_ps(normalize, _mm_cvtepi32_ps(_mm_and_si128(samples, mask)));
+        QFloat a = _mm_cvtepi32_ps(_mm_srli_epi32(samples, 24));
+        QFloat r = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(samples, 16), mask));
+        QFloat g = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(samples, 8), mask));
+        QFloat b = _mm_cvtepi32_ps(_mm_and_si128(samples, mask));
+
+        color.a = _mm_mul_ps(normalize, a);
+        color.r = _mm_mul_ps(normalize, r);
+        color.g = _mm_mul_ps(normalize, g);
+        color.b = _mm_mul_ps(normalize, b);
     }
 
-    void sampleTexels(TextureObjectPtr &tex, TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &color) {
+
+
+    void TextureData2D::sampleTexels(TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &colorOut) {
 
         if (texParams.isUsingMipMapping) {
 
             // TODO: The constant "c" depends on some GL state: If magnifyFilter is GL_LINEAR and minifyFilter is
             //       GL_NEAREST_MIPMAP_NEAREST or NEAREST_MIPMAP_LINEAR, then c is equal to 0.5f (otherwise 0.0f)
-            constexpr float c = 0.5f;
+            static constexpr float c = 0.5f;
 
             // To make things easier the lod is determined by the lod of the 2x2 quads upper left pixel. That lod
             // is then applied to all four pixels of the quad.
-            float lambda = getLambda(tex, texCoords);
+            float lambda = getLambda(this, texCoords);
 
             //
             // Texture minification
@@ -223,9 +234,9 @@ namespace SWGL {
                 if (texParams.isUsingTrilinearFilter) {
 
                     int lod = static_cast<int>(lambda);
-                    if (lod >= tex->maxLOD) {
+                    if (lod >= maxLOD) {
 
-                        texParams.minifySampler(tex, texParams, tex->maxLOD, texCoords, color);
+                        texParams.minifySampler(mips[maxLOD][0], texParams, texCoords, colorOut);
                     }
                     else {
 
@@ -233,24 +244,24 @@ namespace SWGL {
 
                         ARGBColor color1;
                         ARGBColor color2;
-                        texParams.minifySampler(tex, texParams, lod, texCoords, color1);
-                        texParams.minifySampler(tex, texParams, lod + 1, texCoords, color2);
+                        texParams.minifySampler(mips[lod][0], texParams, texCoords, color1);
+                        texParams.minifySampler(mips[lod + 1][0], texParams, texCoords, color2);
 
-                        color.a = SIMD::lerp(t, color1.a, color2.a);
-                        color.r = SIMD::lerp(t, color1.r, color2.r);
-                        color.g = SIMD::lerp(t, color1.g, color2.g);
-                        color.b = SIMD::lerp(t, color1.b, color2.b);
+                        colorOut.a = SIMD::lerp(t, color1.a, color2.a);
+                        colorOut.r = SIMD::lerp(t, color1.r, color2.r);
+                        colorOut.g = SIMD::lerp(t, color1.g, color2.g);
+                        colorOut.b = SIMD::lerp(t, color1.b, color2.b);
                     }
                 }
                 else {
 
                     int lod = static_cast<int>(std::ceil(lambda + 0.5f) - 1.0f);
-                    if (lod > tex->maxLOD) {
+                    if (lod > maxLOD) {
 
-                        lod = tex->maxLOD;
+                        lod = maxLOD;
                     }
 
-                    texParams.minifySampler(tex, texParams, lod, texCoords, color);
+                    texParams.minifySampler(mips[lod][0], texParams, texCoords, colorOut);
                 }
 
                 return;
@@ -261,6 +272,35 @@ namespace SWGL {
         //
         // Disabled Mip Mapping / Texture magnification
         //
-        texParams.magnifySampler(tex, texParams, 0, texCoords, color);
+        texParams.magnifySampler(mips[0][0], texParams, texCoords, colorOut);
+    }
+
+
+
+    void TextureData1D::sampleTexels(TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &colorOut) {
+
+        // Unimplemented
+        colorOut.a = _mm_set1_ps(1.0f);
+        colorOut.r = _mm_set1_ps(1.0f);
+        colorOut.g = _mm_set1_ps(0.0f);
+        colorOut.b = _mm_set1_ps(1.0f);
+    }
+
+    void TextureData3D::sampleTexels(TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &colorOut) {
+
+        // Unimplemented
+        colorOut.a = _mm_set1_ps(1.0f);
+        colorOut.r = _mm_set1_ps(1.0f);
+        colorOut.g = _mm_set1_ps(0.0f);
+        colorOut.b = _mm_set1_ps(1.0f);
+    }
+
+    void TextureDataCubeMap::sampleTexels(TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &colorOut) {
+
+        // Unimplemented
+        colorOut.a = _mm_set1_ps(1.0f);
+        colorOut.r = _mm_set1_ps(1.0f);
+        colorOut.g = _mm_set1_ps(0.0f);
+        colorOut.b = _mm_set1_ps(1.0f);
     }
 }

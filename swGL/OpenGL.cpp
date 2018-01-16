@@ -1032,8 +1032,11 @@ SWGLAPI void STDCALL glDrv_glDisable(GLenum cap) {
         ctx->getAlphaTesting().setEnable(false);
         break;
 
+    case GL_TEXTURE_1D:
     case GL_TEXTURE_2D:
-        ctx->getTextureManager().setTargetEnable(SWGL::TextureTargetID::Target2D, false);
+    case GL_TEXTURE_3D:
+    case GL_TEXTURE_CUBE_MAP:
+        ctx->getTextureManager().setTargetEnable(cap, false);
         break;
 
     case GL_SCISSOR_TEST:
@@ -1131,8 +1134,11 @@ SWGLAPI void STDCALL glDrv_glEnable(GLenum cap) {
         ctx->getAlphaTesting().setEnable(true);
         break;
 
+    case GL_TEXTURE_1D:
     case GL_TEXTURE_2D:
-        ctx->getTextureManager().setTargetEnable(SWGL::TextureTargetID::Target2D, true);
+    case GL_TEXTURE_3D:
+    case GL_TEXTURE_CUBE_MAP:
+        ctx->getTextureManager().setTargetEnable(cap, true);
         break;
 
     case GL_SCISSOR_TEST:
@@ -4639,18 +4645,24 @@ SWGLAPI void STDCALL glDrv_glTexParameterCommon(GLenum target, GLenum pname, GLe
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    auto &texManager = ctx->getTextureManager();
+    switch (target) {
 
-    // Get target id
-    SWGL::TextureTargetID targetID;
-    if (!texManager.getTextureTargetID(target, targetID)) {
+    case GL_TEXTURE_1D:
+    case GL_TEXTURE_2D:
+    case GL_TEXTURE_3D:
+    case GL_TEXTURE_CUBE_MAP:
+        break;
 
+    default:
+        LOG("Invalid / unimplemented texture target: %04x", target);
         ctx->getError().setState(GL_INVALID_ENUM);
         return;
     }
 
     // Make sure that a texture is bound
-    if (!texManager.isTextureTargetBound(targetID)) {
+    auto &texManager = ctx->getTextureManager();
+
+    if (!texManager.isTextureTargetBound(target)) {
 
         ctx->getError().setState(GL_INVALID_ENUM);
         return;
@@ -4659,7 +4671,8 @@ SWGLAPI void STDCALL glDrv_glTexParameterCommon(GLenum target, GLenum pname, GLe
     //
     // Set texture parameter
     //
-    SWGL::TextureParameter &texParams = texManager.getTextureParameter(targetID);
+    auto &texParams = texManager.getTextureParameter(target);
+
     switch (pname) {
 
     case GL_TEXTURE_MIN_FILTER:
@@ -5345,15 +5358,25 @@ SWGLAPI GLboolean STDCALL glDrv_glAreTexturesResident(GLsizei n, const GLuint *t
     GET_CONTEXT_OR_RETURN(GL_FALSE);
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN(GL_FALSE);
 
-    for (int i = 0; i < n; i++) {
+    if (n < 0) {
 
-        if (!ctx->getTextureManager().containsTexture(textures[i])) {
+        ctx->getError().setState(GL_INVALID_VALUE);
+    }
+    else if (textures != nullptr) {
 
-            return GL_FALSE;
+        for (int i = 0; i < n; i++) {
+
+            if (!ctx->getTextureManager().isTextureResident(textures[i])) {
+
+                ctx->getError().setState(GL_INVALID_VALUE);
+                return GL_FALSE;
+            }
         }
+
+        return GL_TRUE;
     }
 
-    return GL_TRUE;
+    return GL_FALSE;
 }
 
 SWGLAPI void STDCALL glDrv_glArrayElement(GLint i) {
@@ -5379,12 +5402,16 @@ SWGLAPI void STDCALL glDrv_glBindTexture(GLenum target, GLuint texture) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    auto &texManager = ctx->getTextureManager();
+    switch (target) {
 
-    // Get target id
-    SWGL::TextureTargetID targetID;
-    if (!texManager.getTextureTargetID(target, targetID)) {
+    case GL_TEXTURE_1D:
+    case GL_TEXTURE_2D:
+    case GL_TEXTURE_3D:
+    case GL_TEXTURE_CUBE_MAP:
+        break;
 
+    default:
+        LOG("Invalid / unimplemented texture target: %04x", target);
         ctx->getError().setState(GL_INVALID_ENUM);
         return;
     }
@@ -5392,7 +5419,9 @@ SWGLAPI void STDCALL glDrv_glBindTexture(GLenum target, GLuint texture) {
     //
     // Bind the texture
     //
-    if (!ctx->getTextureManager().bindTexture(targetID, texture)) {
+    auto &texManager = ctx->getTextureManager();
+
+    if (!ctx->getTextureManager().bindTexture(target, texture)) {
 
         ctx->getError().setState(GL_INVALID_OPERATION);
     }

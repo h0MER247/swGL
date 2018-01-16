@@ -217,25 +217,25 @@ namespace SWGL {
             DEFINE_GRADIENT(rcpW);
             SETUP_GRADIENT_EQ(rcpW, v1.w(), v2.w(), v3.w());
 
+            DEFINE_GRADIENT(a);
+            SETUP_GRADIENT_EQ(a, t.v[0].color.a(), t.v[1].color.a(), t.v[2].color.a());
             DEFINE_GRADIENT(r);
             SETUP_GRADIENT_EQ(r, t.v[0].color.r(), t.v[1].color.r(), t.v[2].color.r());
             DEFINE_GRADIENT(g);
             SETUP_GRADIENT_EQ(g, t.v[0].color.g(), t.v[1].color.g(), t.v[2].color.g());
             DEFINE_GRADIENT(b);
             SETUP_GRADIENT_EQ(b, t.v[0].color.b(), t.v[1].color.b(), t.v[2].color.b());
-            DEFINE_GRADIENT(a);
-            SETUP_GRADIENT_EQ(a, t.v[0].color.a(), t.v[1].color.a(), t.v[2].color.a());
 
             DEFINE_GRADIENT(texS[SWGL_MAX_TEXTURE_UNITS]);
             DEFINE_GRADIENT(texT[SWGL_MAX_TEXTURE_UNITS]);
-            DEFINE_GRADIENT(texR[SWGL_MAX_TEXTURE_UNITS]);
-            DEFINE_GRADIENT(texQ[SWGL_MAX_TEXTURE_UNITS]);
+            //DEFINE_GRADIENT(texR[SWGL_MAX_TEXTURE_UNITS]);
+            //DEFINE_GRADIENT(texQ[SWGL_MAX_TEXTURE_UNITS]);
             for (size_t i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
                 SETUP_GRADIENT_EQ(texS[i], t.v[0].texCoord[i].x(), t.v[1].texCoord[i].x(), t.v[2].texCoord[i].x());
                 SETUP_GRADIENT_EQ(texT[i], t.v[0].texCoord[i].y(), t.v[1].texCoord[i].y(), t.v[2].texCoord[i].y());
-                SETUP_GRADIENT_EQ(texR[i], t.v[0].texCoord[i].z(), t.v[1].texCoord[i].z(), t.v[2].texCoord[i].z());
-                SETUP_GRADIENT_EQ(texQ[i], t.v[0].texCoord[i].w(), t.v[1].texCoord[i].w(), t.v[2].texCoord[i].w());
+                //SETUP_GRADIENT_EQ(texR[i], t.v[0].texCoord[i].z(), t.v[1].texCoord[i].z(), t.v[2].texCoord[i].z());
+                //SETUP_GRADIENT_EQ(texQ[i], t.v[0].texCoord[i].w(), t.v[1].texCoord[i].w(), t.v[2].texCoord[i].w());
             }
 
             //
@@ -351,7 +351,8 @@ namespace SWGL {
                         for (auto i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
                             auto &texState = textureState[i];
-                            if (texState.texObj == nullptr) {
+
+                            if (texState.texData == nullptr) {
 
                                 continue;
                             }
@@ -359,15 +360,15 @@ namespace SWGL {
                             // Get texture sample
                             texCoords.s = GET_GRADIENT_VALUE_PERSP(texS[i]);
                             texCoords.t = GET_GRADIENT_VALUE_PERSP(texT[i]);
-                            texCoords.r = GET_GRADIENT_VALUE_PERSP(texR[i]);
-                            texCoords.q = GET_GRADIENT_VALUE_PERSP(texQ[i]);
-                            sampleTexels(texState.texObj, texState.texParams, texCoords, texColor);
+                            //texCoords.r = GET_GRADIENT_VALUE_PERSP(texR[i]);
+                            //texCoords.q = GET_GRADIENT_VALUE_PERSP(texQ[i]);
+                            texState.texData->sampleTexels(texState.texParams, texCoords, texColor);
 
                             // Execute the texturing function
                             switch (texState.texEnv.mode) {
 
                             case GL_REPLACE:
-                                switch (texState.texObj->format) {
+                                switch (texState.texData->format) {
 
                                 case TextureBaseFormat::Alpha:
                                     srcColor.a = texColor.a;
@@ -392,7 +393,7 @@ namespace SWGL {
                                 break;
 
                             case GL_MODULATE:
-                                switch (texState.texObj->format) {
+                                switch (texState.texData->format) {
 
                                 case TextureBaseFormat::Alpha:
                                     srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
@@ -412,7 +413,7 @@ namespace SWGL {
                                 break;
 
                             case GL_DECAL:
-                                switch (texState.texObj->format) {
+                                switch (texState.texData->format) {
 
                                 case TextureBaseFormat::RGB:
                                     srcColor.r = texColor.r;
@@ -429,7 +430,7 @@ namespace SWGL {
                                 break;
 
                             case GL_ADD:
-                                switch (texState.texObj->format) {
+                                switch (texState.texData->format) {
 
                                 case TextureBaseFormat::Alpha:
                                     srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
@@ -455,7 +456,7 @@ namespace SWGL {
                                 break;
 
                             case GL_BLEND:
-                                switch (texState.texObj->format) {
+                                switch (texState.texData->format) {
 
                                 case TextureBaseFormat::Alpha:
                                     srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);

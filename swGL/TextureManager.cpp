@@ -1,5 +1,7 @@
 ﻿#include "TextureManager.h"
+#include "Log.h"
 #include "Context.h"
+
 #if 0
 // Just for debugging purposes
 #include "TargaWriter.h"
@@ -7,19 +9,29 @@ namespace SWGL {
 
     static void dumpTexture(TextureObjectPtr &texObj, int mipLevel) {
 
-        if (mipLevel > texObj->maxLOD)
-            return;
+        if (texObj != nullptr &&
+            texObj->data->maxLOD >= mipLevel) {
 
-        if (texObj->mips[mipLevel].width <= 0 || texObj->mips[mipLevel].height <= 0)
-            return;
+            auto &texFaces = texObj->data->mips[mipLevel];
 
-        writeTargaImage(
+            for (auto i = 0U; i < texFaces.size(); i++) {
 
-            "tex" + std::to_string(texObj->name) + "_mip" + std::to_string(mipLevel),
-            texObj->mips[mipLevel].pixel.data(),
-            texObj->mips[mipLevel].width,
-            texObj->mips[mipLevel].height
-        );
+                auto &texMip = texFaces[i];
+
+                if (texMip.width > 0 &&
+                    texMip.height > 0 &&
+                    texMip.pixel.size() > 0) {
+
+                    writeTargaImage(
+
+                        "tex" + std::to_string(texObj->name) + "_face" + std::to_string(i) + "_mip" + std::to_string(mipLevel),
+                        texMip.pixel.data(),
+                        texMip.width,
+                        texMip.height
+                    );
+                }
+            }
+        }
     }
 }
 #endif
@@ -35,74 +47,76 @@ namespace SWGL {
 
     bool TextureManager::loadTextureImage2D(GLenum target, GLint mipLevel, GLsizei width, GLsizei height, GLint border, TextureBaseFormat internalFormat, GLenum externalFormat, GLenum externalType, const GLvoid *pixels) {
 
-        if (target != GL_TEXTURE_2D) {
+        unsigned int faceIdx;
+        TextureObjectPtr texObj;
 
-            LOG("Unimplemented texture target: %04x", target);
-            return true;
+        if ((texObj = getTextureObjectByTarget(target, faceIdx)) != nullptr) {
+
+            auto &texData = texObj->data;
+            auto &texMip = texData->mips[mipLevel][faceIdx];
+            auto &texPixel = texMip.pixel;
+
+            // Synchronize with the drawing threads if this texture
+            // is currently in use
+            if (texData.use_count() > 0L) {
+
+                SWGL::Context::getCurrentContext()->getRenderer().finish();
+            }
+
+            // Update max lod
+            if (texData->maxLOD < mipLevel) {
+
+                texData->maxLOD = mipLevel;
+            }
+
+            // Update format
+            texData->format = internalFormat;
+
+            // Update texture size
+            if (texPixel.size() != width * height) {
+
+                texPixel.resize(width * height);
+                texMip.width = width;
+                texMip.height = height;
+            }
+
+            return readTextureData2D(0, 0, width, height, externalFormat, externalType, pixels, texPixel.data());
         }
 
-        auto &texObj = m_activeUnit->target2D.texObj;
-        if (texObj == nullptr) {
-
-            return false;
-        }
-
-
-        // FIXME: This is a hack which is currently used to "fix" issue #2
-        //        (see https://github.com/h0MER247/swGL/issues/2)
-        // TODO:  Implement some kind of locking mechanisms for the texture.
-        // ----------------------------------------------------------------
-        SWGL::Context::getCurrentContext()->getRenderer().finish();
-        // ----------------------------------------------------------------
-
-
-        if (texObj->maxLOD < mipLevel) {
-
-            texObj->maxLOD = mipLevel;
-        }
-        texObj->format = internalFormat;
-
-        auto &mip = texObj->mips[mipLevel];
-        mip.pixel.resize(width * height);
-        mip.width = width;
-        mip.height = height;
-
-        return readTextureData2D(0, 0, width, height, externalFormat, externalType, pixels, mip.pixel.data());
+        return false;
     }
 
     bool TextureManager::loadSubTextureImage2D(GLenum target, GLint mipLevel, GLint x, GLint y, GLsizei width, GLsizei height, GLenum externalFormat, GLenum externalType, const GLvoid *pixels) {
 
-        if (target != GL_TEXTURE_2D) {
+        unsigned int faceIdx;
+        TextureObjectPtr texObj;
 
-            LOG("Unimplemented texture target: %04x", target);
-            return true;
+        if ((texObj = getTextureObjectByTarget(target, faceIdx)) != nullptr) {
+
+            auto &texData = texObj->data;
+            auto &texMip = texData->mips[mipLevel][faceIdx];
+            auto &texPixel = texMip.pixel;
+
+            // Synchronize with the drawing threads if this texture
+            // is currently in use
+            if (texData.use_count() > 0L) {
+
+                SWGL::Context::getCurrentContext()->getRenderer().finish();
+            }
+
+            return readTextureData2D(x, y, width, height, externalFormat, externalType, pixels, texPixel.data());
         }
 
-        auto &texObj = m_activeUnit->target2D.texObj;
-        if (texObj == nullptr) {
-
-            return false;
-        }
-
-
-        // FIXME: This is a hack which is currently used to "fix" issue #2
-        //        (see https://github.com/h0MER247/swGL/issues/2)
-        // TODO:  Implement some kind of locking mechanisms for the texture.
-        // ----------------------------------------------------------------
-        SWGL::Context::getCurrentContext()->getRenderer().finish();
-        // ----------------------------------------------------------------
-
-
-        return readTextureData2D(x, y, width, height, externalFormat, externalType, pixels, texObj->mips[mipLevel].pixel.data());
+        return false;
     }
 
     bool TextureManager::readTextureData2D(GLsizei offsX, GLsizei offsY, GLsizei width, GLsizei height, GLenum externalFormat, GLenum externalType, const GLvoid *src, unsigned int *dst) {
 
         // TODO: Unpack alignment or other shenanigans aren't taken into account at the moment
-        size_t dstXOffs = 4;
-        size_t dstYOffs = dstXOffs * width;
-        size_t srcXOffs;
-        size_t srcYOffs;
+        ptrdiff_t dstXOffs = 4;
+        ptrdiff_t dstYOffs = dstXOffs * width;
+        ptrdiff_t srcXOffs;
+        ptrdiff_t srcYOffs;
 
         switch (externalFormat) {
 
@@ -114,8 +128,8 @@ namespace SWGL {
                 srcYOffs = srcXOffs * width;
                 for (int y = 0; y < height; y++) {
 
-                    auto *srcPix = reinterpret_cast<const unsigned char *>(src) + ((y + offsY) * srcYOffs) + (offsX * srcXOffs);
-                    auto *dstPix = reinterpret_cast<unsigned char *>(dst) + ((y + offsY) * dstYOffs) + (offsX * dstXOffs);
+                    auto srcPix = reinterpret_cast<const unsigned char *>(src) + ((y + offsY) * srcYOffs) + (offsX * srcXOffs);
+                    auto dstPix = reinterpret_cast<unsigned char *>(dst) + ((y + offsY) * dstYOffs) + (offsX * dstXOffs);
 
                     for (int x = 0; x < width; x++, srcPix += srcXOffs, dstPix += dstXOffs) {
 
@@ -141,8 +155,8 @@ namespace SWGL {
                 srcYOffs = srcXOffs * width;
                 for (int y = 0; y < height; y++) {
 
-                    auto *srcPix = reinterpret_cast<const unsigned char *>(src) + ((y + offsY) * srcYOffs) + (offsX * srcXOffs);
-                    auto *dstPix = reinterpret_cast<unsigned char *>(dst) + ((y + offsY) * dstYOffs) + (offsX * dstXOffs);
+                    auto srcPix = reinterpret_cast<const unsigned char *>(src) + ((y + offsY) * srcYOffs) + (offsX * srcXOffs);
+                    auto dstPix = reinterpret_cast<unsigned char *>(dst) + ((y + offsY) * dstYOffs) + (offsX * dstXOffs);
 
                     for (int x = 0; x < width; x++, srcPix += srcXOffs, dstPix += dstXOffs) {
 
@@ -168,9 +182,9 @@ namespace SWGL {
 
 
 
-    bool TextureManager::bindTexture(TextureTargetID target, GLuint name) {
+    bool TextureManager::bindTexture(GLenum target, GLuint name) {
 
-        TextureTarget &texTarget = getTextureTarget(m_activeUnit, target);
+        TextureTarget *texTarget = getTextureTarget(m_activeUnit, target);
 
         // Bind or unbind a texture to/from a given target
         if (name != 0U) {
@@ -178,35 +192,27 @@ namespace SWGL {
             // Find the texture
             TextureObjectPtr texObj = getTextureObjectByName(name);
 
-            // Create a new texture object if the name doesn't exist yet
+            // Create a new texture object as it doesn't exist yet
             if (texObj == nullptr) {
 
-                texTarget.texObj = createTextureObject(name, target);
+                texTarget->texObj = createTextureObject(name, target);
                 return true;
             }
 
             // Bind the texture if the targets match
             if (texObj->target == target) {
 
-                texTarget.texObj = texObj;
-                return true;
-            }
-            
-            // If the texture is uninitialized set its target and bind it
-            if (texObj->target == TextureTargetID::Uninitialized) {
-
-                texObj->target = target;
-
-                texTarget.texObj = texObj;
+                texTarget->texObj = texObj;
                 return true;
             }
 
+            LOG("Texture binding failed!");
             return false;
         }
         else {
 
             // Unbind the current texture from the active texture unit
-            texTarget.texObj = nullptr;
+            texTarget->texObj = nullptr;
             return true;
         }
     }
@@ -219,13 +225,17 @@ namespace SWGL {
             auto &texObj = it->second;
 
             // Unbind this texture from all units
-            for (int i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+            if (texObj != nullptr) {
 
-                auto &texTarget = getTextureTarget(&m_unit[i], texObj->target);
-                if (texTarget.texObj != nullptr &&
-                    texTarget.texObj->name == name) {
+                for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
-                    texTarget.texObj = nullptr;
+                    auto texTarget = getTextureTarget(&m_unit[i], texObj->target);
+
+                    if (texTarget->texObj != nullptr &&
+                        texTarget->texObj->name == name) {
+
+                        texTarget->texObj = nullptr;
+                    }
                 }
             }
 
@@ -237,32 +247,71 @@ namespace SWGL {
         }
     }
 
-    bool TextureManager::containsTexture(GLuint name) {
+    void TextureManager::setActiveTextureUnit(unsigned int unitIdx) {
+
+        m_activeUnit = &m_unit[unitIdx];
+    }
+
+    void TextureManager::setTargetEnable(GLenum target, bool isEnabled) {
+
+        auto texTarget = getTextureTarget(m_activeUnit, target);
+        texTarget->isEnabled = isEnabled;
+
+        // Find the most "prioritized" texture target and make it the current
+        // target. Cubemap has the highest priority, followed by 3D, 2D and 1D
+        // textures.
+        m_activeUnit->currentTarget = nullptr;
+
+        for (auto &target : m_activeUnit->targets) {
+
+            if (target.isEnabled) {
+
+                m_activeUnit->currentTarget = &target;
+                break;
+            }
+        }
+    }
+
+
+
+    bool TextureManager::isTextureResident(GLuint name) {
 
         return m_textureObjects.find(name) != m_textureObjects.end();
+    }
+
+    bool TextureManager::isTextureTargetBound(GLenum target) {
+
+        return getTextureTarget(m_activeUnit, target)->texObj != nullptr;
     }
 
     void TextureManager::getFreeTextureNames(GLint count, GLuint *names) {
 
         for (int i = 0; i < count; i++) {
 
+            // Generate free texture names if necessary
             if (m_freeTextures.empty()) {
 
-                generateFreeTextureNames();
+                auto texName = 1U;
+                for (auto count = 0U; count < 1024U; ) {
+
+                    auto it = m_textureObjects.find(texName);
+                    if (it == m_textureObjects.end()) {
+
+                        m_freeTextures.push_back(texName);
+                        count++;
+                    }
+
+                    texName++;
+                }
             }
 
+            // Get free texture name
             names[i] = m_freeTextures.front();
             m_freeTextures.pop_front();
 
-            createTextureObject(names[i], TextureTargetID::Uninitialized);
+            // Reserve the name
+            m_textureObjects[names[i]] = nullptr;
         }
-    }
-
-
-
-    void TextureManager::setActiveTextureUnit(size_t unitIdx) {
-
-        m_activeUnit = &m_unit[unitIdx];
     }
 
     TextureEnvironment &TextureManager::getActiveTextureEnvironment() {
@@ -270,52 +319,15 @@ namespace SWGL {
         return m_activeUnit->texEnv;
     }
 
-    TextureParameter &TextureManager::getTextureParameter(TextureTargetID target) {
+    TextureParameter &TextureManager::getTextureParameter(GLenum target) {
 
-        return getTextureTarget(m_activeUnit, target).texObj->parameter;
+        return getTextureTarget(m_activeUnit, target)->texObj->parameter;
     }
 
-    TextureUnit &TextureManager::getTextureUnit(size_t idx) {
+    TextureUnit &TextureManager::getTextureUnit(unsigned int idx) {
 
         return m_unit[idx];
     }
-
-    void TextureManager::setTargetEnable(TextureTargetID target, bool isEnabled) {
-
-        TextureTarget &texTarget = getTextureTarget(m_activeUnit, target);
-        texTarget.isEnabled = isEnabled;
-
-        // Find the most "prioritized" texture target and make it the current
-        // target. Cubemap has the highest priority, follwed by 3D, 2D and 1D
-        // textures.
-        if (m_activeUnit->targetCubeMap.isEnabled) {
-
-            m_activeUnit->currentTarget = &m_activeUnit->targetCubeMap;
-        }
-        else if (m_activeUnit->target3D.isEnabled) {
-
-            m_activeUnit->currentTarget = &m_activeUnit->target3D;
-        }
-        else if (m_activeUnit->target2D.isEnabled) {
-
-            m_activeUnit->currentTarget = &m_activeUnit->target2D;
-        }
-        else if (m_activeUnit->target1D.isEnabled) {
-
-            m_activeUnit->currentTarget = &m_activeUnit->target1D;
-        }
-        else {
-
-            m_activeUnit->currentTarget = nullptr;
-        }
-    }
-
-    bool TextureManager::isTextureTargetBound(TextureTargetID target) {
-
-        return getTextureTarget(m_activeUnit, target).texObj != nullptr;
-    }
-
-
 
     bool TextureManager::getCompatibleFormat(GLenum desiredFormat, TextureBaseFormat &compatibleFormat) {
 
@@ -392,78 +404,50 @@ namespace SWGL {
         }
     }
 
-    void TextureManager::generateFreeTextureNames() {
-
-        unsigned int texName = 1U;
-
-        for (int count = 0; count < 1024; ) {
-
-            auto it = m_textureObjects.find(texName);
-            if (it == m_textureObjects.end()) {
-
-                m_freeTextures.push_back(texName);
-                count++;
-            }
-
-            texName++;
-        }
-    }
 
 
+    TextureObjectPtr TextureManager::createTextureObject(GLuint name, GLenum target) {
 
-    bool TextureManager::getTextureTargetID(GLenum target, TextureTargetID &targetID) {
+        TextureObjectPtr texObj = std::make_shared<TextureObject>();
+        int numFaces;
 
         switch (target) {
 
         case GL_TEXTURE_1D:
-            targetID = TextureTargetID::Target1D;
-            return true;
+            texObj->data = std::make_shared<TextureData1D>();
+            numFaces = 1;
+            break;
 
         case GL_TEXTURE_2D:
-            targetID = TextureTargetID::Target2D;
-            return true;
+            texObj->data = std::make_shared<TextureData2D>();
+            numFaces = 1;
+            break;
 
         case GL_TEXTURE_3D:
-            targetID = TextureTargetID::Target3D;
-            return true;
+            texObj->data = std::make_shared<TextureData3D>();
+            numFaces = 1;
+            break;
 
         case GL_TEXTURE_CUBE_MAP:
-            targetID = TextureTargetID::TargetCubeMap;
-            return true;
+            texObj->data = std::make_shared<TextureDataCubeMap>();
+            numFaces = 6;
+            break;
 
         default:
-            return false;
+            LOG("Unimplemented target specified");
+            return nullptr;
         }
-    }
 
-    TextureTarget &TextureManager::getTextureTarget(TextureUnit *unit, TextureTargetID target) {
+        for (auto &texFace : texObj->data->mips) {
 
-        switch (target) {
-
-        case TextureTargetID::Target1D:
-            return unit->target1D;
-
-        case TextureTargetID::Target2D:
-            return unit->target2D;
-
-        case TextureTargetID::Target3D:
-            return unit->target3D;
-
-        default:
-            return unit->targetCubeMap;
+            texFace.resize(numFaces);
         }
-    }
 
-    TextureObjectPtr TextureManager::createTextureObject(GLuint name, TextureTargetID target) {
-
-        auto texObj = std::make_shared<TextureObject>();
         texObj->name = name;
         texObj->target = target;
-        texObj->maxLOD = -1;
+        texObj->data->maxLOD = -1;
 
-        m_textureObjects[name] = texObj;
-
-        return texObj;
+        return m_textureObjects[name] = texObj;
     }
 
     TextureObjectPtr TextureManager::getTextureObjectByName(GLuint name) {
@@ -474,6 +458,64 @@ namespace SWGL {
             return it->second;
         }
 
+        return nullptr;
+    }
+
+    TextureObjectPtr TextureManager::getTextureObjectByTarget(GLenum target, unsigned int &faceIdxOut) {
+
+        if (m_activeUnit != nullptr) {
+
+            switch (target) {
+
+            case GL_TEXTURE_2D:
+                faceIdxOut = 0U;
+                return m_activeUnit->targets[TextureTargetIndex::Target2D].texObj;
+
+            case GL_TEXTURE_CUBE_MAP_POSITIVE_X:
+            case GL_TEXTURE_CUBE_MAP_NEGATIVE_X:
+            case GL_TEXTURE_CUBE_MAP_POSITIVE_Y:
+            case GL_TEXTURE_CUBE_MAP_NEGATIVE_Y:
+            case GL_TEXTURE_CUBE_MAP_POSITIVE_Z:
+            case GL_TEXTURE_CUBE_MAP_NEGATIVE_Z:
+                faceIdxOut = target - GL_TEXTURE_CUBE_MAP_POSITIVE_X;
+                return m_activeUnit->targets[TextureTargetIndex::TargetCubeMap].texObj;
+
+            case GL_PROXY_TEXTURE_2D:
+                LOG("Unimplemented GL_PROXY_TEXTURE_2D");
+                return nullptr;
+
+            case GL_PROXY_TEXTURE_CUBE_MAP:
+                LOG("Unimplemented GL_PROXY_TEXTURE_CUBE_MAP");
+                return nullptr;
+
+            default:
+                LOG("Invalid target: %04x", target);
+                return nullptr;
+            }
+        }
+
+        LOG("No active texture unit");
+        return nullptr;
+    }
+
+    TextureTarget *TextureManager::getTextureTarget(TextureUnit *unit, GLenum target) {
+
+        switch (target) {
+
+        case GL_TEXTURE_1D:
+            return &unit->targets[TextureTargetIndex::Target1D];
+
+        case GL_TEXTURE_2D:
+            return &unit->targets[TextureTargetIndex::Target2D];
+
+        case GL_TEXTURE_3D:
+            return &unit->targets[TextureTargetIndex::Target3D];
+
+        case GL_TEXTURE_CUBE_MAP:
+            return &unit->targets[TextureTargetIndex::TargetCubeMap];
+        }
+
+        LOG("Unimplemented texture target: %04x", target);
         return nullptr;
     }
 }
