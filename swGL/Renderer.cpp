@@ -80,7 +80,7 @@ namespace SWGL {
         }
     }
 
-    void Renderer::drawTriangles(TriangleList &&triangles) {
+    void Renderer::drawTriangles(TriangleList &triangles) {
 
         auto &context = *Context::getCurrentContext();
         auto &scissor = context.getScissor();

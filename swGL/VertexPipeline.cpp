@@ -332,7 +332,7 @@ namespace SWGL {
                 }
             }
 
-            Context::getCurrentContext()->getRenderer().drawTriangles(std::move(m_triangles));
+            Context::getCurrentContext()->getRenderer().drawTriangles(m_triangles);
         }
     }
 }
