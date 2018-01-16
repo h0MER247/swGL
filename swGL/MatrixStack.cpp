@@ -1,19 +1,16 @@
-﻿#include "Log.h"
-#include "MatrixStack.h"
+﻿#include "MatrixStack.h"
 
 namespace SWGL {
 
     MatrixStack::MatrixStack()
 
-        : m_activeTexture(0) {
+        : m_activeTexture(0U) {
 
-        for (int i = 0; i < 3 + SWGL_MAX_TEXTURE_UNITS; i++) {
+        for (auto &stack : m_stack) {
 
-            auto &stack = m_stack[i];
+            for (auto &matrix : stack.matrix) {
 
-            for (int j = 0; j < SWGL_MAX_MATRIXSTACK_DEPTH; j++) {
-
-                stack.matrix[j] = Matrix::getIdentity();
+                matrix = Matrix::getIdentity();
             }
             stack.currentMatrix = &stack.matrix[0];
             stack.wasUpdated = false;
@@ -30,10 +27,21 @@ namespace SWGL {
 
         switch (matrixMode) {
 
-        case GL_MODELVIEW: m_currentStack = &m_stack[STACK_MODELVIEW]; break;
-        case GL_PROJECTION: m_currentStack = &m_stack[STACK_PROJECTION]; break;
-        case GL_TEXTURE: m_currentStack = &m_stack[STACK_TEXTURE_0 + m_activeTexture]; break;
-        case GL_COLOR: m_currentStack = &m_stack[STACK_COLOR]; break;
+        case GL_MODELVIEW:
+            m_currentStack = &m_stack[STACK_MODELVIEW];
+            break;
+
+        case GL_PROJECTION:
+            m_currentStack = &m_stack[STACK_PROJECTION];
+            break;
+
+        case GL_TEXTURE:
+            m_currentStack = &m_stack[STACK_TEXTURE_0 + m_activeTexture];
+            break;
+
+        case GL_COLOR:
+            m_currentStack = &m_stack[STACK_COLOR];
+            break;
         }
     }
 
@@ -66,5 +74,59 @@ namespace SWGL {
     void MatrixStack::pop() {
 
         m_currentStack->currentMatrix--;
+    }
+
+
+
+    void MatrixStack::updateCurrentMatrixStack() {
+
+        m_currentStack->wasUpdated = true;
+    }
+
+    bool MatrixStack::wasMatrixStackUpdated(unsigned int stack) {
+
+        bool wasUpdated = m_stack[stack].wasUpdated;
+        m_stack[stack].wasUpdated = false;
+
+        return wasUpdated;
+    }
+
+
+
+    void MatrixStack::setActiveTexture(unsigned int activeTexture) {
+
+        m_activeTexture = activeTexture;
+    }
+
+
+
+    Matrix &MatrixStack::getCurrentMatrix() const {
+
+        return *m_currentStack->currentMatrix;
+    }
+
+    Matrix &MatrixStack::getModelViewMatrix() const {
+
+        return *m_stack[STACK_MODELVIEW].currentMatrix;
+    }
+
+    Matrix &MatrixStack::getProjectionMatrix() const {
+
+        return *m_stack[STACK_PROJECTION].currentMatrix;
+    }
+
+    Matrix &MatrixStack::getColorMatrix() const {
+
+        return *m_stack[STACK_COLOR].currentMatrix;
+    }
+
+    Matrix &MatrixStack::getActiveTextureMatrix() const {
+
+        return *m_stack[STACK_TEXTURE_0 + m_activeTexture].currentMatrix;
+    }
+
+    Matrix &MatrixStack::getTextureMatrix(unsigned int idx) const {
+
+        return *m_stack[STACK_TEXTURE_0 + idx].currentMatrix;
     }
 }

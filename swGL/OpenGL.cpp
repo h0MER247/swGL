@@ -1523,7 +1523,7 @@ SWGLAPI void STDCALL glDrv_glGetFloatv(GLenum pname, GLfloat *params) {
             break;
 
         case GL_TEXTURE_MATRIX:
-            M = ctx->getVertexPipeline().getMatrixStack().getTextureMatrix().getTranspose();
+            M = ctx->getVertexPipeline().getMatrixStack().getActiveTextureMatrix().getTranspose();
             memcpy(
 
                 reinterpret_cast<void *>(params),
