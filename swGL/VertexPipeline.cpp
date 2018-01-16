@@ -161,8 +161,8 @@ namespace SWGL {
 
     void VertexPipeline::setPosition(const Vector &position) {
 
-        m_vertexState.obj = position;
-        m_vertexState.proj = position * m_mvpMatrix;
+        m_vertexState.position = position;
+        m_vertexState.projected = position * m_mvpMatrix;
     }
 
     void VertexPipeline::addVertex() {
@@ -310,8 +310,8 @@ namespace SWGL {
 
                 for (int i = 0; i < 3; i++) {
 
-                    auto &proj = t.v[i].proj;
-                    auto &raster = t.v[i].raster;
+                    auto &proj = t.v[i].projected;
+                    auto &raster = t.v[i].position;
 
                     // Perspective division
                     auto rhw = 1.0f / proj.w();

@@ -110,12 +110,12 @@ namespace SWGL {
                 Vertex &v = t.v[i];
 
                 int clipCode = Clipcode::None;
-                if (v.proj.x() < -v.proj.w()) clipCode |= Clipcode::Left;
-                if (v.proj.x() > v.proj.w()) clipCode |= Clipcode::Right;
-                if (v.proj.y() < -v.proj.w()) clipCode |= Clipcode::Bottom;
-                if (v.proj.y() > v.proj.w()) clipCode |= Clipcode::Top;
-                if (v.proj.z() < -v.proj.w()) clipCode |= Clipcode::Far;
-                if (v.proj.z() > v.proj.w()) clipCode |= Clipcode::Near;
+                if (v.projected.x() < -v.projected.w()) clipCode |= Clipcode::Left;
+                if (v.projected.x() >  v.projected.w()) clipCode |= Clipcode::Right;
+                if (v.projected.y() < -v.projected.w()) clipCode |= Clipcode::Bottom;
+                if (v.projected.y() >  v.projected.w()) clipCode |= Clipcode::Top;
+                if (v.projected.z() < -v.projected.w()) clipCode |= Clipcode::Far;
+                if (v.projected.z() >  v.projected.w()) clipCode |= Clipcode::Near;
 
                 clipOr |= clipCode;
                 clipAnd &= clipCode;
@@ -130,7 +130,7 @@ namespace SWGL {
 
                         for (int j = 0; j < 3; j++) {
 
-                            if (Vector::dot(m_clipPlaneEqs[6 + i], t.v[j].proj) < 0.0f) {
+                            if (Vector::dot(m_clipPlaneEqs[6 + i], t.v[j].projected) < 0.0f) {
 
                                 clipOr |= Clipcode::User << i;
                             }
@@ -184,8 +184,8 @@ namespace SWGL {
 
                 // Calculate dot products with the plane equation to determine
                 // the distances to the plane
-                float d1 = Vector::dot(planeEq, current.proj);
-                float d2 = Vector::dot(planeEq, next.proj);
+                float d1 = Vector::dot(planeEq, current.projected);
+                float d2 = Vector::dot(planeEq, next.projected);
 
                 bool isCurrentInside = d1 >= 0.0f;
                 bool isNextInside = d2 >= 0.0f;
@@ -209,7 +209,7 @@ namespace SWGL {
 
                         float t = d1 / (d1 - d2);
 
-                        intersection.proj = Vector::lerp(current.proj, next.proj, t);
+                        intersection.projected = Vector::lerp(current.projected, next.projected, t);
                         intersection.color = Vector::lerp(current.color, next.color, t);
                         for (int j = 0; j < SWGL_MAX_TEXTURE_UNITS; j++) {
 
@@ -220,7 +220,7 @@ namespace SWGL {
 
                         float t = d2 / (d2 - d1);
 
-                        intersection.proj = Vector::lerp(next.proj, current.proj, t);
+                        intersection.projected = Vector::lerp(next.projected, current.projected, t);
                         intersection.color = Vector::lerp(next.color, current.color, t);
                         for (int j = 0; j < SWGL_MAX_TEXTURE_UNITS; j++) {
 

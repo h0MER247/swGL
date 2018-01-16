@@ -20,9 +20,8 @@ namespace SWGL {
         ~Vertex() = default;
         
         // Position
-        Vector obj;
-        Vector proj;
-        Vector raster;
+        Vector position;
+        Vector projected;
 
         // Varyings
         Vector color;

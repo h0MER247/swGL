@@ -242,13 +242,13 @@ namespace SWGL {
                     // Update position
                     if (m_position->isEnabled()) {
 
-                        v.obj = m_position->read(i);
-                        v.proj = v.obj * mvpMatrix;
+                        v.position = m_position->read(i);
+                        v.projected = v.position * mvpMatrix;
                     }
                     else {
 
-                        v.obj = m_vertexState.obj;
-                        v.proj = m_vertexState.proj;
+                        v.position = m_vertexState.position;
+                        v.projected = m_vertexState.projected;
                     }
 
                     // Update color

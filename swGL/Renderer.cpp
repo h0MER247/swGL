@@ -137,9 +137,9 @@ namespace SWGL {
 
             auto &t = drawState->triangles[i];
 
-            auto &v1 = t.v[0].raster;
-            auto &v2 = t.v[1].raster;
-            auto &v3 = t.v[2].raster;
+            auto &v1 = t.v[0].position;
+            auto &v2 = t.v[1].position;
+            auto &v3 = t.v[2].position;
 
             // Determine the triangles bounding box
             float y1 = v1.y(), y2 = v2.y(), y3 = v3.y();

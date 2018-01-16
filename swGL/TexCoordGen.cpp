@@ -62,7 +62,7 @@ namespace SWGL {
             return 0.0f;
 
         case GL_OBJECT_LINEAR:
-            return Vector::dot(m_vertexState.obj, data.objectPlane);
+            return Vector::dot(m_vertexState.position, data.objectPlane);
 
         case GL_SPHERE_MAP:
             LOG("Unimplemented GL_SPHERE_MAP");

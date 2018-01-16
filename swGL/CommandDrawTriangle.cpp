@@ -131,9 +131,9 @@ namespace SWGL {
         for (auto triangleIdx : m_indices) {
 
             auto &t = m_state->triangles[triangleIdx];
-            auto &v1 = t.v[0].raster;
-            auto &v2 = t.v[1].raster;
-            auto &v3 = t.v[2].raster;
+            auto &v1 = t.v[0].position;
+            auto &v2 = t.v[1].position;
+            auto &v3 = t.v[2].position;
 
             //
             // Calculate the triangles reciprocal area
