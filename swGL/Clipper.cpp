@@ -210,7 +210,8 @@ namespace SWGL {
                         float t = d1 / (d1 - d2);
 
                         intersection.projected = Vector::lerp(current.projected, next.projected, t);
-                        intersection.color = Vector::lerp(current.color, next.color, t);
+                        intersection.colorPrimary = Vector::lerp(current.colorPrimary, next.colorPrimary, t);
+                        intersection.colorSecondary = Vector::lerp(current.colorSecondary, next.colorSecondary, t);
                         for (int j = 0; j < SWGL_MAX_TEXTURE_UNITS; j++) {
 
                             intersection.texCoord[j] = Vector::lerp(current.texCoord[j], next.texCoord[j], t);
@@ -221,7 +222,8 @@ namespace SWGL {
                         float t = d2 / (d2 - d1);
 
                         intersection.projected = Vector::lerp(next.projected, current.projected, t);
-                        intersection.color = Vector::lerp(next.color, current.color, t);
+                        intersection.colorPrimary = Vector::lerp(next.colorPrimary, current.colorPrimary, t);
+                        intersection.colorSecondary = Vector::lerp(next.colorSecondary, current.colorSecondary, t);
                         for (int j = 0; j < SWGL_MAX_TEXTURE_UNITS; j++) {
 
                             intersection.texCoord[j] = Vector::lerp(next.texCoord[j], current.texCoord[j], t);

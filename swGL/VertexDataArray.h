@@ -179,6 +179,7 @@ namespace SWGL {
               m_vertexState(vertexState) {
 
             m_position = std::make_unique<VectorReader>(false, true);
+            m_normal = std::make_unique<VectorReader>(true, false);
             m_color = std::make_unique<VectorReader>(true, true);
 
             for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
@@ -194,6 +195,11 @@ namespace SWGL {
         VectorReader & getPosition() {
 
             return *m_position;
+        }
+
+        VectorReader &getNormal() {
+
+            return *m_normal;
         }
 
         VectorReader &getColor() {
@@ -231,7 +237,7 @@ namespace SWGL {
             return false;
         }
 
-        void prefetch(Matrix &mvpMatrix) {
+        void prefetch(Matrix &mvpMatrix, Matrix &mvMatrix) {
 
             if (m_isLocked) {
 
@@ -251,14 +257,24 @@ namespace SWGL {
                         v.projected = m_vertexState.projected;
                     }
 
-                    // Update color
-                    if (m_color->isEnabled()) {
+                    // Update normal
+                    if (m_normal->isEnabled()) {
 
-                        v.color = m_color->read(i);
+                        v.normal = m_normal->read(i) * mvMatrix;
                     }
                     else {
 
-                        v.color = m_vertexState.color;
+                        v.normal = m_vertexState.normal;
+                    }
+
+                    // Update color
+                    if (m_color->isEnabled()) {
+
+                        v.colorPrimary = m_color->read(i);
+                    }
+                    else {
+
+                        v.colorPrimary = m_vertexState.colorPrimary;
                     }
 
                     // Update texture coordinate(s)
@@ -279,6 +295,7 @@ namespace SWGL {
 
     private:
         VectorReaderPtr m_position;
+        VectorReaderPtr m_normal;
         VectorReaderPtr m_color;
         VectorReaderPtr m_texCoord[SWGL_MAX_TEXTURE_UNITS];
 

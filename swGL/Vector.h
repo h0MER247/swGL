@@ -42,17 +42,26 @@ namespace SWGL {
 
     public:
         Vector &operator*=(const float &rhs);
+        friend Vector operator*(const Vector &lhs, const float &rhs);
+        friend Vector operator-(const Vector &lhs, const Vector &rhs);
+        friend Vector operator+(const Vector &lhs, const Vector &rhs);
 
     public:
         static Vector lerp(const Vector &vA, const Vector &vB, const float t);
         static float dot(const Vector &vA, const Vector &vB);
+        static float dot3(const Vector &vA, const Vector &vB);
+        static float length3(const Vector &v);
+        static Vector normalize3(const Vector &v);
 
     public:
         template<typename T>
         static INLINED std::enable_if_t<std::is_integral<T>::value && std::is_signed<T>::value, float> normalizeInteger(T value) {
 
+            static constexpr auto max = static_cast<unsigned int>(std::numeric_limits<T>::max());
+            static constexpr auto min = static_cast<unsigned int>(std::numeric_limits<T>::min());
+
             return (static_cast<float>(value) * 2.0f + 1.0f) /
-                    static_cast<float>(std::numeric_limits<T>::max() - std::numeric_limits<T>::min());
+                    static_cast<float>(max - min);
         }
 
         template<typename T>

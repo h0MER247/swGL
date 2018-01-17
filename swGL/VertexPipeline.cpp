@@ -12,7 +12,7 @@ namespace SWGL {
           m_vertexDataArray(m_vertexState) {
 
         setActiveTexture(0U);
-        setColor(Vector(1.0f, 1.0f, 1.0f, 1.0f));
+        setPrimaryColor(Vector(1.0f, 1.0f, 1.0f, 1.0f));
         for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
             setTexCoord(i, Vector(0.0f, 0.0f, 0.0f, 1.0f));
@@ -141,7 +141,7 @@ namespace SWGL {
 
     void VertexPipeline::addTriangle(Vertex &v1, Vertex &v2, Vertex &v3) {
 
-        if (Context::getCurrentContext()->getCulling().isTriangleVisible(v1, v2, v3)) {
+        if (m_culling.isTriangleVisible(v1, v2, v3)) {
         
             m_triangles.emplace_back(Triangle(v1, v2, v3));
         }
@@ -149,14 +149,19 @@ namespace SWGL {
 
 
 
-    void VertexPipeline::setColor(const Vector &color) {
+    void VertexPipeline::setPrimaryColor(const Vector &color) {
 
-        m_vertexState.color = color;
+        m_vertexState.colorPrimary = color;
     }
 
-    void VertexPipeline::setTexCoord(size_t index, const Vector &texCoord) {
+    void VertexPipeline::setTexCoord(unsigned int index, const Vector &texCoord) {
 
         m_vertexState.texCoord[index] = texCoord;
+    }
+
+    void VertexPipeline::setNormal(const Vector &normal) {
+
+        m_vertexState.normal = normal * m_matrixStack.getModelViewMatrix();
     }
 
     void VertexPipeline::setPosition(const Vector &position) {
@@ -175,16 +180,21 @@ namespace SWGL {
         m_vertices.emplace_back(m_vertexState);
     }
 
-    void VertexPipeline::setActiveTexture(size_t unit) {
+    void VertexPipeline::setActiveTexture(unsigned int unit) {
 
         m_activeTexture = unit;
     }
 
-    void VertexPipeline::setArrayElement(int idx) {
+    void VertexPipeline::setArrayElement(unsigned int idx) {
 
         if (m_vertexDataArray.getColor().isEnabled()) {
 
-            setColor(m_vertexDataArray.getColor().read(idx));
+            setPrimaryColor(m_vertexDataArray.getColor().read(idx));
+        }
+
+        if (m_vertexDataArray.getNormal().isEnabled()) {
+
+            setNormal(m_vertexDataArray.getNormal().read(idx));
         }
 
         for (int i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
@@ -204,7 +214,7 @@ namespace SWGL {
 
 
 
-    void VertexPipeline::lockArrayElements(int firstIndex, int count) {
+    void VertexPipeline::lockArrayElements(unsigned int firstIndex, unsigned int count) {
 
         m_vertexDataArray.lock(firstIndex, count);
     }
@@ -218,14 +228,14 @@ namespace SWGL {
 
         begin(mode); {
 
-            m_vertexDataArray.prefetch(m_mvpMatrix);
+            m_vertexDataArray.prefetch(m_mvpMatrix, m_matrixStack.getModelViewMatrix());
 
             switch (type) {
 
             case GL_UNSIGNED_BYTE:
                 for (int i = 0; i < count; i++) {
 
-                    unsigned char index = reinterpret_cast<const unsigned char *>(indices)[i];
+                    auto index = static_cast<unsigned int>(reinterpret_cast<const unsigned char *>(indices)[i]);
 
                     if (m_vertexDataArray.getPrefetchedVertex(index)) {
                     
@@ -241,7 +251,7 @@ namespace SWGL {
             case GL_UNSIGNED_SHORT:
                 for (int i = 0; i < count; i++) {
 
-                    unsigned short index = reinterpret_cast<const unsigned short *>(indices)[i];
+                    auto index = static_cast<unsigned int>(reinterpret_cast<const unsigned short *>(indices)[i]);
 
                     if (m_vertexDataArray.getPrefetchedVertex(index)) {
                     
@@ -257,7 +267,7 @@ namespace SWGL {
             case GL_UNSIGNED_INT:
                 for (int i = 0; i < count; i++) {
 
-                    unsigned int index = reinterpret_cast<const unsigned int *>(indices)[i];
+                    auto index = reinterpret_cast<const unsigned int *>(indices)[i];
 
                     if (m_vertexDataArray.getPrefetchedVertex(index)) {
 
@@ -274,13 +284,13 @@ namespace SWGL {
         end();
     }
 
-    void VertexPipeline::drawArrayElements(GLenum mode, GLint first, GLsizei count) {
+    void VertexPipeline::drawArrayElements(GLenum mode, int first, int count) {
 
         begin(mode); {
 
-            m_vertexDataArray.prefetch(m_mvpMatrix);
+            m_vertexDataArray.prefetch(m_mvpMatrix, m_matrixStack.getModelViewMatrix());
 
-            for (int i = first, n = first + count; i < n; i++) {
+            for (auto i = first, n = first + count; i < n; i++) {
 
                 if (m_vertexDataArray.getPrefetchedVertex(i)) {
 
@@ -299,12 +309,18 @@ namespace SWGL {
 
     void VertexPipeline::drawTriangles() {
 
+        if (m_lighting.isEnabled()) {
+
+            m_lighting.calculateLighting(
+
+                m_triangles,
+                m_matrixStack.getModelViewMatrix()
+            );
+        }
+
         m_clipper.clipTriangles(m_triangles);
 
         if (!m_triangles.empty()) {
-
-            auto &viewport = Context::getCurrentContext()->getViewport();
-            auto &culling = Context::getCurrentContext()->getCulling();
 
             for (auto &t : m_triangles) {
 
@@ -321,14 +337,15 @@ namespace SWGL {
                     raster.y() = proj.y() * rhw;
                     raster.x() = proj.x() * rhw;
 
-                    t.v[i].color *= rhw;
+                    t.v[i].colorPrimary *= rhw;
+                    t.v[i].colorSecondary *= rhw;
                     for (int j = 0; j < SWGL_MAX_TEXTURE_UNITS; j++) {
 
                         t.v[i].texCoord[j] *= rhw;
                     }
 
                     // Viewport transformation
-                    viewport.transform(raster);
+                    m_viewport.transform(raster);
                 }
             }
 

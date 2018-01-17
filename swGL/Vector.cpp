@@ -1,9 +1,10 @@
-﻿#include "Vector.h"
+﻿#include <cmath>
+#include "Vector.h"
 
 namespace SWGL {
 
     Vector::Vector(float x, float y, float z, float w) {
-    
+
         m_data[0] = w;
         m_data[1] = z;
         m_data[2] = y;
@@ -52,6 +53,42 @@ namespace SWGL {
         return *this;
     }
 
+    // Scalar multiplication
+    Vector operator*(const Vector &lhs, const float &rhs) {
+
+        return Vector(
+
+            lhs.x() * rhs,
+            lhs.y() * rhs,
+            lhs.z() * rhs,
+            lhs.w() * rhs
+        );
+    }
+
+    // Vector subtraction
+    Vector operator-(const Vector &lhs, const Vector &rhs) {
+
+        return Vector(
+
+            lhs.x() - rhs.x(),
+            lhs.y() - rhs.y(),
+            lhs.z() - rhs.z(),
+            lhs.w() - rhs.w()
+        );
+    }
+
+    // Vector addition
+    Vector operator+(const Vector &lhs, const Vector &rhs) {
+
+        return Vector(
+
+            lhs.x() + rhs.x(),
+            lhs.y() + rhs.y(),
+            lhs.z() + rhs.z(),
+            lhs.w() + rhs.w()
+        );
+    }
+
 
 
     // Linear interpolation between two vectors
@@ -73,5 +110,37 @@ namespace SWGL {
                vA.y() * vB.y() +
                vA.z() * vB.z() +
                vA.w() * vB.w();
+    }
+
+    float Vector::dot3(const Vector &vA, const Vector &vB) {
+
+        return vA.x() * vB.x() +
+               vA.y() * vB.y() +
+               vA.z() * vB.z();
+    }
+
+    // Length of a vector with three components
+    float Vector::length3(const Vector &v) {
+
+        return std::sqrt(
+
+            v.x() * v.x() +
+            v.y() * v.y() +
+            v.z() * v.z()
+        );
+    }
+
+    // Normalizes a vector with three components
+    Vector Vector::normalize3(const Vector &v) {
+
+        float rcpLength = 1.0f / Vector::length3(v);
+
+        return Vector(
+
+            v.x() * rcpLength,
+            v.y() * rcpLength,
+            v.z() * rcpLength,
+            0.0f
+        );
     }
 }

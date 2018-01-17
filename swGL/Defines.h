@@ -42,6 +42,9 @@ static constexpr unsigned int SWGL_MAX_TEXTURE_SIZE = 1U << SWGL_MAX_TEXTURE_LOD
 // Maximum number of user defined clipping planes
 static constexpr unsigned int SWGL_MAX_CLIP_PLANES = 6U;
 
+// Maximum number of lights
+static constexpr unsigned int SWGL_MAX_LIGHTS = 8U;
+
 // Number of drawing threads
 static constexpr unsigned int SWGL_NUM_DRAW_THREADS = 16U;
 
@@ -57,4 +60,4 @@ static constexpr bool isPowerOfTwo(T value) {
 
 // Some compile time error checks
 static_assert(isPowerOfTwo(SWGL_NUM_DRAW_THREADS), "The number of drawing threads has to be a power of two");
-// ...
+static_assert(SWGL_MAX_LIGHTS >= 8U, "The number of lights must be at least 8");

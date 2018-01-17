@@ -41,8 +41,6 @@ namespace SWGL {
 
     public:
         ContextID getContextID() { return m_id; }
-        Viewport &getViewport() { return m_viewport; }
-        Culling &getCulling() { return m_culling; }
         Scissor &getScissor() { return m_scissor; }
         VertexPipeline &getVertexPipeline() { return m_vertexPipeline; }
         ClearValues &getClearValues() { return m_clearValues; }
@@ -70,8 +68,6 @@ namespace SWGL {
         GLError m_error;
 
     private:
-        Viewport m_viewport;
-        Culling m_culling;
         Scissor m_scissor;
         VertexPipeline m_vertexPipeline;
 

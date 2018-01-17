@@ -27,6 +27,7 @@
     <ClInclude Include="DrawThread.h" />
     <ClInclude Include="ContextTypes.h" />
     <ClInclude Include="GammaRamp.h" />
+    <ClInclude Include="Lighting.h" />
     <ClInclude Include="LockFreeQueue.h" />
     <ClInclude Include="DrawBuffer.h" />
     <ClInclude Include="DrawSurface.h" />

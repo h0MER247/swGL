@@ -23,8 +23,12 @@ namespace SWGL {
         Vector position;
         Vector projected;
 
+        // Normal
+        Vector normal;
+
         // Varyings
-        Vector color;
+        Vector colorPrimary;
+        Vector colorSecondary;
         Vector texCoord[SWGL_MAX_TEXTURE_UNITS];
     };
 }

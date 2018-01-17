@@ -22,7 +22,7 @@ namespace SWGL {
 
         // Initialize the dimenions of the viewport and scissor rect to the dimensions
         // of the device context
-        m_viewport.setDimensions(0, 0, drawSurface.getWidth(), drawSurface.getHeight());
+        m_vertexPipeline.getViewport().setDimensions(0, 0, drawSurface.getWidth(), drawSurface.getHeight());
         m_scissor.setDimensions(0, 0, drawSurface.getWidth(), drawSurface.getHeight());
 
 

@@ -125,7 +125,8 @@ namespace SWGL {
         auto &alphaTesting = m_state->alphaTesting;
         auto &polygonOffset = m_state->polygonOffset;
         auto &textureState = m_state->textures;
-        auto &deferedDepthWrite = m_state->deferedDepthWrite;
+        auto &writeDepthAfterAlphaTest = m_state->deferedDepthWrite;
+        auto writeDepthAfterDepthTest = depthTesting.isWriteEnabled() && !writeDepthAfterAlphaTest;
         auto &colorMask = m_state->colorMask;
 
         for (auto triangleIdx : m_indices) {
@@ -175,7 +176,6 @@ namespace SWGL {
             
                 scissor.cut(minX, minY, maxX, maxY);
             }
-            
 
             // Make sure that we rasterize at the beginning of a quad (which is 2x2 pixel).
             // Then determine the width of the bounding box in full quads.
@@ -217,14 +217,14 @@ namespace SWGL {
             DEFINE_GRADIENT(rcpW);
             SETUP_GRADIENT_EQ(rcpW, v1.w(), v2.w(), v3.w());
 
-            DEFINE_GRADIENT(a);
-            SETUP_GRADIENT_EQ(a, t.v[0].color.a(), t.v[1].color.a(), t.v[2].color.a());
-            DEFINE_GRADIENT(r);
-            SETUP_GRADIENT_EQ(r, t.v[0].color.r(), t.v[1].color.r(), t.v[2].color.r());
-            DEFINE_GRADIENT(g);
-            SETUP_GRADIENT_EQ(g, t.v[0].color.g(), t.v[1].color.g(), t.v[2].color.g());
-            DEFINE_GRADIENT(b);
-            SETUP_GRADIENT_EQ(b, t.v[0].color.b(), t.v[1].color.b(), t.v[2].color.b());
+            DEFINE_GRADIENT(primaryA);
+            SETUP_GRADIENT_EQ(primaryA, t.v[0].colorPrimary.a(), t.v[1].colorPrimary.a(), t.v[2].colorPrimary.a());
+            DEFINE_GRADIENT(primaryR);
+            SETUP_GRADIENT_EQ(primaryR, t.v[0].colorPrimary.r(), t.v[1].colorPrimary.r(), t.v[2].colorPrimary.r());
+            DEFINE_GRADIENT(primaryG);
+            SETUP_GRADIENT_EQ(primaryG, t.v[0].colorPrimary.g(), t.v[1].colorPrimary.g(), t.v[2].colorPrimary.g());
+            DEFINE_GRADIENT(primaryB);
+            SETUP_GRADIENT_EQ(primaryB, t.v[0].colorPrimary.b(), t.v[1].colorPrimary.b(), t.v[2].colorPrimary.b());
 
             DEFINE_GRADIENT(texS[SWGL_MAX_TEXTURE_UNITS]);
             DEFINE_GRADIENT(texT[SWGL_MAX_TEXTURE_UNITS]);
@@ -319,7 +319,7 @@ namespace SWGL {
                             }
 
                             // Write the new depth values to the depth buffer
-                            if (depthTesting.isWriteEnabled() && !deferedDepthWrite) {
+                            if (writeDepthAfterDepthTest) {
 
                                 _mm_store_ps(
 
@@ -339,11 +339,11 @@ namespace SWGL {
                         //
                         // Set the fragments initial color
                         //
-                        srcColor.a = GET_GRADIENT_VALUE_PERSP(a);
-                        srcColor.r = GET_GRADIENT_VALUE_PERSP(r);
-                        srcColor.g = GET_GRADIENT_VALUE_PERSP(g);
-                        srcColor.b = GET_GRADIENT_VALUE_PERSP(b);
-
+                        srcColor.a = GET_GRADIENT_VALUE_PERSP(primaryA);
+                        srcColor.r = GET_GRADIENT_VALUE_PERSP(primaryR);
+                        srcColor.g = GET_GRADIENT_VALUE_PERSP(primaryG);
+                        srcColor.b = GET_GRADIENT_VALUE_PERSP(primaryB);
+                        
 
                         //
                         // Texture sampling and blending for each active texture unit
@@ -519,7 +519,7 @@ namespace SWGL {
                             // The write to the depthbuffer can be defered after alpha testing is done. This makes
                             // it possible to do a early depthbuffer test while maintaining the "natural" flow of
                             // data as OpenGL specifies it.
-                            if (deferedDepthWrite) {
+                            if (writeDepthAfterAlphaTest) {
 
                                 _mm_store_ps(
 

@@ -133,6 +133,9 @@
     <Filter Include="Headerdateien\Utility\Gamma Ramp">
       <UniqueIdentifier>{a75a963c-ba8d-4dad-9fbd-ff13a131d3c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Headerdateien\Vertex Pipeline\Lighting">
+      <UniqueIdentifier>{465c63be-3f34-4b9c-80ed-8a5b4f74cb89}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Context.h">
@@ -230,6 +233,9 @@
     </ClInclude>
     <ClInclude Include="CommandSynchronize.h">
       <Filter>Headerdateien\Rendering\Renderer\Commands</Filter>
+    </ClInclude>
+    <ClInclude Include="Lighting.h">
+      <Filter>Headerdateien\Vertex Pipeline\Lighting</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

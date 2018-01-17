@@ -11,6 +11,7 @@
 #include "MatrixStack.h"
 #include "VertexDataArray.h"
 #include "TexCoordGen.h"
+#include "Lighting.h"
 
 namespace SWGL {
 
@@ -30,28 +31,33 @@ namespace SWGL {
         bool isInsideGLBegin() { return m_isInsideGLBegin; }
 
     public:
-        void setColor(const Vector &color);
-        void setTexCoord(size_t index, const Vector &texCoord);
+        void setPrimaryColor(const Vector &color);
+        void setTexCoord(unsigned int index, const Vector &texCoord);
+        void setNormal(const Vector &normal);
         void setPosition(const Vector &position);
         void addVertex();
-        void setActiveTexture(size_t unit);
-        void setArrayElement(int idx);
+        void setActiveTexture(unsigned int unit);
+        void setArrayElement(unsigned int idx);
 
     public:
-        void lockArrayElements(int firstIndex, int count);
+        void lockArrayElements(unsigned int firstIndex, unsigned int count);
         void unlockArrayElements();
         void drawIndexedArrayElements(GLenum mode, int count, GLenum type, const GLvoid *indices);
-        void drawArrayElements(GLenum mode, GLint first, GLsizei count);
+        void drawArrayElements(GLenum mode, int first, int count);
 
     public:
         VectorReader &getPositionArrayPointer() { return m_vertexDataArray.getPosition(); }
         VectorReader &getColorArrayPointer() { return m_vertexDataArray.getColor(); }
         VectorReader &getTexCoordArrayPointer() { return m_vertexDataArray.getTexCoord(m_activeTexture); }
+        VectorReader &getNormalArrayPointer() { return m_vertexDataArray.getNormal(); }
 
     public:
+        TexCoordGen & getTexGen() { return m_texCoordGen; }
+        Lighting &getLighting() { return m_lighting; }
         Clipper &getClipper() { return m_clipper; }
         MatrixStack &getMatrixStack() { return m_matrixStack; }
-        TexCoordGen &getTexGen() { return m_texCoordGen; }
+        Culling &getCulling() { return m_culling; }
+        Viewport &getViewport() { return m_viewport; }
 
     private:
         void addTriangle(Vertex &v1, Vertex &v2, Vertex &v3);
@@ -61,17 +67,20 @@ namespace SWGL {
         bool m_isInsideGLBegin;
         Vertex m_vertexState;
         GLenum m_primitiveType;
-        size_t m_activeTexture;
+        unsigned int m_activeTexture;
         Matrix m_mvpMatrix;
 
+    private:
         TexCoordGen m_texCoordGen;
-
-        VertexList m_vertices;
-        TriangleList m_triangles;
-
-        VertexDataArray m_vertexDataArray;
-
+        Lighting m_lighting;
+        Culling m_culling;
+        Viewport m_viewport;
         Clipper m_clipper;
         MatrixStack m_matrixStack;
+        VertexDataArray m_vertexDataArray;
+
+    private:
+        VertexList m_vertices;
+        TriangleList m_triangles;
     };
 }

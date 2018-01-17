@@ -313,7 +313,7 @@ SWGLAPI void STDCALL glDrv_glColor3b(GLbyte red, GLbyte green, GLbyte blue) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -332,7 +332,7 @@ SWGLAPI void STDCALL glDrv_glColor3bv(const GLbyte *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -351,7 +351,7 @@ SWGLAPI void STDCALL glDrv_glColor3d(GLdouble red, GLdouble green, GLdouble blue
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -370,7 +370,7 @@ SWGLAPI void STDCALL glDrv_glColor3dv(const GLdouble *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -389,7 +389,7 @@ SWGLAPI void STDCALL glDrv_glColor3f(GLfloat red, GLfloat green, GLfloat blue) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(red, green, blue, 1.0f)
     );
@@ -402,7 +402,7 @@ SWGLAPI void STDCALL glDrv_glColor3fv(const GLfloat *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(v[0], v[1], v[2], 1.0f)
     );
@@ -415,7 +415,7 @@ SWGLAPI void STDCALL glDrv_glColor3i(GLint red, GLint green, GLint blue) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -434,7 +434,7 @@ SWGLAPI void STDCALL glDrv_glColor3iv(const GLint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -453,7 +453,7 @@ SWGLAPI void STDCALL glDrv_glColor3s(GLshort red, GLshort green, GLshort blue) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -472,7 +472,7 @@ SWGLAPI void STDCALL glDrv_glColor3sv(const GLshort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -491,7 +491,7 @@ SWGLAPI void STDCALL glDrv_glColor3ub(GLubyte red, GLubyte green, GLubyte blue) 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -510,7 +510,7 @@ SWGLAPI void STDCALL glDrv_glColor3ubv(const GLubyte *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -529,7 +529,7 @@ SWGLAPI void STDCALL glDrv_glColor3ui(GLuint red, GLuint green, GLuint blue) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -548,7 +548,7 @@ SWGLAPI void STDCALL glDrv_glColor3uiv(const GLuint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -567,7 +567,7 @@ SWGLAPI void STDCALL glDrv_glColor3us(GLushort red, GLushort green, GLushort blu
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -586,7 +586,7 @@ SWGLAPI void STDCALL glDrv_glColor3usv(const GLushort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -605,7 +605,7 @@ SWGLAPI void STDCALL glDrv_glColor4b(GLbyte red, GLbyte green, GLbyte blue, GLby
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -624,7 +624,7 @@ SWGLAPI void STDCALL glDrv_glColor4bv(const GLbyte *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -643,7 +643,7 @@ SWGLAPI void STDCALL glDrv_glColor4d(GLdouble red, GLdouble green, GLdouble blue
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -662,7 +662,7 @@ SWGLAPI void STDCALL glDrv_glColor4dv(const GLdouble *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -681,7 +681,7 @@ SWGLAPI void STDCALL glDrv_glColor4f(GLfloat red, GLfloat green, GLfloat blue, G
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(red, green, blue, alpha)
     );
@@ -694,7 +694,7 @@ SWGLAPI void STDCALL glDrv_glColor4fv(const GLfloat *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(v[0], v[1], v[2], v[3])
     );
@@ -707,7 +707,7 @@ SWGLAPI void STDCALL glDrv_glColor4i(GLint red, GLint green, GLint blue, GLint a
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -726,7 +726,7 @@ SWGLAPI void STDCALL glDrv_glColor4iv(const GLint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -745,7 +745,7 @@ SWGLAPI void STDCALL glDrv_glColor4s(GLshort red, GLshort green, GLshort blue, G
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -764,7 +764,7 @@ SWGLAPI void STDCALL glDrv_glColor4sv(const GLshort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -783,7 +783,7 @@ SWGLAPI void STDCALL glDrv_glColor4ub(GLubyte red, GLubyte green, GLubyte blue, 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -802,7 +802,7 @@ SWGLAPI void STDCALL glDrv_glColor4ubv(const GLubyte *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -821,7 +821,7 @@ SWGLAPI void STDCALL glDrv_glColor4ui(GLuint red, GLuint green, GLuint blue, GLu
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -840,7 +840,7 @@ SWGLAPI void STDCALL glDrv_glColor4uiv(const GLuint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -859,7 +859,7 @@ SWGLAPI void STDCALL glDrv_glColor4us(GLushort red, GLushort green, GLushort blu
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -878,7 +878,7 @@ SWGLAPI void STDCALL glDrv_glColor4usv(const GLushort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setColor(
+    ctx->getVertexPipeline().setPrimaryColor(
 
         SWGL::Vector(
 
@@ -908,12 +908,34 @@ SWGLAPI void STDCALL glDrv_glColorMask(GLboolean red, GLboolean green, GLboolean
 
 SWGLAPI void STDCALL glDrv_glColorMaterial(GLenum face, GLenum mode) {
 
-    LOG("Unimplemented");
+    LOG("Face: %04x, Mode: %04x", face, mode);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    bool isFront = face == GL_FRONT || face == GL_FRONT_AND_BACK;
+    bool isBack = face == GL_BACK || face == GL_FRONT_AND_BACK;
+
+    if (!isFront && !isBack) {
+
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    switch (mode) {
+
+    case GL_AMBIENT:
+    case GL_DIFFUSE:
+    case GL_SPECULAR:
+    case GL_EMISSION:
+    case GL_AMBIENT_AND_DIFFUSE:
+        ctx->getVertexPipeline().getLighting().setColorMaterialMode(isFront, isBack, mode);
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        break;
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum type) {
@@ -937,7 +959,7 @@ SWGLAPI void STDCALL glDrv_glCullFace(GLenum mode) {
 
     case GL_FRONT:
     case GL_BACK:
-        ctx->getCulling().setCullFace(mode);
+        ctx->getVertexPipeline().getCulling().setCullFace(mode);
         break;
 
     default:
@@ -997,7 +1019,7 @@ SWGLAPI void STDCALL glDrv_glDepthRange(GLclampd zNear, GLclampd zFar) {
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getViewport().setDepthRange(zNear, zFar);
+    ctx->getVertexPipeline().getViewport().setDepthRange(zNear, zFar);
 }
 
 SWGLAPI void STDCALL glDrv_glDisable(GLenum cap) {
@@ -1009,6 +1031,25 @@ SWGLAPI void STDCALL glDrv_glDisable(GLenum cap) {
 
     switch (cap) {
 
+    case GL_LIGHTING:
+        ctx->getVertexPipeline().getLighting().setLightingEnable(false);
+        break;
+
+    case GL_LIGHT0:
+    case GL_LIGHT1:
+    case GL_LIGHT2:
+    case GL_LIGHT3:
+    case GL_LIGHT4:
+    case GL_LIGHT5:
+    case GL_LIGHT6:
+    case GL_LIGHT7:
+        ctx->getVertexPipeline().getLighting().setLightEnable(cap - GL_LIGHT0, false);
+        break;
+
+    case GL_COLOR_MATERIAL:
+        ctx->getVertexPipeline().getLighting().setColorMaterialEnable(false);
+        break;
+
     case GL_TEXTURE_GEN_S:
     case GL_TEXTURE_GEN_T:
     case GL_TEXTURE_GEN_R:
@@ -1017,7 +1058,7 @@ SWGLAPI void STDCALL glDrv_glDisable(GLenum cap) {
         break;
 
     case GL_CULL_FACE:
-        ctx->getCulling().setEnable(false);
+        ctx->getVertexPipeline().getCulling().setEnable(false);
         break;
 
     case GL_DEPTH_TEST:
@@ -1111,6 +1152,25 @@ SWGLAPI void STDCALL glDrv_glEnable(GLenum cap) {
 
     switch (cap) {
 
+    case GL_LIGHTING:
+        ctx->getVertexPipeline().getLighting().setLightingEnable(true);
+        break;
+
+    case GL_LIGHT0:
+    case GL_LIGHT1:
+    case GL_LIGHT2:
+    case GL_LIGHT3:
+    case GL_LIGHT4:
+    case GL_LIGHT5:
+    case GL_LIGHT6:
+    case GL_LIGHT7:
+        ctx->getVertexPipeline().getLighting().setLightEnable(cap - GL_LIGHT0, true);
+        break;
+
+    case GL_COLOR_MATERIAL:
+        ctx->getVertexPipeline().getLighting().setColorMaterialEnable(true);
+        break;
+
     case GL_TEXTURE_GEN_S:
     case GL_TEXTURE_GEN_T:
     case GL_TEXTURE_GEN_R:
@@ -1119,7 +1179,7 @@ SWGLAPI void STDCALL glDrv_glEnable(GLenum cap) {
         break;
 
     case GL_CULL_FACE:
-        ctx->getCulling().setEnable(true);
+        ctx->getVertexPipeline().getCulling().setEnable(true);
         break;
 
     case GL_DEPTH_TEST:
@@ -1385,7 +1445,7 @@ SWGLAPI void STDCALL glDrv_glFrontFace(GLenum mode) {
 
     case GL_CW:
     case GL_CCW:
-        ctx->getCulling().setFrontFaceWinding(mode);
+        ctx->getVertexPipeline().getCulling().setFrontFaceWinding(mode);
         break;
 
     default:
@@ -1571,6 +1631,10 @@ SWGLAPI void STDCALL glDrv_glGetIntegerv(GLenum pname, GLint *params) {
 
         switch (pname) {
 
+        case GL_MAX_LIGHTS:
+            params[0] = SWGL_MAX_LIGHTS;
+            break;
+
         case GL_MAX_TEXTURE_SIZE:
             params[0] = SWGL_MAX_TEXTURE_SIZE;
             break;
@@ -1588,10 +1652,10 @@ SWGLAPI void STDCALL glDrv_glGetIntegerv(GLenum pname, GLint *params) {
             break;
 
         case GL_VIEWPORT:
-            params[0] = ctx->getViewport().getX();
-            params[1] = ctx->getViewport().getY();
-            params[2] = ctx->getViewport().getWidth();
-            params[3] = ctx->getViewport().getHeight();
+            params[0] = ctx->getVertexPipeline().getViewport().getX();
+            params[1] = ctx->getVertexPipeline().getViewport().getY();
+            params[2] = ctx->getVertexPipeline().getViewport().getWidth();
+            params[3] = ctx->getVertexPipeline().getViewport().getHeight();
             break;
 
         case GL_MAX_CLIP_PLANES:
@@ -1958,7 +2022,7 @@ SWGLAPI GLboolean STDCALL glDrv_glIsEnabled(GLenum cap) {
     case GL_SCISSOR_TEST: result = ctx->getScissor().isEnabled(); break;
     case GL_BLEND: result = ctx->getBlending().isEnabled(); break;
     case GL_ALPHA_TEST: result = ctx->getAlphaTesting().isEnabled(); break;
-    case GL_CULL_FACE: result = ctx->getCulling().isEnabled(); break;
+    case GL_CULL_FACE: result = ctx->getVertexPipeline().getCulling().isEnabled(); break;
     case GL_POLYGON_OFFSET_FILL: result = ctx->getPolygonOffset().isFillEnabled(); break;
     case GL_DEPTH_TEST: result = ctx->getDepthTesting().isTestEnabled(); break;
 
@@ -1992,82 +2056,388 @@ SWGLAPI GLboolean STDCALL glDrv_glIsList(GLuint list) {
 
 SWGLAPI void STDCALL glDrv_glLightModelf(GLenum pname, GLfloat param) {
 
-    LOG("Unimplemented");
+    LOG("Parameter: %04x, Value: %f", pname, param);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    auto &lighting = ctx->getVertexPipeline().getLighting();
+
+    switch (pname) {
+
+    case GL_LIGHT_MODEL_AMBIENT:
+        lighting.setAmbientSceneColor(
+
+            SWGL::Vector(
+
+                param,
+                param,
+                param,
+                param
+            )
+        );
+        break;
+
+    case GL_LIGHT_MODEL_COLOR_CONTROL:
+        switch (static_cast<GLenum>(param)) {
+
+        case GL_SEPARATE_SPECULAR_COLOR:
+            lighting.setSeparateSpecularColorEnable(true);
+            break;
+
+        case GL_SINGLE_COLOR:
+            lighting.setSeparateSpecularColorEnable(false);
+            break;
+
+        default:
+            ctx->getError().setState(GL_INVALID_ENUM);
+            break;
+        }
+        break;
+
+    case GL_LIGHT_MODEL_LOCAL_VIEWER:
+        lighting.setReflectionCalculatedFromEyeOrigin(param != 0.0f);
+        break;
+
+    case GL_LIGHT_MODEL_TWO_SIDE:
+        lighting.setTwoSidedLightingEnable(param != 0.0f);
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        break;
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glLightModelfv(GLenum pname, const GLfloat *params) {
 
-    LOG("Unimplemented");
+    LOG("Parameter: %04x, Value Address: %p", pname, params);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    auto &lighting = ctx->getVertexPipeline().getLighting();
+
+    if (params != nullptr) {
+
+        switch (pname) {
+
+        case GL_LIGHT_MODEL_AMBIENT:
+            lighting.setAmbientSceneColor(
+
+                SWGL::Vector(
+
+                    params[0],
+                    params[1],
+                    params[2],
+                    params[3]
+                )
+            );
+            break;
+
+        case GL_LIGHT_MODEL_COLOR_CONTROL:
+            switch (static_cast<GLenum>(params[0])) {
+
+            case GL_SEPARATE_SPECULAR_COLOR:
+                lighting.setSeparateSpecularColorEnable(true);
+                break;
+
+            case GL_SINGLE_COLOR:
+                lighting.setSeparateSpecularColorEnable(false);
+                break;
+
+            default:
+                ctx->getError().setState(GL_INVALID_ENUM);
+                break;
+            }
+            break;
+
+        case GL_LIGHT_MODEL_LOCAL_VIEWER:
+            lighting.setReflectionCalculatedFromEyeOrigin(params[0] != 0.0f);
+            break;
+
+        case GL_LIGHT_MODEL_TWO_SIDE:
+            lighting.setTwoSidedLightingEnable(params[0] != 0.0f);
+            break;
+
+        default:
+            ctx->getError().setState(GL_INVALID_ENUM);
+            break;
+        }
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glLightModeli(GLenum pname, GLint param) {
 
-    LOG("Unimplemented");
+    LOG("Parameter: %04x, Value: %d", pname, param);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    float paramF;
+    switch (pname) {
+
+    case GL_LIGHT_MODEL_AMBIENT:
+        paramF = SWGL::Vector::normalizeInteger(param);
+        ctx->getVertexPipeline().getLighting().setAmbientSceneColor(
+
+            SWGL::Vector(
+
+                paramF,
+                paramF,
+                paramF,
+                paramF
+            )
+        );
+        break;
+
+    case GL_LIGHT_MODEL_TWO_SIDE:
+        ctx->getVertexPipeline().getLighting().setTwoSidedLightingEnable(param != 0);
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        break;
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glLightModeliv(GLenum pname, const GLint *params) {
 
-    LOG("Unimplemented");
+    LOG("Parameter: %04x, Value Address: %p", pname, params);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (params != nullptr) {
+
+        switch (pname) {
+
+        case GL_LIGHT_MODEL_AMBIENT:
+            ctx->getVertexPipeline().getLighting().setAmbientSceneColor(
+
+                SWGL::Vector(
+
+                    SWGL::Vector::normalizeInteger(params[0]),
+                    SWGL::Vector::normalizeInteger(params[1]),
+                    SWGL::Vector::normalizeInteger(params[2]),
+                    SWGL::Vector::normalizeInteger(params[3])
+                )
+            );
+            break;
+
+        case GL_LIGHT_MODEL_TWO_SIDE:
+            ctx->getVertexPipeline().getLighting().setTwoSidedLightingEnable(params[0] != 0);
+            break;
+
+        default:
+            ctx->getError().setState(GL_INVALID_ENUM);
+            break;
+        }
+    }
+}
+
+SWGLAPI void STDCALL glDrv_glLightSingleArgCommon(const SWGL::ContextPtr &ctx, unsigned int lightIdx, GLenum pname, float arg) {
+
+    auto &lighting = ctx->getVertexPipeline().getLighting();
+
+    switch (pname) {
+
+    case GL_SPOT_EXPONENT:
+        if (arg < 0.0f || arg > 128.0f) {
+
+            ctx->getError().setState(GL_INVALID_VALUE);
+            return;
+        }
+        lighting.setLightSpotExponent(lightIdx, arg);
+        break;
+
+    case GL_SPOT_CUTOFF:
+        if ((arg < 0.0f || arg > 90.0f) && arg != 180.0f) {
+
+            ctx->getError().setState(GL_INVALID_VALUE);
+            return;
+        }
+        lighting.setLightSpotCutOffValue(lightIdx, arg);
+        break;
+
+    case GL_CONSTANT_ATTENUATION:
+        if (arg < 0.0f) {
+
+            ctx->getError().setState(GL_INVALID_VALUE);
+            return;
+        }
+        lighting.setLightConstantAttenuation(lightIdx, arg);
+        break;
+
+    case GL_LINEAR_ATTENUATION:
+        if (arg < 0.0f) {
+
+            ctx->getError().setState(GL_INVALID_VALUE);
+            return;
+        }
+        lighting.setLightLinearAttenuation(lightIdx, arg);
+        break;
+
+    case GL_QUADRATIC_ATTENUATION:
+        if (arg < 0.0f) {
+
+            ctx->getError().setState(GL_INVALID_VALUE);
+            return;
+        }
+        lighting.setLightQuadraticAttenuation(lightIdx, arg);
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        break;
+    }
+}
+
+SWGLAPI void STDCALL glDrv_glLightMultipleArgsCommon(const SWGL::ContextPtr &ctx, unsigned int lightIdx, GLenum pname, const SWGL::Vector &arg) {
+
+    auto &lighting = ctx->getVertexPipeline().getLighting();
+    auto &mvMatrix = ctx->getVertexPipeline().getMatrixStack().getModelViewMatrix();
+
+    switch (pname) {
+
+    case GL_AMBIENT:
+        lighting.setLightAmbientIntensity(lightIdx, arg);
+        break;
+
+    case GL_DIFFUSE:
+        lighting.setLightDiffuseIntensity(lightIdx, arg);
+        break;
+
+    case GL_SPECULAR:
+        lighting.setLightSpecularIntensity(lightIdx, arg);
+        break;
+
+    case GL_POSITION:
+        lighting.setLightPosition(
+
+            lightIdx,
+            arg * mvMatrix
+        );
+        break;
+
+    case GL_SPOT_DIRECTION:
+        lighting.setLightSpotDirection(
+
+            lightIdx,
+            arg * mvMatrix.getTransposedInverse()
+        );
+        break;
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glLightf(GLenum light, GLenum pname, GLfloat param) {
 
-    LOG("Unimplemented");
+    LOG("Light: %d, Parameter: %04x, Value: %f", light - GL_LIGHT0, pname, param);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    auto lightIdx = light - GL_LIGHT0;
+    if (lightIdx >= SWGL_MAX_LIGHTS) {
+
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    glDrv_glLightSingleArgCommon(
+
+        ctx,
+        lightIdx,
+        pname,
+        param
+    );
 }
 
 SWGLAPI void STDCALL glDrv_glLightfv(GLenum light, GLenum pname, const GLfloat *params) {
 
-    LOG("Unimplemented");
+    LOG("Light: %d, Parameter: %04x, Value Address: %p", light - GL_LIGHT0, pname, params);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (params != nullptr) {
+
+        auto lightIdx = light - GL_LIGHT0;
+        if (lightIdx >= SWGL_MAX_LIGHTS) {
+
+            ctx->getError().setState(GL_INVALID_ENUM);
+            return;
+        }
+
+        glDrv_glLightMultipleArgsCommon(
+
+            ctx,
+            lightIdx,
+            pname,
+            SWGL::Vector(
+
+                params[0],
+                params[1],
+                params[2],
+                pname == GL_SPOT_DIRECTION ? 0.0f : params[3]
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glLighti(GLenum light, GLenum pname, GLint param) {
 
-    LOG("Unimplemented");
+    LOG("Light: %d, Parameter: %04x, Value: %d", light - GL_LIGHT0, pname, param);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    auto lightIdx = light - GL_LIGHT0;
+    if (lightIdx >= SWGL_MAX_LIGHTS) {
+
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    glDrv_glLightSingleArgCommon(
+
+        ctx,
+        lightIdx,
+        pname,
+        static_cast<float>(param)
+    );
 }
 
 SWGLAPI void STDCALL glDrv_glLightiv(GLenum light, GLenum pname, const GLint *params) {
 
-    LOG("Unimplemented");
+    LOG("Light: %d, Parameter: %04x, Value Address: %p", light - GL_LIGHT0, pname, params);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (params != nullptr) {
+
+        auto lightIdx = light - GL_LIGHT0;
+        if (lightIdx >= SWGL_MAX_LIGHTS) {
+
+            ctx->getError().setState(GL_INVALID_ENUM);
+            return;
+        }
+
+        glDrv_glLightMultipleArgsCommon(
+
+            ctx,
+            lightIdx,
+            pname,
+            SWGL::Vector(
+
+                static_cast<float>(params[0]),
+                static_cast<float>(params[1]),
+                static_cast<float>(params[2]),
+                pname == GL_SPOT_DIRECTION ? 0.0f : static_cast<float>(params[3])
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glLineStipple(GLint factor, GLushort pattern) {
@@ -2263,44 +2633,206 @@ SWGLAPI void STDCALL glDrv_glMapGrid2f(GLint un, GLfloat u1, GLfloat u2, GLint v
     // ...
 }
 
+SWGLAPI void STDCALL glDrv_glMaterialColorCommon(const SWGL::ContextPtr &ctx, bool isFront, bool isBack, GLenum pname, SWGL::Vector color) {
+
+    auto &lighting = ctx->getVertexPipeline().getLighting();
+
+    switch (pname) {
+
+    case GL_AMBIENT_AND_DIFFUSE:
+        lighting.setMaterialAmbientColor(isFront, isBack, color);
+        lighting.setMaterialDiffuseColor(isFront, isBack, color);
+        break;
+
+    case GL_AMBIENT:
+        lighting.setMaterialAmbientColor(isFront, isBack, color);
+        break;
+
+    case GL_DIFFUSE:
+        lighting.setMaterialDiffuseColor(isFront, isBack, color);
+        break;
+
+    case GL_SPECULAR:
+        lighting.setMaterialSpecularColor(isFront, isBack, color);
+        break;
+
+    case GL_EMISSION:
+        lighting.setMaterialEmissionColor(isFront, isBack, color);
+        break;
+
+    default:
+        ctx->getError().setState(GL_INVALID_ENUM);
+        break;
+    }
+}
+
+SWGLAPI void STDCALL glDrv_glMaterialShininessCommon(const SWGL::ContextPtr &ctx, bool isFront, bool isBack, float shininess) {
+
+    auto &lighting = ctx->getVertexPipeline().getLighting();
+
+    lighting.setMaterialSpecularExponent(isFront, isBack, shininess);
+}
+
 SWGLAPI void STDCALL glDrv_glMaterialf(GLenum face, GLenum pname, GLfloat param) {
 
-    LOG("Unimplemented");
+    LOG("Face: %04x, Parameter: %04x, Value: %f", face, pname, param);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    bool isFront = face == GL_FRONT || face == GL_FRONT_AND_BACK;
+    bool isBack = face == GL_BACK || face == GL_FRONT_AND_BACK;
+
+    if (!isFront && !isBack) {
+
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    if (pname == GL_SHININESS) {
+
+        glDrv_glMaterialShininessCommon(ctx, isFront, isBack, param);
+    }
+    else if (pname == GL_COLOR_INDEXES) {
+
+        LOG("Unimplemented GL_COLOR_INDEXES");
+    }
+    else {
+
+        glDrv_glMaterialColorCommon(
+
+            ctx,
+            isFront,
+            isBack,
+            pname,
+            SWGL::Vector(param, param, param, param)
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glMaterialfv(GLenum face, GLenum pname, const GLfloat *params) {
 
-    LOG("Unimplemented");
+    LOG("Face: %04x, Parameter: %04x, Value Address: %p", face, pname, params);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    if (params != nullptr) {
+
+        bool isFront = face == GL_FRONT || face == GL_FRONT_AND_BACK;
+        bool isBack = face == GL_BACK || face == GL_FRONT_AND_BACK;
+
+        if (!isFront && !isBack) {
+
+            ctx->getError().setState(GL_INVALID_ENUM);
+            return;
+        }
+
+        if (pname == GL_SHININESS) {
+
+            glDrv_glMaterialShininessCommon(ctx, isFront, isBack, params[0]);
+        }
+        else if (pname == GL_COLOR_INDEXES) {
+
+            LOG("Unimplemented GL_COLOR_INDEXES");
+        }
+        else {
+
+            glDrv_glMaterialColorCommon(
+
+                ctx,
+                isFront,
+                isBack,
+                pname,
+                SWGL::Vector(params[0], params[1], params[2], params[3])
+            );
+        }
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glMateriali(GLenum face, GLenum pname, GLint param) {
 
-    LOG("Unimplemented");
+    LOG("Face: %04x, Parameter: %04x, Value: %d", face, pname, param);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    bool isFront = face == GL_FRONT || face == GL_FRONT_AND_BACK;
+    bool isBack = face == GL_BACK || face == GL_FRONT_AND_BACK;
+
+    if (!isFront && !isBack) {
+
+        ctx->getError().setState(GL_INVALID_ENUM);
+        return;
+    }
+
+    float paramF = SWGL::Vector::normalizeInteger(param);
+
+    if (pname == GL_SHININESS) {
+
+        glDrv_glMaterialShininessCommon(ctx, isFront, isBack, paramF);
+    }
+    else if (pname == GL_COLOR_INDEXES) {
+
+        LOG("Unimplemented GL_COLOR_INDEXES");
+    }
+    else {
+
+        glDrv_glMaterialColorCommon(
+
+            ctx,
+            isFront,
+            isBack,
+            pname,
+            SWGL::Vector(paramF, paramF, paramF, paramF)
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glMaterialiv(GLenum face, GLenum pname, const GLint *params) {
 
-    LOG("Unimplemented");
+    LOG("Face: %04x, Parameter: %04x, Value Address: %p", face, pname, params);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    if (params != nullptr) {
+
+        bool isFront = face == GL_FRONT || face == GL_FRONT_AND_BACK;
+        bool isBack = face == GL_BACK || face == GL_FRONT_AND_BACK;
+
+        if (!isFront && !isBack) {
+
+            ctx->getError().setState(GL_INVALID_ENUM);
+            return;
+        }
+
+        if (pname == GL_SHININESS) {
+
+            glDrv_glMaterialShininessCommon(ctx, isFront, isBack, SWGL::Vector::normalizeInteger(params[0]));
+        }
+        else if (pname == GL_COLOR_INDEXES) {
+
+            LOG("Unimplemented GL_COLOR_INDEXES");
+        }
+        else {
+
+            glDrv_glMaterialColorCommon(
+
+                ctx,
+                isFront,
+                isBack,
+                pname,
+                SWGL::Vector(
+
+                    SWGL::Vector::normalizeInteger(params[0]),
+                    SWGL::Vector::normalizeInteger(params[1]),
+                    SWGL::Vector::normalizeInteger(params[2]),
+                    SWGL::Vector::normalizeInteger(params[3])
+                )
+            );
+        }
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glMatrixMode(GLenum mode) {
@@ -2385,102 +2917,195 @@ SWGLAPI void STDCALL glDrv_glNewList(GLuint list, GLenum mode) {
 
 SWGLAPI void STDCALL glDrv_glNormal3b(GLbyte nx, GLbyte ny, GLbyte nz) {
 
-    LOG("Unimplemented");
+    LOG("X: %d, Y: %d, Z: %d", nx, ny, nz);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    ctx->getVertexPipeline().setNormal(
+
+        SWGL::Vector(
+
+            SWGL::Vector::normalizeInteger(nx),
+            SWGL::Vector::normalizeInteger(ny),
+            SWGL::Vector::normalizeInteger(nz),
+            0.0f
+        )
+    );
 }
 
 SWGLAPI void STDCALL glDrv_glNormal3bv(const GLbyte *v) {
 
-    LOG("Unimplemented");
+    LOG("X: %d, Y: %d, Z: %d", v[0], v[1], v[2]);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    if (v != nullptr) {
+
+        ctx->getVertexPipeline().setNormal(
+
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                0.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glNormal3d(GLdouble nx, GLdouble ny, GLdouble nz) {
 
-    LOG("Unimplemented");
+    LOG("X: %f, Y: %f, Z: %f", nx, ny, nz);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    ctx->getVertexPipeline().setNormal(
+
+        SWGL::Vector(
+
+            static_cast<float>(nx),
+            static_cast<float>(ny),
+            static_cast<float>(nz),
+            0.0f
+        )
+    );
 }
 
 SWGLAPI void STDCALL glDrv_glNormal3dv(const GLdouble *v) {
 
-    LOG("Unimplemented");
+    LOG("X: %f, Y: %f, Z: %f", v[0], v[1], v[2]);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    if (v != nullptr) {
+
+        ctx->getVertexPipeline().setNormal(
+
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                0.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glNormal3f(GLfloat nx, GLfloat ny, GLfloat nz) {
 
-    LOG("Unimplemented");
+    LOG("X: %f, Y: %f, Z: %f", nx, ny, nz);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    ctx->getVertexPipeline().setNormal(
+
+        SWGL::Vector(nx, ny, nz, 0.0f)
+    );
 }
 
 SWGLAPI void STDCALL glDrv_glNormal3fv(const GLfloat *v) {
 
-    LOG("Unimplemented");
+    LOG("X: %f, Y: %f, Z: %f", v[0], v[1], v[2]);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    if (v != nullptr) {
+
+        ctx->getVertexPipeline().setNormal(
+
+            SWGL::Vector(v[0], v[1], v[2], 0.0f)
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glNormal3i(GLint nx, GLint ny, GLint nz) {
 
-    LOG("Unimplemented");
+    LOG("X: %d, Y: %d, Z: %d", nx, ny, nz);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    ctx->getVertexPipeline().setNormal(
+
+        SWGL::Vector(
+
+            SWGL::Vector::normalizeInteger(nx),
+            SWGL::Vector::normalizeInteger(ny),
+            SWGL::Vector::normalizeInteger(nz),
+            0.0f
+        )
+    );
 }
 
 SWGLAPI void STDCALL glDrv_glNormal3iv(const GLint *v) {
 
-    LOG("Unimplemented");
+    LOG("X: %d, Y: %d, Z: %d", v[0], v[1], v[2]);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    if (v != nullptr) {
+
+        ctx->getVertexPipeline().setNormal(
+
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                0.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glNormal3s(GLshort nx, GLshort ny, GLshort nz) {
 
-    LOG("Unimplemented");
+    LOG("X: %d, Y: %d, Z: %d", nx, ny, nz);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    ctx->getVertexPipeline().setNormal(
+
+        SWGL::Vector(
+
+            SWGL::Vector::normalizeInteger(nx),
+            SWGL::Vector::normalizeInteger(ny),
+            SWGL::Vector::normalizeInteger(nz),
+            0.0f
+        )
+    );
 }
 
 SWGLAPI void STDCALL glDrv_glNormal3sv(const GLshort *v) {
 
-    LOG("Unimplemented");
+    LOG("X: %d, Y: %d, Z: %d", v[0], v[1], v[2]);
 
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    // ...
+    if (v != nullptr) {
+
+        ctx->getVertexPipeline().setNormal(
+
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                0.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glOrtho(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar) {
@@ -5342,7 +5967,7 @@ SWGLAPI void STDCALL glDrv_glViewport(GLint x, GLint y, GLsizei width, GLsizei h
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getViewport().setDimensions(
+    ctx->getVertexPipeline().getViewport().setDimensions(
 
         x, y, width, height
     );
@@ -5523,6 +6148,10 @@ SWGLAPI void STDCALL glDrv_glDisableClientState(GLenum cap) {
         ctx->getVertexPipeline().getPositionArrayPointer().setEnable(false);
         break;
 
+    case GL_NORMAL_ARRAY:
+        ctx->getVertexPipeline().getNormalArrayPointer().setEnable(false);
+        break;
+
     case GL_COLOR_ARRAY:
         ctx->getVertexPipeline().getColorArrayPointer().setEnable(false);
         break;
@@ -5649,6 +6278,10 @@ SWGLAPI void STDCALL glDrv_glEnableClientState(GLenum cap) {
         ctx->getVertexPipeline().getPositionArrayPointer().setEnable(true);
         break;
 
+    case GL_NORMAL_ARRAY:
+        ctx->getVertexPipeline().getNormalArrayPointer().setEnable(true);
+        break;
+
     case GL_COLOR_ARRAY:
         ctx->getVertexPipeline().getColorArrayPointer().setEnable(true);
         break;
@@ -5745,12 +6378,21 @@ SWGLAPI void STDCALL glDrv_glInterleavedArrays(GLenum format, GLsizei stride, co
 
 SWGLAPI void STDCALL glDrv_glNormalPointer(GLenum type, GLsizei stride, const GLvoid *pointer) {
 
-    LOG("Unimplemented");
+    LOG("Type: %04x, Stride: %d byte, Address: %p", type, stride, pointer);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (pointer != nullptr) {
+
+        ctx->getVertexPipeline().getNormalArrayPointer().setSource(
+
+            pointer,
+            type,
+            stride,
+            3
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glPolygonOffset(GLfloat factor, GLfloat units) {
