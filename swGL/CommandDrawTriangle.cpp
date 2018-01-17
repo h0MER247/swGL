@@ -21,7 +21,7 @@
     QFloat GRADIENT_VALUE(NAME), GRADIENT_DX(NAME), GRADIENT_DY(NAME)
 
 #define SETUP_GRADIENT_EQ(NAME, Q1, Q2, Q3) \
-    setupGradientEquation(GRADIENT_VALUE(NAME), GRADIENT_DX(NAME), GRADIENT_DY(NAME), Q1, Q2, Q3, v1.x(), v1.y(), fdx21, fdy21, fdx31, fdy31, rcpArea)
+    setupGradientEquation(GRADIENT_VALUE(NAME), GRADIENT_DX(NAME), GRADIENT_DY(NAME), Q1, Q2, Q3, v1.position.x(), v1.position.y(), fdx21, fdy21, fdx31, fdy31, rcpArea)
 
 #define GET_GRADIENT_VALUE_AFFINE(NAME) \
     _mm_add_ps(qV ## NAME, _mm_add_ps(_mm_mul_ps(xxxx, GRADIENT_DX(NAME)), _mm_mul_ps(yyyy, GRADIENT_DY(NAME))))
@@ -132,36 +132,36 @@ namespace SWGL {
         for (auto triangleIdx : m_indices) {
 
             auto &t = m_state->triangles[triangleIdx];
-            auto &v1 = t.v[0].position;
-            auto &v2 = t.v[1].position;
-            auto &v3 = t.v[2].position;
+            auto &v1 = t.v[0];
+            auto &v2 = t.v[1];
+            auto &v3 = t.v[2];
 
             //
             // Calculate the triangles reciprocal area
             //
-            float rcpArea = 1.0f / ((v2.x() - v1.x()) * (v3.y() - v1.y()) -
-                                    (v2.y() - v1.y()) * (v3.x() - v1.x()));
+            float rcpArea = 1.0f / ((v2.position.x() - v1.position.x()) * (v3.position.y() - v1.position.y()) -
+                                    (v2.position.y() - v1.position.y()) * (v3.position.x() - v1.position.x()));
 
             //
             // Calculate fixed point coordinates
             //
             int x1, y1, x2, y2, x3, y3;
 
-            x1 = static_cast<int>(v1.x() * 16.0f);
-            y1 = static_cast<int>(v1.y() * 16.0f);
+            x1 = static_cast<int>(v1.position.x() * 16.0f);
+            y1 = static_cast<int>(v1.position.y() * 16.0f);
             if (rcpArea < 0.0f) {
 
-                x2 = static_cast<int>(v2.x() * 16.0f);
-                y2 = static_cast<int>(v2.y() * 16.0f);
-                x3 = static_cast<int>(v3.x() * 16.0f);
-                y3 = static_cast<int>(v3.y() * 16.0f);
+                x2 = static_cast<int>(v2.position.x() * 16.0f);
+                y2 = static_cast<int>(v2.position.y() * 16.0f);
+                x3 = static_cast<int>(v3.position.x() * 16.0f);
+                y3 = static_cast<int>(v3.position.y() * 16.0f);
             }
             else {
 
-                x2 = static_cast<int>(v3.x() * 16.0f);
-                y2 = static_cast<int>(v3.y() * 16.0f);
-                x3 = static_cast<int>(v2.x() * 16.0f);
-                y3 = static_cast<int>(v2.y() * 16.0f);
+                x2 = static_cast<int>(v3.position.x() * 16.0f);
+                y2 = static_cast<int>(v3.position.y() * 16.0f);
+                x3 = static_cast<int>(v2.position.x() * 16.0f);
+                y3 = static_cast<int>(v2.position.y() * 16.0f);
             }
 
             //
@@ -208,23 +208,23 @@ namespace SWGL {
             //
             // Determine the gradient equations
             //
-            float fdx21 = v2.x() - v1.x(), fdy21 = v2.y() - v1.y();
-            float fdx31 = v3.x() - v1.x(), fdy31 = v3.y() - v1.y();
+            float fdx21 = v2.position.x() - v1.position.x(), fdy21 = v2.position.y() - v1.position.y();
+            float fdx31 = v3.position.x() - v1.position.x(), fdy31 = v3.position.y() - v1.position.y();
 
             DEFINE_GRADIENT(z);
-            SETUP_GRADIENT_EQ(z, v1.z(), v2.z(), v3.z());
+            SETUP_GRADIENT_EQ(z, v1.position.z(), v2.position.z(), v3.position.z());
 
             DEFINE_GRADIENT(rcpW);
-            SETUP_GRADIENT_EQ(rcpW, v1.w(), v2.w(), v3.w());
+            SETUP_GRADIENT_EQ(rcpW, v1.position.w(), v2.position.w(), v3.position.w());
 
             DEFINE_GRADIENT(primaryA);
-            SETUP_GRADIENT_EQ(primaryA, t.v[0].colorPrimary.a(), t.v[1].colorPrimary.a(), t.v[2].colorPrimary.a());
+            SETUP_GRADIENT_EQ(primaryA, v1.colorPrimary.a(), v2.colorPrimary.a(), v3.colorPrimary.a());
             DEFINE_GRADIENT(primaryR);
-            SETUP_GRADIENT_EQ(primaryR, t.v[0].colorPrimary.r(), t.v[1].colorPrimary.r(), t.v[2].colorPrimary.r());
+            SETUP_GRADIENT_EQ(primaryR, v1.colorPrimary.r(), v2.colorPrimary.r(), v3.colorPrimary.r());
             DEFINE_GRADIENT(primaryG);
-            SETUP_GRADIENT_EQ(primaryG, t.v[0].colorPrimary.g(), t.v[1].colorPrimary.g(), t.v[2].colorPrimary.g());
+            SETUP_GRADIENT_EQ(primaryG, v1.colorPrimary.g(), v2.colorPrimary.g(), v3.colorPrimary.g());
             DEFINE_GRADIENT(primaryB);
-            SETUP_GRADIENT_EQ(primaryB, t.v[0].colorPrimary.b(), t.v[1].colorPrimary.b(), t.v[2].colorPrimary.b());
+            SETUP_GRADIENT_EQ(primaryB, v1.colorPrimary.b(), v2.colorPrimary.b(), v3.colorPrimary.b());
 
             DEFINE_GRADIENT(texS[SWGL_MAX_TEXTURE_UNITS]);
             DEFINE_GRADIENT(texT[SWGL_MAX_TEXTURE_UNITS]);
@@ -232,10 +232,10 @@ namespace SWGL {
             //DEFINE_GRADIENT(texQ[SWGL_MAX_TEXTURE_UNITS]);
             for (size_t i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
-                SETUP_GRADIENT_EQ(texS[i], t.v[0].texCoord[i].x(), t.v[1].texCoord[i].x(), t.v[2].texCoord[i].x());
-                SETUP_GRADIENT_EQ(texT[i], t.v[0].texCoord[i].y(), t.v[1].texCoord[i].y(), t.v[2].texCoord[i].y());
-                //SETUP_GRADIENT_EQ(texR[i], t.v[0].texCoord[i].z(), t.v[1].texCoord[i].z(), t.v[2].texCoord[i].z());
-                //SETUP_GRADIENT_EQ(texQ[i], t.v[0].texCoord[i].w(), t.v[1].texCoord[i].w(), t.v[2].texCoord[i].w());
+                SETUP_GRADIENT_EQ(texS[i], v1.texCoord[i].x(), v2.texCoord[i].x(), v3.texCoord[i].x());
+                SETUP_GRADIENT_EQ(texT[i], v1.texCoord[i].y(), v2.texCoord[i].y(), v3.texCoord[i].y());
+                //SETUP_GRADIENT_EQ(texR[i], v1.texCoord[i].z(), v2.texCoord[i].z(), v3.texCoord[i].z());
+                //SETUP_GRADIENT_EQ(texQ[i], v1.texCoord[i].w(), v2.texCoord[i].w(), v3.texCoord[i].w());
             }
 
             //
