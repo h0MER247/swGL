@@ -126,31 +126,30 @@ namespace SWGL {
         QInt sampleX0Y0 = SIMD::gather(data, texelOffsetX0Y0);
 
         // Extract alpha/green and red/blue channels
-        const QInt maskAG = _mm_set1_epi32(0xff00ff00);
-        const QInt maskRB = _mm_set1_epi32(0x00ff00ff);
+        const QInt channelMask = _mm_set1_epi32(0x00ff00ff);
 
         QInt ag[4], rb[4];
-        ag[0] = _mm_srli_epi32(_mm_and_si128(sampleX0Y0, maskAG), 8);
-        ag[1] = _mm_srli_epi32(_mm_and_si128(sampleX1Y0, maskAG), 8);
-        ag[2] = _mm_srli_epi32(_mm_and_si128(sampleX0Y1, maskAG), 8);
-        ag[3] = _mm_srli_epi32(_mm_and_si128(sampleX1Y1, maskAG), 8);
-        rb[0] = _mm_and_si128(sampleX0Y0, maskRB);
-        rb[1] = _mm_and_si128(sampleX1Y0, maskRB);
-        rb[2] = _mm_and_si128(sampleX0Y1, maskRB);
-        rb[3] = _mm_and_si128(sampleX1Y1, maskRB);
+        ag[0] = _mm_and_si128(_mm_srli_epi32(sampleX0Y0, 8), channelMask);
+        ag[1] = _mm_and_si128(_mm_srli_epi32(sampleX1Y0, 8), channelMask);
+        ag[2] = _mm_and_si128(_mm_srli_epi32(sampleX0Y1, 8), channelMask);
+        ag[3] = _mm_and_si128(_mm_srli_epi32(sampleX1Y1, 8), channelMask);
+        rb[0] = _mm_and_si128(sampleX0Y0, channelMask);
+        rb[1] = _mm_and_si128(sampleX1Y0, channelMask);
+        rb[2] = _mm_and_si128(sampleX0Y1, channelMask);
+        rb[3] = _mm_and_si128(sampleX1Y1, channelMask);
 
         // Blend samples
-        QInt ag_ = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_mullo_epi32(ag[0], wx0y0), _mm_mullo_epi32(ag[1], wx1y0)), _mm_mullo_epi32(ag[2], wx0y1)), _mm_mullo_epi32(ag[3], wx1y1));
-        QInt rb_ = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_mullo_epi32(rb[0], wx0y0), _mm_mullo_epi32(rb[1], wx1y0)), _mm_mullo_epi32(rb[2], wx0y1)), _mm_mullo_epi32(rb[3], wx1y1));
+        QInt blendAG = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_mullo_epi32(ag[0], wx0y0), _mm_mullo_epi32(ag[1], wx1y0)), _mm_mullo_epi32(ag[2], wx0y1)), _mm_mullo_epi32(ag[3], wx1y1));
+        QInt blendRB = _mm_add_epi32(_mm_add_epi32(_mm_add_epi32(_mm_mullo_epi32(rb[0], wx0y0), _mm_mullo_epi32(rb[1], wx1y0)), _mm_mullo_epi32(rb[2], wx0y1)), _mm_mullo_epi32(rb[3], wx1y1));
 
         // Convert the rgba-channels to their floating point representation
         const QFloat normalize = _mm_set1_ps(1.0f / 255.0f);
         const QInt mask = _mm_set1_epi32(0xff);
 
-        QFloat a = _mm_cvtepi32_ps(_mm_srli_epi32(ag_, 24));
-        QFloat g = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(ag_, 8), mask));
-        QFloat r = _mm_cvtepi32_ps(_mm_srli_epi32(rb_, 24));
-        QFloat b = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(rb_, 8), mask));
+        QFloat a = _mm_cvtepi32_ps(_mm_srli_epi32(blendAG, 24));
+        QFloat g = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(blendAG, 8), mask));
+        QFloat r = _mm_cvtepi32_ps(_mm_srli_epi32(blendRB, 24));
+        QFloat b = _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(blendRB, 8), mask));
 
         color.a = _mm_mul_ps(a, normalize);
         color.r = _mm_mul_ps(r, normalize);
