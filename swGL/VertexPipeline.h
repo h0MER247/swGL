@@ -27,7 +27,6 @@ namespace SWGL {
     public:
         void begin(GLenum primitiveType);
         void end();
-
         bool isInsideGLBegin() { return m_isInsideGLBegin; }
 
     public:
@@ -36,7 +35,6 @@ namespace SWGL {
         void setNormal(const Vector &normal);
         void setPosition(const Vector &position);
         void addVertex();
-        void setActiveTexture(unsigned int unit);
         void setArrayElement(unsigned int idx);
 
     public:
@@ -46,18 +44,13 @@ namespace SWGL {
         void drawArrayElements(GLenum mode, int first, int count);
 
     public:
-        VectorReader &getPositionArrayPointer() { return m_vertexDataArray.getPosition(); }
-        VectorReader &getColorArrayPointer() { return m_vertexDataArray.getColor(); }
-        VectorReader &getTexCoordArrayPointer() { return m_vertexDataArray.getTexCoord(m_activeTexture); }
-        VectorReader &getNormalArrayPointer() { return m_vertexDataArray.getNormal(); }
-
-    public:
         TexCoordGen & getTexGen() { return m_texCoordGen; }
         Lighting &getLighting() { return m_lighting; }
-        Clipper &getClipper() { return m_clipper; }
-        MatrixStack &getMatrixStack() { return m_matrixStack; }
         Culling &getCulling() { return m_culling; }
         Viewport &getViewport() { return m_viewport; }
+        Clipper &getClipper() { return m_clipper; }
+        MatrixStack &getMatrixStack() { return m_matrixStack; }
+        VertexDataArray &getVertexDataArray() { return m_vertexDataArray; }
 
     private:
         void addTriangle(Vertex &v1, Vertex &v2, Vertex &v3);
@@ -67,7 +60,6 @@ namespace SWGL {
         bool m_isInsideGLBegin;
         Vertex m_vertexState;
         GLenum m_primitiveType;
-        unsigned int m_activeTexture;
         Matrix m_mvpMatrix;
 
     private:

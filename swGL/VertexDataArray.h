@@ -176,6 +176,7 @@ namespace SWGL {
         VertexDataArray(Vertex &vertexState)
 
             : m_isLocked(false),
+              m_activeTexture(0U),
               m_vertexState(vertexState) {
 
             m_position = std::make_unique<VectorReader>(false, true);
@@ -190,6 +191,12 @@ namespace SWGL {
             m_prefetchedVertices.resize(MAX_VERTICES);
         }
         ~VertexDataArray() = default;
+
+    public:
+        void setActiveTexture(unsigned int activeTexture) {
+
+            m_activeTexture = activeTexture;
+        }
 
     public:
         VectorReader & getPosition() {
@@ -207,9 +214,14 @@ namespace SWGL {
             return *m_color;
         }
 
-        VectorReader &getTexCoord(unsigned int unit) {
+        VectorReader &getTexCoord() {
 
-            return *m_texCoord[unit];
+            return *m_texCoord[m_activeTexture];
+        }
+
+        VectorReader &getTexCoord(unsigned int index) {
+
+            return *m_texCoord[index];
         }
 
     public:
@@ -303,6 +315,7 @@ namespace SWGL {
         bool m_isLocked;
         unsigned int m_firstIdx;
         unsigned int m_lastIdx;
+        unsigned int m_activeTexture;
         Vertex &m_vertexState;
         VertexList m_prefetchedVertices;
 

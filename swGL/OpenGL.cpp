@@ -6059,7 +6059,7 @@ SWGLAPI void STDCALL glDrv_glColorPointer(GLint size, GLenum type, GLsizei strid
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().getColorArrayPointer().setSource(
+    ctx->getVertexPipeline().getVertexDataArray().getColor().setSource(
 
         pointer,
         type,
@@ -6145,19 +6145,19 @@ SWGLAPI void STDCALL glDrv_glDisableClientState(GLenum cap) {
     switch (cap) {
 
     case GL_VERTEX_ARRAY:
-        ctx->getVertexPipeline().getPositionArrayPointer().setEnable(false);
+        ctx->getVertexPipeline().getVertexDataArray().getPosition().setEnable(false);
         break;
 
     case GL_NORMAL_ARRAY:
-        ctx->getVertexPipeline().getNormalArrayPointer().setEnable(false);
+        ctx->getVertexPipeline().getVertexDataArray().getNormal().setEnable(false);
         break;
 
     case GL_COLOR_ARRAY:
-        ctx->getVertexPipeline().getColorArrayPointer().setEnable(false);
+        ctx->getVertexPipeline().getVertexDataArray().getColor().setEnable(false);
         break;
 
     case GL_TEXTURE_COORD_ARRAY:
-        ctx->getVertexPipeline().getTexCoordArrayPointer().setEnable(false);
+        ctx->getVertexPipeline().getVertexDataArray().getTexCoord().setEnable(false);
         break;
 
     default:
@@ -6275,19 +6275,19 @@ SWGLAPI void STDCALL glDrv_glEnableClientState(GLenum cap) {
     switch (cap) {
 
     case GL_VERTEX_ARRAY:
-        ctx->getVertexPipeline().getPositionArrayPointer().setEnable(true);
+        ctx->getVertexPipeline().getVertexDataArray().getPosition().setEnable(true);
         break;
 
     case GL_NORMAL_ARRAY:
-        ctx->getVertexPipeline().getNormalArrayPointer().setEnable(true);
+        ctx->getVertexPipeline().getVertexDataArray().getNormal().setEnable(true);
         break;
 
     case GL_COLOR_ARRAY:
-        ctx->getVertexPipeline().getColorArrayPointer().setEnable(true);
+        ctx->getVertexPipeline().getVertexDataArray().getColor().setEnable(true);
         break;
 
     case GL_TEXTURE_COORD_ARRAY:
-        ctx->getVertexPipeline().getTexCoordArrayPointer().setEnable(true);
+        ctx->getVertexPipeline().getVertexDataArray().getTexCoord().setEnable(true);
         break;
 
     default:
@@ -6385,7 +6385,7 @@ SWGLAPI void STDCALL glDrv_glNormalPointer(GLenum type, GLsizei stride, const GL
 
     if (pointer != nullptr) {
 
-        ctx->getVertexPipeline().getNormalArrayPointer().setSource(
+        ctx->getVertexPipeline().getVertexDataArray().getNormal().setSource(
 
             pointer,
             type,
@@ -6436,7 +6436,7 @@ SWGLAPI void STDCALL glDrv_glTexCoordPointer(GLint size, GLenum type, GLsizei st
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().getTexCoordArrayPointer().setSource(
+    ctx->getVertexPipeline().getVertexDataArray().getTexCoord().setSource(
 
         pointer,
         type,
@@ -6508,7 +6508,7 @@ SWGLAPI void STDCALL glDrv_glVertexPointer(GLint size, GLenum type, GLsizei stri
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().getPositionArrayPointer().setSource(
+    ctx->getVertexPipeline().getVertexDataArray().getPosition().setSource(
 
         pointer,
         type,
@@ -6674,7 +6674,7 @@ SWGLAPI void STDCALL glDrv_glClientActiveTexture(GLenum texture) {
     auto texIdx = texture - GL_TEXTURE0;
     if (texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
-        ctx->getVertexPipeline().setActiveTexture(texIdx);
+        ctx->getVertexPipeline().getVertexDataArray().setActiveTexture(texIdx);
     }
     else {
 

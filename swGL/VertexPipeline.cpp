@@ -11,7 +11,7 @@ namespace SWGL {
           m_texCoordGen(m_vertexState),
           m_vertexDataArray(m_vertexState) {
 
-        setActiveTexture(0U);
+        setNormal(Vector(0.0f, 0.0f, 1.0f, 0.0f));
         setPrimaryColor(Vector(1.0f, 1.0f, 1.0f, 1.0f));
         for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
@@ -180,11 +180,6 @@ namespace SWGL {
         m_vertices.emplace_back(m_vertexState);
     }
 
-    void VertexPipeline::setActiveTexture(unsigned int unit) {
-
-        m_activeTexture = unit;
-    }
-
     void VertexPipeline::setArrayElement(unsigned int idx) {
 
         if (m_vertexDataArray.getColor().isEnabled()) {
@@ -197,7 +192,7 @@ namespace SWGL {
             setNormal(m_vertexDataArray.getNormal().read(idx));
         }
 
-        for (int i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+        for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
             if (m_vertexDataArray.getTexCoord(i).isEnabled()) {
 
