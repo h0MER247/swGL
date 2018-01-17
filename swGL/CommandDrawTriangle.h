@@ -36,7 +36,7 @@ namespace SWGL {
     class CommandDrawTriangle : public CommandBase {
 
     public:
-        CommandDrawTriangle(TriangleDrawCallStatePtr state, std::vector<int> &&indices)
+        CommandDrawTriangle(TriangleDrawCallStatePtr state, std::vector<int> &indices)
 
             : m_state(state),
               m_indices(std::move(indices)) {

@@ -191,7 +191,7 @@ namespace SWGL {
 
                     std::make_unique<CommandDrawTriangle>(
 
-                        drawState, std::move(bins[i])
+                        drawState, bins[i]
                     )
                 );
             }
