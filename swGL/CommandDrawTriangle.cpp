@@ -8,6 +8,13 @@
 #include "TextureManager.h"
 #include "CommandDrawTriangle.h"
 
+#define DOT3(CHANNEL)                                       \
+    _mm_mul_ps(                                             \
+                                                            \
+        _mm_sub_ps(args[0]. ## CHANNEL, _mm_set1_ps(0.5f)), \
+        _mm_sub_ps(args[1]. ## CHANNEL, _mm_set1_ps(0.5f))  \
+    )
+
 #define GRADIENT_VALUE(NAME) \
     qV ## NAME
 
@@ -228,14 +235,14 @@ namespace SWGL {
 
             DEFINE_GRADIENT(texS[SWGL_MAX_TEXTURE_UNITS]);
             DEFINE_GRADIENT(texT[SWGL_MAX_TEXTURE_UNITS]);
-            //DEFINE_GRADIENT(texR[SWGL_MAX_TEXTURE_UNITS]);
-            //DEFINE_GRADIENT(texQ[SWGL_MAX_TEXTURE_UNITS]);
+            DEFINE_GRADIENT(texR[SWGL_MAX_TEXTURE_UNITS]);
+            DEFINE_GRADIENT(texQ[SWGL_MAX_TEXTURE_UNITS]);
             for (size_t i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
                 SETUP_GRADIENT_EQ(texS[i], v1.texCoord[i].x(), v2.texCoord[i].x(), v3.texCoord[i].x());
                 SETUP_GRADIENT_EQ(texT[i], v1.texCoord[i].y(), v2.texCoord[i].y(), v3.texCoord[i].y());
-                //SETUP_GRADIENT_EQ(texR[i], v1.texCoord[i].z(), v2.texCoord[i].z(), v3.texCoord[i].z());
-                //SETUP_GRADIENT_EQ(texQ[i], v1.texCoord[i].w(), v2.texCoord[i].w(), v3.texCoord[i].w());
+                SETUP_GRADIENT_EQ(texR[i], v1.texCoord[i].z(), v2.texCoord[i].z(), v3.texCoord[i].z());
+                SETUP_GRADIENT_EQ(texQ[i], v1.texCoord[i].w(), v2.texCoord[i].w(), v3.texCoord[i].w());
             }
 
             //
@@ -268,6 +275,7 @@ namespace SWGL {
             //
             ARGBColor srcColor;
             ARGBColor texColor;
+            ARGBColor primaryColor;
             TextureCoordinates texCoords;
 
             for (int y = minY; y < maxY; y += 2) {
@@ -339,155 +347,355 @@ namespace SWGL {
                         //
                         // Set the fragments initial color
                         //
-                        srcColor.a = GET_GRADIENT_VALUE_PERSP(primaryA);
-                        srcColor.r = GET_GRADIENT_VALUE_PERSP(primaryR);
-                        srcColor.g = GET_GRADIENT_VALUE_PERSP(primaryG);
-                        srcColor.b = GET_GRADIENT_VALUE_PERSP(primaryB);
+                        primaryColor.a = GET_GRADIENT_VALUE_PERSP(primaryA);
+                        primaryColor.r = GET_GRADIENT_VALUE_PERSP(primaryR);
+                        primaryColor.g = GET_GRADIENT_VALUE_PERSP(primaryG);
+                        primaryColor.b = GET_GRADIENT_VALUE_PERSP(primaryB);
                         
 
                         //
                         // Texture sampling and blending for each active texture unit
                         //
+                        srcColor = primaryColor;
+
                         for (auto i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
                             auto &texState = textureState[i];
-
                             if (texState.texData == nullptr) {
 
                                 continue;
                             }
-
+                            
                             // Get texture sample
-                            texCoords.s = GET_GRADIENT_VALUE_PERSP(texS[i]);
-                            texCoords.t = GET_GRADIENT_VALUE_PERSP(texT[i]);
-                            //texCoords.r = GET_GRADIENT_VALUE_PERSP(texR[i]);
-                            //texCoords.q = GET_GRADIENT_VALUE_PERSP(texQ[i]);
+                            // TODO: - Sample only if necessary (GL_BLEND and some GL_COMBINE modes don't
+                            //         really need a texture sample)
+                            QFloat rcpQ = _mm_div_ps(_mm_set1_ps(1.0f), GET_GRADIENT_VALUE_AFFINE(texQ[i]));
+                            texCoords.s = _mm_mul_ps(rcpQ, GET_GRADIENT_VALUE_AFFINE(texS[i]));
+                            texCoords.t = _mm_mul_ps(rcpQ, GET_GRADIENT_VALUE_AFFINE(texT[i]));
+                            texCoords.r = _mm_mul_ps(rcpQ, GET_GRADIENT_VALUE_AFFINE(texR[i]));
                             texState.texData->sampleTexels(texState.texParams, texCoords, texColor);
 
                             // Execute the texturing function
-                            switch (texState.texEnv.mode) {
+                            if (texState.texEnv.mode != GL_COMBINE) {
+                                
+                                switch (texState.texEnv.mode) {
 
-                            case GL_REPLACE:
-                                switch (texState.texData->format) {
+                                case GL_REPLACE:
+                                    switch (texState.texData->format) {
 
-                                case TextureBaseFormat::Alpha:
-                                    srcColor.a = texColor.a;
+                                    case TextureBaseFormat::Alpha:
+                                        srcColor.a = texColor.a;
+                                        break;
+
+                                    case TextureBaseFormat::RGB:
+                                    case TextureBaseFormat::Luminance:
+                                        srcColor.r = texColor.r;
+                                        srcColor.g = texColor.g;
+                                        srcColor.b = texColor.b;
+                                        break;
+
+                                    case TextureBaseFormat::LuminanceAlpha:
+                                    case TextureBaseFormat::Intensity:
+                                    case TextureBaseFormat::RGBA:
+                                        srcColor.a = texColor.a;
+                                        srcColor.r = texColor.r;
+                                        srcColor.g = texColor.g;
+                                        srcColor.b = texColor.b;
+                                        break;
+                                    }
                                     break;
 
-                                case TextureBaseFormat::RGB:
-                                case TextureBaseFormat::Luminance:
-                                    srcColor.r = texColor.r;
-                                    srcColor.g = texColor.g;
-                                    srcColor.b = texColor.b;
-                                    break;
+                                case GL_MODULATE:
+                                    switch (texState.texData->format) {
 
-                                case TextureBaseFormat::LuminanceAlpha:
-                                case TextureBaseFormat::Intensity:
-                                case TextureBaseFormat::RGBA:
-                                    srcColor.a = texColor.a;
-                                    srcColor.r = texColor.r;
-                                    srcColor.g = texColor.g;
-                                    srcColor.b = texColor.b;
-                                    break;
-                                }
-                                break;
-
-                            case GL_MODULATE:
-                                switch (texState.texData->format) {
-
-                                case TextureBaseFormat::Alpha:
-                                    srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
-                                    break;
+                                    case TextureBaseFormat::Alpha:
+                                        srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
+                                        break;
                                     
-                                case TextureBaseFormat::LuminanceAlpha:
-                                case TextureBaseFormat::Intensity:
-                                case TextureBaseFormat::RGBA:
-                                    srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
-                                case TextureBaseFormat::Luminance:
-                                case TextureBaseFormat::RGB:
-                                    srcColor.r = _mm_mul_ps(srcColor.r, texColor.r);
-                                    srcColor.g = _mm_mul_ps(srcColor.g, texColor.g);
-                                    srcColor.b = _mm_mul_ps(srcColor.b, texColor.b);
+                                    case TextureBaseFormat::LuminanceAlpha:
+                                    case TextureBaseFormat::Intensity:
+                                    case TextureBaseFormat::RGBA:
+                                        srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
+                                    case TextureBaseFormat::Luminance:
+                                    case TextureBaseFormat::RGB:
+                                        srcColor.r = _mm_mul_ps(srcColor.r, texColor.r);
+                                        srcColor.g = _mm_mul_ps(srcColor.g, texColor.g);
+                                        srcColor.b = _mm_mul_ps(srcColor.b, texColor.b);
+                                        break;
+                                    }
+                                    break;
+
+                                case GL_DECAL:
+                                    switch (texState.texData->format) {
+
+                                    case TextureBaseFormat::RGB:
+                                        srcColor.r = texColor.r;
+                                        srcColor.g = texColor.g;
+                                        srcColor.b = texColor.b;
+                                        break;
+
+                                    case TextureBaseFormat::RGBA:
+                                        srcColor.r = _mm_add_ps(_mm_mul_ps(srcColor.r, _mm_sub_ps(_mm_set1_ps(1.0f), texColor.a)), _mm_mul_ps(texColor.r, texColor.a));
+                                        srcColor.g = _mm_add_ps(_mm_mul_ps(srcColor.g, _mm_sub_ps(_mm_set1_ps(1.0f), texColor.a)), _mm_mul_ps(texColor.g, texColor.a));
+                                        srcColor.b = _mm_add_ps(_mm_mul_ps(srcColor.b, _mm_sub_ps(_mm_set1_ps(1.0f), texColor.a)), _mm_mul_ps(texColor.b, texColor.a));
+                                        break;
+                                    }
+                                    break;
+
+                                case GL_ADD:
+                                    switch (texState.texData->format) {
+
+                                    case TextureBaseFormat::Alpha:
+                                        srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
+                                        break;
+
+                                    case TextureBaseFormat::LuminanceAlpha:
+                                    case TextureBaseFormat::RGBA:
+                                        srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
+                                    case TextureBaseFormat::Luminance:
+                                    case TextureBaseFormat::RGB:
+                                        srcColor.r = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.r, texColor.r));
+                                        srcColor.g = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.g, texColor.g));
+                                        srcColor.b = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.b, texColor.b));
+                                        break;
+
+                                    case TextureBaseFormat::Intensity:
+                                        srcColor.a = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.a, texColor.a));
+                                        srcColor.r = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.r, texColor.r));
+                                        srcColor.g = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.g, texColor.g));
+                                        srcColor.b = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.b, texColor.b));
+                                        break;
+                                    }
+                                    break;
+
+                                case GL_BLEND:
+                                    switch (texState.texData->format) {
+
+                                    case TextureBaseFormat::Alpha:
+                                        srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
+                                        break;
+
+                                    case TextureBaseFormat::LuminanceAlpha:
+                                    case TextureBaseFormat::RGBA:
+                                        srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
+                                    case TextureBaseFormat::Luminance:
+                                    case TextureBaseFormat::RGB:
+                                        srcColor.r = SIMD::lerp(texColor.r, srcColor.r, _mm_set1_ps(texState.texEnv.colorConstR));
+                                        srcColor.g = SIMD::lerp(texColor.g, srcColor.g, _mm_set1_ps(texState.texEnv.colorConstG));
+                                        srcColor.b = SIMD::lerp(texColor.b, srcColor.b, _mm_set1_ps(texState.texEnv.colorConstB));
+                                        break;
+
+                                    case TextureBaseFormat::Intensity:
+                                        srcColor.a = SIMD::lerp(texColor.a, srcColor.a, _mm_set1_ps(texState.texEnv.colorConstA));
+                                        srcColor.r = SIMD::lerp(texColor.r, srcColor.r, _mm_set1_ps(texState.texEnv.colorConstR));
+                                        srcColor.g = SIMD::lerp(texColor.g, srcColor.g, _mm_set1_ps(texState.texEnv.colorConstG));
+                                        srcColor.b = SIMD::lerp(texColor.b, srcColor.b, _mm_set1_ps(texState.texEnv.colorConstB));
+                                        break;
+                                    }
                                     break;
                                 }
-                                break;
+                            }
+                            else {
 
-                            case GL_DECAL:
-                                switch (texState.texData->format) {
+                                ARGBColor args[3];
 
-                                case TextureBaseFormat::RGB:
-                                    srcColor.r = texColor.r;
-                                    srcColor.g = texColor.g;
-                                    srcColor.b = texColor.b;
+                                auto &modeAlpha = texState.texEnv.combineModeAlpha;
+                                auto &modeRGB = texState.texEnv.combineModeRGB;
+
+                                //
+                                // Read alpha arguments
+                                //
+                                for (int j = 0; j < 3; j++) {
+
+                                    auto &arg = args[j];
+                                    auto &src = texState.texEnv.sourceAlpha[j];
+                                    auto &mod = texState.texEnv.operandAlpha[j];
+
+                                    switch (src) {
+
+                                    case GL_TEXTURE:
+                                        arg.a = texColor.a;
+                                        break;
+
+                                    case GL_CONSTANT:
+                                        arg.a = _mm_set1_ps(texState.texEnv.colorConstA);
+                                        break;
+
+                                    case GL_PRIMARY_COLOR:
+                                        arg.a = primaryColor.a;
+                                        break;
+
+                                    case GL_PREVIOUS:
+                                        arg.a = srcColor.a;
+                                        break;
+                                    }
+
+                                    // Apply modifier
+                                    if (mod == GL_ONE_MINUS_SRC_ALPHA) {
+
+                                        arg.a = _mm_sub_ps(_mm_set1_ps(1.0f), arg.a);
+                                    }
+
+                                    // TODO: Figure out the number of arguments beforehand and store it in the
+                                    //       TextureState structure (Renderer.cpp would be a good place as the
+                                    //       TriangleDrawCallState data is generated there)
+                                    if (j == 1 && modeAlpha == GL_REPLACE) { break; }
+                                    if (j == 2 && modeAlpha != GL_INTERPOLATE) { break; }
+                                }
+
+                                //
+                                // Read red, green and blue arguments
+                                //
+                                for (int j = 0; j < 3; j++) {
+
+                                    auto &src = texState.texEnv.sourceRGB[j];
+                                    auto &mod = texState.texEnv.operandRGB[j];
+                                    auto &arg = args[j];
+
+                                    switch (src) {
+
+                                    case GL_TEXTURE:
+                                        arg.r = texColor.r;
+                                        arg.g = texColor.g;
+                                        arg.b = texColor.b;
+                                        break;
+
+                                    case GL_CONSTANT:
+                                        arg.r = _mm_set1_ps(texState.texEnv.colorConstR);
+                                        arg.g = _mm_set1_ps(texState.texEnv.colorConstG);
+                                        arg.b = _mm_set1_ps(texState.texEnv.colorConstB);
+                                        break;
+
+                                    case GL_PRIMARY_COLOR:
+                                        arg.r = primaryColor.r;
+                                        arg.g = primaryColor.g;
+                                        arg.b = primaryColor.b;
+                                        break;
+
+                                    case GL_PREVIOUS:
+                                        arg.r = srcColor.r;
+                                        arg.g = srcColor.g;
+                                        arg.b = srcColor.b;
+                                        break;
+                                    }
+
+                                    // Apply modifier
+                                    switch (mod) {
+
+                                    case GL_SRC_COLOR:
+                                        break;
+
+                                    case GL_ONE_MINUS_SRC_COLOR:
+                                        arg.r = _mm_sub_ps(_mm_set1_ps(1.0f), arg.r);
+                                        arg.g = _mm_sub_ps(_mm_set1_ps(1.0f), arg.g);
+                                        arg.b = _mm_sub_ps(_mm_set1_ps(1.0f), arg.b);
+                                        break;
+
+                                    case GL_SRC_ALPHA:
+                                        arg.r = arg.a;
+                                        arg.g = arg.a;
+                                        arg.b = arg.a;
+                                        break;
+
+                                    case GL_ONE_MINUS_SRC_ALPHA:
+                                        arg.r = _mm_sub_ps(_mm_set1_ps(1.0f), arg.a);
+                                        arg.g = _mm_sub_ps(_mm_set1_ps(1.0f), arg.a);
+                                        arg.b = _mm_sub_ps(_mm_set1_ps(1.0f), arg.a);
+                                        break;
+                                    }
+
+                                    // TODO: Figure out the number of arguments beforehand and store it in the
+                                    //       TextureState structure (Renderer.cpp would be a good place as the
+                                    //       TriangleDrawCallState data is generated there)
+                                    if (j == 1 && modeRGB == GL_REPLACE) { break; }
+                                    if (j == 2 && modeRGB != GL_INTERPOLATE) { break; }
+                                }
+
+                                //
+                                // Combine colors
+                                //
+                                if (modeRGB != GL_DOT3_RGBA) {
+
+                                    switch (modeAlpha) {
+
+                                    case GL_REPLACE:
+                                        srcColor.a = args[0].a;
+                                        break;
+
+                                    case GL_MODULATE:
+                                        srcColor.a = _mm_mul_ps(args[0].a, args[1].a);
+                                        break;
+
+                                    case GL_ADD:
+                                        srcColor.a = _mm_add_ps(args[0].a, args[1].a);
+                                        break;
+
+                                    case GL_ADD_SIGNED:
+                                        srcColor.a = _mm_sub_ps(_mm_add_ps(args[0].a, args[1].a), _mm_set1_ps(0.5f));
+                                        break;
+
+                                    case GL_SUBTRACT:
+                                        srcColor.a = _mm_sub_ps(args[0].a, args[1].a);
+                                        break;
+
+                                    case GL_INTERPOLATE:
+                                        srcColor.a = SIMD::lerp(args[2].a, args[1].a, args[0].a);
+                                        break;
+                                    }
+                                }
+
+                                // Combine red, green and blue
+                                switch (modeRGB) {
+
+                                case GL_REPLACE:
+                                    srcColor.r = args[0].r;
+                                    srcColor.g = args[0].g;
+                                    srcColor.b = args[0].b;
                                     break;
 
-                                case TextureBaseFormat::RGBA:
-                                    srcColor.r = _mm_add_ps(_mm_mul_ps(srcColor.r, _mm_sub_ps(_mm_set1_ps(1.0f), texColor.a)), _mm_mul_ps(texColor.r, texColor.a));
-                                    srcColor.g = _mm_add_ps(_mm_mul_ps(srcColor.g, _mm_sub_ps(_mm_set1_ps(1.0f), texColor.a)), _mm_mul_ps(texColor.g, texColor.a));
-                                    srcColor.b = _mm_add_ps(_mm_mul_ps(srcColor.b, _mm_sub_ps(_mm_set1_ps(1.0f), texColor.a)), _mm_mul_ps(texColor.b, texColor.a));
+                                case GL_MODULATE:
+                                    srcColor.r = _mm_mul_ps(args[0].r, args[1].r);
+                                    srcColor.g = _mm_mul_ps(args[0].g, args[1].g);
+                                    srcColor.b = _mm_mul_ps(args[0].b, args[1].b);
+                                    break;
+
+                                case GL_ADD:
+                                    srcColor.r = _mm_add_ps(args[0].r, args[1].r);
+                                    srcColor.g = _mm_add_ps(args[0].g, args[1].g);
+                                    srcColor.b = _mm_add_ps(args[0].b, args[1].b);
+                                    break;
+
+                                case GL_ADD_SIGNED:
+                                    srcColor.r = _mm_sub_ps(_mm_add_ps(args[0].r, args[1].r), _mm_set1_ps(0.5f));
+                                    srcColor.g = _mm_sub_ps(_mm_add_ps(args[0].g, args[1].g), _mm_set1_ps(0.5f));
+                                    srcColor.b = _mm_sub_ps(_mm_add_ps(args[0].b, args[1].b), _mm_set1_ps(0.5f));
+                                    break;
+
+                                case GL_SUBTRACT:
+                                    srcColor.r = _mm_sub_ps(args[0].r, args[1].r);
+                                    srcColor.g = _mm_sub_ps(args[0].g, args[1].g);
+                                    srcColor.b = _mm_sub_ps(args[0].b, args[1].b);
+                                    break;
+
+                                case GL_DOT3_RGB:
+                                    srcColor.r = _mm_mul_ps(_mm_set1_ps(4.0f), _mm_add_ps(_mm_add_ps(DOT3(r), DOT3(g)), DOT3(b)));
+                                    srcColor.g = srcColor.r;
+                                    srcColor.b = srcColor.r;
+                                    break;
+
+                                case GL_DOT3_RGBA:
+                                    srcColor.a = _mm_mul_ps(_mm_set1_ps(4.0f), _mm_add_ps(_mm_add_ps(DOT3(r), DOT3(g)), DOT3(b)));
+                                    srcColor.r = srcColor.a;
+                                    srcColor.g = srcColor.a;
+                                    srcColor.b = srcColor.a;
+                                    break;
+
+                                case GL_INTERPOLATE:
+                                    srcColor.r = SIMD::lerp(args[2].r, args[1].r, args[0].r);
+                                    srcColor.g = SIMD::lerp(args[2].g, args[1].g, args[0].g);
+                                    srcColor.b = SIMD::lerp(args[2].b, args[1].b, args[0].b);
                                     break;
                                 }
-                                break;
-
-                            case GL_ADD:
-                                switch (texState.texData->format) {
-
-                                case TextureBaseFormat::Alpha:
-                                    srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
-                                    break;
-
-                                case TextureBaseFormat::LuminanceAlpha:
-                                case TextureBaseFormat::RGBA:
-                                    srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
-                                case TextureBaseFormat::Luminance:
-                                case TextureBaseFormat::RGB:
-                                    srcColor.r = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.r, texColor.r));
-                                    srcColor.g = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.g, texColor.g));
-                                    srcColor.b = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.b, texColor.b));
-                                    break;
-
-                                case TextureBaseFormat::Intensity:
-                                    srcColor.a = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.a, texColor.a));
-                                    srcColor.r = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.r, texColor.r));
-                                    srcColor.g = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.g, texColor.g));
-                                    srcColor.b = _mm_min_ps(_mm_set1_ps(1.0f), _mm_add_ps(srcColor.b, texColor.b));
-                                    break;
-                                }
-                                break;
-
-                            case GL_BLEND:
-                                switch (texState.texData->format) {
-
-                                case TextureBaseFormat::Alpha:
-                                    srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
-                                    break;
-
-                                case TextureBaseFormat::LuminanceAlpha:
-                                case TextureBaseFormat::RGBA:
-                                    srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
-                                case TextureBaseFormat::Luminance:
-                                case TextureBaseFormat::RGB:
-                                    srcColor.r = SIMD::lerp(texColor.r, srcColor.r, _mm_set1_ps(texState.texEnv.colorConstR));
-                                    srcColor.g = SIMD::lerp(texColor.g, srcColor.g, _mm_set1_ps(texState.texEnv.colorConstG));
-                                    srcColor.b = SIMD::lerp(texColor.b, srcColor.b, _mm_set1_ps(texState.texEnv.colorConstB));
-                                    break;
-
-                                case TextureBaseFormat::Intensity:
-                                    srcColor.a = SIMD::lerp(texColor.a, srcColor.a, _mm_set1_ps(texState.texEnv.colorConstA));
-                                    srcColor.r = SIMD::lerp(texColor.r, srcColor.r, _mm_set1_ps(texState.texEnv.colorConstR));
-                                    srcColor.g = SIMD::lerp(texColor.g, srcColor.g, _mm_set1_ps(texState.texEnv.colorConstG));
-                                    srcColor.b = SIMD::lerp(texColor.b, srcColor.b, _mm_set1_ps(texState.texEnv.colorConstB));
-                                    break;
-                                }
-                                break;
-
-                            // TODO: Unimplemented
-                            case GL_COMBINE:
-                                srcColor.a = _mm_set1_ps(1.0f);
-                                srcColor.r = _mm_set1_ps(1.0f);
-                                srcColor.g = _mm_set1_ps(0.0f);
-                                srcColor.b = _mm_set1_ps(1.0f);
-                                break;
                             }
                         }
 
@@ -772,3 +980,4 @@ namespace SWGL {
 #undef GRADIENT_DY
 #undef GRADIENT_DX
 #undef GRADIENT_VALUE
+#undef DOT3
