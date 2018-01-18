@@ -177,6 +177,12 @@ namespace SWGL {
             m_texCoordGen.generate();
         }
 
+        // TODO: Only execute this if needed
+        for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+
+            m_vertexState.texCoord[i] = m_vertexState.texCoord[i] * m_matrixStack.getTextureMatrix(i);
+        }
+
         m_vertices.emplace_back(m_vertexState);
     }
 
