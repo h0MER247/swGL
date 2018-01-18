@@ -959,6 +959,7 @@ SWGLAPI void STDCALL glDrv_glCullFace(GLenum mode) {
 
     case GL_FRONT:
     case GL_BACK:
+    case GL_FRONT_AND_BACK:
         ctx->getVertexPipeline().getCulling().setCullFace(mode);
         break;
 
@@ -1589,7 +1590,7 @@ SWGLAPI void STDCALL glDrv_glGetFloatv(GLenum pname, GLfloat *params) {
             break;
 
         case GL_TEXTURE_MATRIX:
-            M = ctx->getVertexPipeline().getMatrixStack().getActiveTextureMatrix().getTranspose();
+            M = ctx->getVertexPipeline().getMatrixStack().getTextureMatrix().getTranspose();
             memcpy(
 
                 reinterpret_cast<void *>(params),
@@ -4453,7 +4454,7 @@ SWGLAPI void STDCALL glDrv_glTexEnvColorCommon(const SWGL::ContextPtr &ctx, floa
 
 SWGLAPI void STDCALL glDrv_glTexEnvRGBScaleCommon(const SWGL::ContextPtr &ctx, float scaleRGB) {
 
-    if (scaleRGB != 1.0f || scaleRGB != 2.0f || scaleRGB != 4.0f) {
+    if (scaleRGB != 1.0f && scaleRGB != 2.0f && scaleRGB != 4.0f) {
 
         ctx->getError().setState(GL_INVALID_VALUE);
         return;
@@ -4466,7 +4467,7 @@ SWGLAPI void STDCALL glDrv_glTexEnvRGBScaleCommon(const SWGL::ContextPtr &ctx, f
 
 SWGLAPI void STDCALL glDrv_glTexEnvAlphaScaleCommon(const SWGL::ContextPtr &ctx, float scaleA) {
 
-    if (scaleA != 1.0f || scaleA != 2.0f || scaleA != 4.0f) {
+    if (scaleA != 1.0f && scaleA != 2.0f && scaleA != 4.0f) {
 
         ctx->getError().setState(GL_INVALID_VALUE);
         return;
@@ -4781,11 +4782,11 @@ SWGLAPI void STDCALL glDrv_glTexEnvi(GLenum target, GLenum pname, GLint param) {
         break;
 
     case GL_RGB_SCALE:
-        glDrv_glTexEnvRGBScaleCommon(ctx, SWGL::Vector::normalizeInteger(param));
+        glDrv_glTexEnvRGBScaleCommon(ctx, static_cast<float>(param));
         break;
 
     case GL_ALPHA_SCALE:
-        glDrv_glTexEnvAlphaScaleCommon(ctx, SWGL::Vector::normalizeInteger(param));
+        glDrv_glTexEnvAlphaScaleCommon(ctx, static_cast<float>(param));
         break;
 
     case GL_COMBINE_RGB:
@@ -4859,11 +4860,11 @@ SWGLAPI void STDCALL glDrv_glTexEnviv(GLenum target, GLenum pname, const GLint *
             break;
 
         case GL_RGB_SCALE:
-            glDrv_glTexEnvRGBScaleCommon(ctx, SWGL::Vector::normalizeInteger(params[0]));
+            glDrv_glTexEnvRGBScaleCommon(ctx, static_cast<float>(params[0]));
             break;
 
         case GL_ALPHA_SCALE:
-            glDrv_glTexEnvAlphaScaleCommon(ctx, SWGL::Vector::normalizeInteger(params[0]));
+            glDrv_glTexEnvAlphaScaleCommon(ctx, static_cast<float>(params[0]));
             break;
 
         case GL_COMBINE_RGB:

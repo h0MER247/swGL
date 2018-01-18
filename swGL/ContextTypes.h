@@ -456,11 +456,16 @@ namespace SWGL {
 
             if (m_isEnabled) {
             
-                float a = (v1.projected.x() * v2.projected.y() - v1.projected.y() * v2.projected.x()) * v3.projected.w() +
-                          (v1.projected.y() * v3.projected.x() - v1.projected.x() * v3.projected.y()) * v2.projected.w() +
-                          (v2.projected.x() * v3.projected.y() - v3.projected.x() * v2.projected.y()) * v1.projected.w();
+                if(m_cullFace != GL_FRONT_AND_BACK) {
 
-                return (a > 0.0f) ^ (m_cullFace == GL_FRONT) ^ (m_frontFaceWinding == GL_CW);
+                    float a = (v1.projected.x() * v2.projected.y() - v1.projected.y() * v2.projected.x()) * v3.projected.w() +
+                              (v1.projected.y() * v3.projected.x() - v1.projected.x() * v3.projected.y()) * v2.projected.w() +
+                              (v2.projected.x() * v3.projected.y() - v3.projected.x() * v2.projected.y()) * v1.projected.w();
+
+                    return (a > 0.0f) ^ (m_cullFace == GL_FRONT) ^ (m_frontFaceWinding == GL_CW);
+                }
+
+                return false;
             }
 
             return true;
@@ -489,6 +494,8 @@ namespace SWGL {
 
     public:
         void setState(GLenum error) {
+
+            LOG("==> Set GL Error: %04x", error);
 
             switch (error) {
 

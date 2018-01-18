@@ -37,7 +37,7 @@ namespace SWGL {
         Matrix &getModelViewMatrix() const;
         Matrix &getProjectionMatrix() const;
         Matrix &getColorMatrix() const;
-        Matrix &getActiveTextureMatrix() const;
+        Matrix &getTextureMatrix() const;
         Matrix &getTextureMatrix(unsigned int idx) const;
 
     private:

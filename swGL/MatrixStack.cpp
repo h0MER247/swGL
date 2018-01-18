@@ -120,7 +120,7 @@ namespace SWGL {
         return *m_stack[STACK_COLOR].currentMatrix;
     }
 
-    Matrix &MatrixStack::getActiveTextureMatrix() const {
+    Matrix &MatrixStack::getTextureMatrix() const {
 
         return *m_stack[STACK_TEXTURE_0 + m_activeTexture].currentMatrix;
     }
