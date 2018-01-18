@@ -4480,46 +4480,44 @@ SWGLAPI void STDCALL glDrv_glTexEnvAlphaScaleCommon(const SWGL::ContextPtr &ctx,
 
 SWGLAPI void STDCALL glDrv_glTexEnvCombineRGBCommon(const SWGL::ContextPtr &ctx, GLenum param) {
 
+    auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
+
     switch (param) {
 
-    case GL_REPLACE:
-    case GL_MODULATE:
-    case GL_ADD:
-    case GL_ADD_SIGNED:
-    case GL_INTERPOLATE:
-    case GL_SUBTRACT:
-    case GL_DOT3_RGB:
-    case GL_DOT3_RGBA:
-        break;
+    case GL_REPLACE: texEnv.numArgsRGB = 1; break;
+    case GL_MODULATE: texEnv.numArgsRGB = 2; break;
+    case GL_ADD: texEnv.numArgsRGB = 2; break;
+    case GL_ADD_SIGNED: texEnv.numArgsRGB = 2; break;
+    case GL_INTERPOLATE: texEnv.numArgsRGB = 3; break;
+    case GL_SUBTRACT: texEnv.numArgsRGB = 2; break;
+    case GL_DOT3_RGB: texEnv.numArgsRGB = 2; break;
+    case GL_DOT3_RGBA: texEnv.numArgsRGB = 2; break;
 
     default:
         ctx->getError().setState(GL_INVALID_ENUM);
         return;
     }
-
-    auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
 
     texEnv.combineModeRGB = param;
 }
 
 SWGLAPI void STDCALL glDrv_glTexEnvCombineAlphaCommon(const SWGL::ContextPtr &ctx, GLenum param) {
 
+    auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
+
     switch (param) {
 
-    case GL_REPLACE:
-    case GL_MODULATE:
-    case GL_ADD:
-    case GL_ADD_SIGNED:
-    case GL_INTERPOLATE:
-    case GL_SUBTRACT:
-        break;
+    case GL_REPLACE: texEnv.numArgsAlpha = 1; break;
+    case GL_MODULATE:  texEnv.numArgsAlpha = 2; break;
+    case GL_ADD: texEnv.numArgsAlpha = 2; break;
+    case GL_ADD_SIGNED: texEnv.numArgsAlpha = 2; break;
+    case GL_INTERPOLATE: texEnv.numArgsAlpha = 3; break;
+    case GL_SUBTRACT: texEnv.numArgsAlpha = 2; break;
 
     default:
         ctx->getError().setState(GL_INVALID_ENUM);
         return;
     }
-
-    auto &texEnv = ctx->getTextureManager().getActiveTextureEnvironment();
 
     texEnv.combineModeAlpha = param;
 }

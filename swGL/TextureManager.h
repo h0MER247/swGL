@@ -55,6 +55,8 @@ namespace SWGL {
         GLenum sourceRGB[3] = { GL_TEXTURE, GL_PREVIOUS, GL_CONSTANT };
         GLenum operandAlpha[3] = { GL_SRC_ALPHA, GL_SRC_ALPHA, GL_SRC_ALPHA };
         GLenum operandRGB[3] = { GL_SRC_COLOR, GL_SRC_COLOR, GL_SRC_ALPHA };
+        char numArgsAlpha = 2;
+        char numArgsRGB = 2;
 
         // Texture environment constant color
         float colorConstA = 0.0f;

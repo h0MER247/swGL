@@ -505,7 +505,7 @@ namespace SWGL {
                                 //
                                 // Read alpha arguments
                                 //
-                                for (int j = 0; j < 3; j++) {
+                                for (int j = 0, n = texState.texEnv.numArgsAlpha; j < n; j++) {
 
                                     auto &arg = args[j];
                                     auto &src = texState.texEnv.sourceAlpha[j];
@@ -535,18 +535,12 @@ namespace SWGL {
 
                                         arg.a = _mm_sub_ps(_mm_set1_ps(1.0f), arg.a);
                                     }
-
-                                    // TODO: Figure out the number of arguments beforehand and store it in the
-                                    //       TextureState structure (Renderer.cpp would be a good place as the
-                                    //       TriangleDrawCallState data is generated there)
-                                    if (j == 1 && modeAlpha == GL_REPLACE) { break; }
-                                    if (j == 2 && modeAlpha != GL_INTERPOLATE) { break; }
                                 }
 
                                 //
                                 // Read red, green and blue arguments
                                 //
-                                for (int j = 0; j < 3; j++) {
+                                for (int j = 0, n = texState.texEnv.numArgsRGB; j < n; j++) {
 
                                     auto &src = texState.texEnv.sourceRGB[j];
                                     auto &mod = texState.texEnv.operandRGB[j];
@@ -603,12 +597,6 @@ namespace SWGL {
                                         arg.b = _mm_sub_ps(_mm_set1_ps(1.0f), arg.a);
                                         break;
                                     }
-
-                                    // TODO: Figure out the number of arguments beforehand and store it in the
-                                    //       TextureState structure (Renderer.cpp would be a good place as the
-                                    //       TriangleDrawCallState data is generated there)
-                                    if (j == 1 && modeRGB == GL_REPLACE) { break; }
-                                    if (j == 2 && modeRGB != GL_INTERPOLATE) { break; }
                                 }
 
                                 //

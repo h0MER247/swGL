@@ -105,24 +105,22 @@ namespace SWGL {
         for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
             auto &unit = texManager.getTextureUnit(i);
+            auto &texState = drawState->textures[i];
 
             if (unit.currentTarget != nullptr) {
 
-                auto &texState = drawState->textures[i];
                 texState.texEnv = unit.texEnv;
 
                 auto &texObj = unit.currentTarget->texObj;
-                if (texObj != nullptr &&
-                    texObj->data != nullptr) {
+                if (texObj != nullptr && texObj->data != nullptr) {
 
                     texState.texData = texObj->data;
                     texState.texParams = texObj->parameter;
-                }
-                else {
-
-                    texState.texData = nullptr;
+                    continue;
                 }
             }
+
+            texState.texData = nullptr;
         }
 
         // Figure out which triangle must be rendered by which thread
