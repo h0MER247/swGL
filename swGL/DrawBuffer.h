@@ -10,8 +10,11 @@ namespace SWGL {
     class DrawBuffer;
 
     // Type aliases
-    using ColorBuffer = std::vector<unsigned int, AlignedAllocator<unsigned int, 16>>;
-    using DepthBuffer = std::vector<float, AlignedAllocator<float, 16>>;
+    template<typename T>
+    using BufferType = std::vector<T, AlignedAllocator<T, 16>>;
+
+    using ColorBuffer = BufferType<unsigned int>;
+    using DepthBuffer = BufferType<float>;
     using DrawBufferPtr = std::shared_ptr<DrawBuffer>;
 
     //

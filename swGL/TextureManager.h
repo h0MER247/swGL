@@ -172,7 +172,6 @@ namespace SWGL {
         QFloat s;
         QFloat t;
         QFloat r;
-        QFloat q;
     };
 
     // Color

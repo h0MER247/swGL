@@ -20,7 +20,8 @@ namespace SWGL {
 
             m_normalizeValues(normalizeValues),
             m_setWTo1(setWTo1),
-            m_isEnabled(false) {
+            m_isEnabled(false),
+            m_addr(nullptr) {
 
         }
         ~VectorReader() = default;

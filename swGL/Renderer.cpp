@@ -93,10 +93,10 @@ namespace SWGL {
 
         drawState->triangles = std::move(triangles);
         drawState->scissor = scissor;
-        drawState->alphaTesting = context.getAlphaTesting();
-        drawState->depthTesting = context.getDepthTesting();
-        drawState->blending = context.getBlending();
         drawState->polygonOffset = context.getPolygonOffset();
+        drawState->depthTesting = context.getDepthTesting();
+        drawState->alphaTesting = context.getAlphaTesting();
+        drawState->blending = context.getBlending();
         drawState->colorMask = context.getColorMask();
         drawState->deferedDepthWrite = context.getAlphaTesting().isEnabled() &&
                                        context.getDepthTesting().isWriteEnabled() &&
@@ -109,11 +109,10 @@ namespace SWGL {
 
             if (unit.currentTarget != nullptr) {
 
-                texState.texEnv = unit.texEnv;
-
                 auto &texObj = unit.currentTarget->texObj;
                 if (texObj != nullptr && texObj->data != nullptr) {
 
+                    texState.texEnv = unit.texEnv;
                     texState.texData = texObj->data;
                     texState.texParams = texObj->parameter;
                     continue;

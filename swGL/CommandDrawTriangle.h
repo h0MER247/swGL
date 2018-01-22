@@ -12,10 +12,10 @@ namespace SWGL {
         TriangleList triangles;
 
         Scissor scissor;
-        AlphaTesting alphaTesting;
-        DepthTesting depthTesting;
-        Blending blending;
         PolygonOffset polygonOffset;
+        DepthTesting depthTesting;
+        AlphaTesting alphaTesting;
+        Blending blending;
         ColorMask colorMask;
         bool deferedDepthWrite;
 

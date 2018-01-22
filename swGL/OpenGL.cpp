@@ -95,8 +95,8 @@ SWGLAPI void STDCALL glDrv_glBegin(GLenum mode) {
 
     case GL_POINTS:
     case GL_LINES:
-    case GL_LINE_STRIP:
     case GL_LINE_LOOP:
+    case GL_LINE_STRIP:
     case GL_TRIANGLES:
     case GL_TRIANGLE_STRIP:
     case GL_TRIANGLE_FAN:
@@ -332,16 +332,19 @@ SWGLAPI void STDCALL glDrv_glColor3bv(const GLbyte *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            SWGL::Vector::normalizeInteger(v[0]),
-            SWGL::Vector::normalizeInteger(v[1]),
-            SWGL::Vector::normalizeInteger(v[2]),
-            1.0f
-        )
-    );
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor3d(GLdouble red, GLdouble green, GLdouble blue) {
@@ -370,16 +373,19 @@ SWGLAPI void STDCALL glDrv_glColor3dv(const GLdouble *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            1.0f
-        )
-    );
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor3f(GLfloat red, GLfloat green, GLfloat blue) {
@@ -402,10 +408,13 @@ SWGLAPI void STDCALL glDrv_glColor3fv(const GLfloat *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(v[0], v[1], v[2], 1.0f)
-    );
+        ctx->getVertexPipeline().setPrimaryColor(
+
+            SWGL::Vector(v[0], v[1], v[2], 1.0f)
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor3i(GLint red, GLint green, GLint blue) {
@@ -434,16 +443,19 @@ SWGLAPI void STDCALL glDrv_glColor3iv(const GLint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            SWGL::Vector::normalizeInteger(v[0]),
-            SWGL::Vector::normalizeInteger(v[1]),
-            SWGL::Vector::normalizeInteger(v[2]),
-            1.0f
-        )
-    );
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor3s(GLshort red, GLshort green, GLshort blue) {
@@ -472,16 +484,19 @@ SWGLAPI void STDCALL glDrv_glColor3sv(const GLshort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            SWGL::Vector::normalizeInteger(v[0]),
-            SWGL::Vector::normalizeInteger(v[1]),
-            SWGL::Vector::normalizeInteger(v[2]),
-            1.0f
-        )
-    );
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor3ub(GLubyte red, GLubyte green, GLubyte blue) {
@@ -510,16 +525,19 @@ SWGLAPI void STDCALL glDrv_glColor3ubv(const GLubyte *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            SWGL::Vector::normalizeInteger(v[0]),
-            SWGL::Vector::normalizeInteger(v[1]),
-            SWGL::Vector::normalizeInteger(v[2]),
-            1.0f
-        )
-    );
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor3ui(GLuint red, GLuint green, GLuint blue) {
@@ -548,16 +566,19 @@ SWGLAPI void STDCALL glDrv_glColor3uiv(const GLuint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            SWGL::Vector::normalizeInteger(v[0]),
-            SWGL::Vector::normalizeInteger(v[1]),
-            SWGL::Vector::normalizeInteger(v[2]),
-            1.0f
-        )
-    );
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor3us(GLushort red, GLushort green, GLushort blue) {
@@ -586,16 +607,19 @@ SWGLAPI void STDCALL glDrv_glColor3usv(const GLushort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            SWGL::Vector::normalizeInteger(v[0]),
-            SWGL::Vector::normalizeInteger(v[1]),
-            SWGL::Vector::normalizeInteger(v[2]),
-            1.0f
-        )
-    );
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor4b(GLbyte red, GLbyte green, GLbyte blue, GLbyte alpha) {
@@ -624,16 +648,19 @@ SWGLAPI void STDCALL glDrv_glColor4bv(const GLbyte *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            SWGL::Vector::normalizeInteger(v[0]),
-            SWGL::Vector::normalizeInteger(v[1]),
-            SWGL::Vector::normalizeInteger(v[2]),
-            SWGL::Vector::normalizeInteger(v[3])
-        )
-    );
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                SWGL::Vector::normalizeInteger(v[3])
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor4d(GLdouble red, GLdouble green, GLdouble blue, GLdouble alpha) {
@@ -662,16 +689,19 @@ SWGLAPI void STDCALL glDrv_glColor4dv(const GLdouble *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            static_cast<float>(v[3])
-        )
-    );
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                static_cast<float>(v[3])
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor4f(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha) {
@@ -694,10 +724,13 @@ SWGLAPI void STDCALL glDrv_glColor4fv(const GLfloat *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(v[0], v[1], v[2], v[3])
-    );
+        ctx->getVertexPipeline().setPrimaryColor(
+
+            SWGL::Vector(v[0], v[1], v[2], v[3])
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor4i(GLint red, GLint green, GLint blue, GLint alpha) {
@@ -726,16 +759,19 @@ SWGLAPI void STDCALL glDrv_glColor4iv(const GLint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            SWGL::Vector::normalizeInteger(v[0]),
-            SWGL::Vector::normalizeInteger(v[1]),
-            SWGL::Vector::normalizeInteger(v[2]),
-            SWGL::Vector::normalizeInteger(v[3])
-        )
-    );
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                SWGL::Vector::normalizeInteger(v[3])
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor4s(GLshort red, GLshort green, GLshort blue, GLshort alpha) {
@@ -764,16 +800,19 @@ SWGLAPI void STDCALL glDrv_glColor4sv(const GLshort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            SWGL::Vector::normalizeInteger(v[0]),
-            SWGL::Vector::normalizeInteger(v[1]),
-            SWGL::Vector::normalizeInteger(v[2]),
-            SWGL::Vector::normalizeInteger(v[3])
-        )
-    );
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                SWGL::Vector::normalizeInteger(v[3])
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha) {
@@ -802,16 +841,19 @@ SWGLAPI void STDCALL glDrv_glColor4ubv(const GLubyte *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            SWGL::Vector::normalizeInteger(v[0]),
-            SWGL::Vector::normalizeInteger(v[1]),
-            SWGL::Vector::normalizeInteger(v[2]),
-            SWGL::Vector::normalizeInteger(v[3])
-        )
-    );
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                SWGL::Vector::normalizeInteger(v[3])
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor4ui(GLuint red, GLuint green, GLuint blue, GLuint alpha) {
@@ -840,16 +882,19 @@ SWGLAPI void STDCALL glDrv_glColor4uiv(const GLuint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            SWGL::Vector::normalizeInteger(v[0]),
-            SWGL::Vector::normalizeInteger(v[1]),
-            SWGL::Vector::normalizeInteger(v[2]),
-            SWGL::Vector::normalizeInteger(v[3])
-        )
-    );
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                SWGL::Vector::normalizeInteger(v[3])
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColor4us(GLushort red, GLushort green, GLushort blue, GLushort alpha) {
@@ -878,16 +923,19 @@ SWGLAPI void STDCALL glDrv_glColor4usv(const GLushort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setPrimaryColor(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        ctx->getVertexPipeline().setPrimaryColor(
 
-            SWGL::Vector::normalizeInteger(v[0]),
-            SWGL::Vector::normalizeInteger(v[1]),
-            SWGL::Vector::normalizeInteger(v[2]),
-            SWGL::Vector::normalizeInteger(v[3])
-        )
-    );
+            SWGL::Vector(
+
+                SWGL::Vector::normalizeInteger(v[0]),
+                SWGL::Vector::normalizeInteger(v[1]),
+                SWGL::Vector::normalizeInteger(v[2]),
+                SWGL::Vector::normalizeInteger(v[3])
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glColorMask(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha) {
@@ -975,6 +1023,8 @@ SWGLAPI void STDCALL glDrv_glDeleteLists(GLuint list, GLsizei range) {
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
+
+    // ...
 }
 
 SWGLAPI void STDCALL glDrv_glDepthFunc(GLenum func) {
@@ -3856,17 +3906,20 @@ SWGLAPI void STDCALL glDrv_glTexCoord1dv(const GLdouble *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(
+        ctx->getVertexPipeline().setTexCoord(
 
-            static_cast<float>(v[0]),
-            0.0f,
-            0.0f,
-            1.0f
-        )
-    );
+            0U,
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                0.0f,
+                0.0f,
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord1f(GLfloat s) {
@@ -3890,11 +3943,14 @@ SWGLAPI void STDCALL glDrv_glTexCoord1fv(const GLfloat *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(v[0], 0.0f, 0.0f, 1.0f)
-    );
+        ctx->getVertexPipeline().setTexCoord(
+
+            0U,
+            SWGL::Vector(v[0], 0.0f, 0.0f, 1.0f)
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord1i(GLint s) {
@@ -3924,17 +3980,20 @@ SWGLAPI void STDCALL glDrv_glTexCoord1iv(const GLint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(
+        ctx->getVertexPipeline().setTexCoord(
 
-            static_cast<float>(v[0]),
-            0.0f,
-            0.0f,
-            1.0f
-        )
-    );
+            0U,
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                0.0f,
+                0.0f,
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord1s(GLshort s) {
@@ -3964,17 +4023,20 @@ SWGLAPI void STDCALL glDrv_glTexCoord1sv(const GLshort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(
+        ctx->getVertexPipeline().setTexCoord(
 
-            static_cast<float>(v[0]),
-            0.0f,
-            0.0f,
-            1.0f
-        )
-    );
+            0U,
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                0.0f,
+                0.0f,
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord2d(GLdouble s, GLdouble t) {
@@ -4004,17 +4066,20 @@ SWGLAPI void STDCALL glDrv_glTexCoord2dv(const GLdouble *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(
+        ctx->getVertexPipeline().setTexCoord(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            0.0f,
-            1.0f
-        )
-    );
+            0U,
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                0.0f,
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord2f(GLfloat s, GLfloat t) {
@@ -4038,11 +4103,14 @@ SWGLAPI void STDCALL glDrv_glTexCoord2fv(const GLfloat *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(v[0], v[1], 0.0f, 1.0f)
-    );
+        ctx->getVertexPipeline().setTexCoord(
+
+            0U,
+            SWGL::Vector(v[0], v[1], 0.0f, 1.0f)
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord2i(GLint s, GLint t) {
@@ -4072,17 +4140,20 @@ SWGLAPI void STDCALL glDrv_glTexCoord2iv(const GLint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(
+        ctx->getVertexPipeline().setTexCoord(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            0.0f,
-            1.0f
-        )
-    );
+            0U,
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                0.0f,
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord2s(GLshort s, GLshort t) {
@@ -4112,17 +4183,20 @@ SWGLAPI void STDCALL glDrv_glTexCoord2sv(const GLshort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(
+        ctx->getVertexPipeline().setTexCoord(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            0.0f,
-            1.0f
-        )
-    );
+            0U,
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                0.0f,
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord3d(GLdouble s, GLdouble t, GLdouble r) {
@@ -4152,17 +4226,20 @@ SWGLAPI void STDCALL glDrv_glTexCoord3dv(const GLdouble *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(
+        ctx->getVertexPipeline().setTexCoord(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            1.0f
-        )
-    );
+            0U,
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord3f(GLfloat s, GLfloat t, GLfloat r) {
@@ -4186,11 +4263,14 @@ SWGLAPI void STDCALL glDrv_glTexCoord3fv(const GLfloat *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(v[0], v[1], v[2], 1.0f)
-    );
+        ctx->getVertexPipeline().setTexCoord(
+
+            0U,
+            SWGL::Vector(v[0], v[1], v[2], 1.0f)
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord3i(GLint s, GLint t, GLint r) {
@@ -4220,17 +4300,20 @@ SWGLAPI void STDCALL glDrv_glTexCoord3iv(const GLint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(
+        ctx->getVertexPipeline().setTexCoord(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            1.0f
-        )
-    );
+            0U,
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord3s(GLshort s, GLshort t, GLshort r) {
@@ -4260,17 +4343,20 @@ SWGLAPI void STDCALL glDrv_glTexCoord3sv(const GLshort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(
+        ctx->getVertexPipeline().setTexCoord(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            1.0f
-        )
-    );
+            0U,
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                1.0f
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord4d(GLdouble s, GLdouble t, GLdouble r, GLdouble q) {
@@ -4300,17 +4386,20 @@ SWGLAPI void STDCALL glDrv_glTexCoord4dv(const GLdouble *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(
+        ctx->getVertexPipeline().setTexCoord(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            static_cast<float>(v[3])
-        )
-    );
+            0U,
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                static_cast<float>(v[3])
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord4f(GLfloat s, GLfloat t, GLfloat r, GLfloat q) {
@@ -4334,11 +4423,14 @@ SWGLAPI void STDCALL glDrv_glTexCoord4fv(const GLfloat *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(v[0], v[1], v[2], v[3])
-    );
+        ctx->getVertexPipeline().setTexCoord(
+
+            0U,
+            SWGL::Vector(v[0], v[1], v[2], v[3])
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord4i(GLint s, GLint t, GLint r, GLint q) {
@@ -4368,17 +4460,20 @@ SWGLAPI void STDCALL glDrv_glTexCoord4iv(const GLint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(
+        ctx->getVertexPipeline().setTexCoord(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            static_cast<float>(v[3])
-        )
-    );
+            0U,
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                static_cast<float>(v[3])
+            )
+        );
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoord4s(GLshort s, GLshort t, GLshort r, GLshort q) {
@@ -4408,20 +4503,21 @@ SWGLAPI void STDCALL glDrv_glTexCoord4sv(const GLshort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    ctx->getVertexPipeline().setTexCoord(
+    if (v != nullptr) {
 
-        0U,
-        SWGL::Vector(
+        ctx->getVertexPipeline().setTexCoord(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            static_cast<float>(v[3])
-        )
-    );
+            0U,
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                static_cast<float>(v[3])
+            )
+        );
+    }
 }
-
-
 
 SWGLAPI void STDCALL glDrv_glTexEnvModeCommon(const SWGL::ContextPtr &ctx, GLenum param) {
 
@@ -5087,10 +5183,10 @@ SWGLAPI void STDCALL glDrv_glTexGenfv(GLenum coord, GLenum pname, const GLfloat 
                 coord,
                 SWGL::Vector(
 
-                    static_cast<float>(params[0]),
-                    static_cast<float>(params[1]),
-                    static_cast<float>(params[2]),
-                    static_cast<float>(params[3])
+                    params[0],
+                    params[1],
+                    params[2],
+                    params[3]
                 )
             );
             break;
@@ -5427,12 +5523,22 @@ SWGLAPI void STDCALL glDrv_glTexParameterf(GLenum target, GLenum pname, GLfloat 
 
 SWGLAPI void STDCALL glDrv_glTexParameterfv(GLenum target, GLenum pname, const GLfloat *params) {
 
-    LOG("Unimplemented");
+    LOG("Target: %04x, Parameter: %04x, Data Address: %p", target, pname, params);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (params != nullptr) {
+    
+        if (pname != GL_TEXTURE_BORDER_COLOR) {
+        
+            glDrv_glTexParameterCommon(target, pname, static_cast<GLenum>(params[0]));
+        }
+        else {
+
+            LOG("Unimplemented");
+        }
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTexParameteri(GLenum target, GLenum pname, GLint param) {
@@ -5444,12 +5550,22 @@ SWGLAPI void STDCALL glDrv_glTexParameteri(GLenum target, GLenum pname, GLint pa
 
 SWGLAPI void STDCALL glDrv_glTexParameteriv(GLenum target, GLenum pname, const GLint *params) {
 
-    LOG("Unimplemented");
+    LOG("Target: %04x, Parameter: %04x, Data Address: %p", target, pname, params);
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    // ...
+    if (params != nullptr) {
+
+        if (pname != GL_TEXTURE_BORDER_COLOR) {
+
+            glDrv_glTexParameterCommon(target, pname, static_cast<GLenum>(params[0]));
+        }
+        else {
+
+            LOG("Unimplemented");
+        }
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glTranslated(GLdouble x, GLdouble y, GLdouble z) {
@@ -5520,18 +5636,21 @@ SWGLAPI void STDCALL glDrv_glVertex2dv(const GLdouble *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    auto &vp = ctx->getVertexPipeline();
-    vp.setPosition(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        auto &vp = ctx->getVertexPipeline();
+        vp.setPosition(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            0.0f,
-            1.0f
-        )
-    );
-    vp.addVertex();
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                0.0f,
+                1.0f
+            )
+        );
+        vp.addVertex();
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glVertex2f(GLfloat x, GLfloat y) {
@@ -5556,12 +5675,15 @@ SWGLAPI void STDCALL glDrv_glVertex2fv(const GLfloat *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    auto &vp = ctx->getVertexPipeline();
-    vp.setPosition(
+    if (v != nullptr) {
 
-        SWGL::Vector(v[0], v[1], GLfloat(0.0f), GLfloat(1.0f))
-    );
-    vp.addVertex();
+        auto &vp = ctx->getVertexPipeline();
+        vp.setPosition(
+
+            SWGL::Vector(v[0], v[1], GLfloat(0.0f), GLfloat(1.0f))
+        );
+        vp.addVertex();
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glVertex2i(GLint x, GLint y) {
@@ -5592,17 +5714,20 @@ SWGLAPI void STDCALL glDrv_glVertex2iv(const GLint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    auto &vp = ctx->getVertexPipeline();
-    vp.setPosition(
+    if (v != nullptr) {
 
-        SWGL::Vector(
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            0.0f,
-            1.0f
-        )
-    );
-    vp.addVertex();
+        auto &vp = ctx->getVertexPipeline();
+        vp.setPosition(
+
+            SWGL::Vector(
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                0.0f,
+                1.0f
+            )
+        );
+        vp.addVertex();
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glVertex2s(GLshort x, GLshort y) {
@@ -5633,18 +5758,21 @@ SWGLAPI void STDCALL glDrv_glVertex2sv(const GLshort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    auto &vp = ctx->getVertexPipeline();
-    vp.setPosition(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        auto &vp = ctx->getVertexPipeline();
+        vp.setPosition(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            0.0f,
-            1.0f
-        )
-    );
-    vp.addVertex();
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                0.0f,
+                1.0f
+            )
+        );
+        vp.addVertex();
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glVertex3d(GLdouble x, GLdouble y, GLdouble z) {
@@ -5675,18 +5803,21 @@ SWGLAPI void STDCALL glDrv_glVertex3dv(const GLdouble *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    auto &vp = ctx->getVertexPipeline();
-    vp.setPosition(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        auto &vp = ctx->getVertexPipeline();
+        vp.setPosition(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            1.0f
-        )
-    );
-    vp.addVertex();
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                1.0f
+            )
+        );
+        vp.addVertex();
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glVertex3f(GLfloat x, GLfloat y, GLfloat z) {
@@ -5711,12 +5842,15 @@ SWGLAPI void STDCALL glDrv_glVertex3fv(const GLfloat *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    auto &vp = ctx->getVertexPipeline();
-    vp.setPosition(
+    if (v != nullptr) {
 
-        SWGL::Vector(v[0], v[1], v[2], 1.0f)
-    );
-    vp.addVertex();
+        auto &vp = ctx->getVertexPipeline();
+        vp.setPosition(
+
+            SWGL::Vector(v[0], v[1], v[2], 1.0f)
+        );
+        vp.addVertex();
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glVertex3i(GLint x, GLint y, GLint z) {
@@ -5747,18 +5881,21 @@ SWGLAPI void STDCALL glDrv_glVertex3iv(const GLint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    auto &vp = ctx->getVertexPipeline();
-    vp.setPosition(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        auto &vp = ctx->getVertexPipeline();
+        vp.setPosition(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            1.0f
-        )
-    );
-    vp.addVertex();
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                1.0f
+            )
+        );
+        vp.addVertex();
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glVertex3s(GLshort x, GLshort y, GLshort z) {
@@ -5789,18 +5926,21 @@ SWGLAPI void STDCALL glDrv_glVertex3sv(const GLshort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    auto &vp = ctx->getVertexPipeline();
-    vp.setPosition(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        auto &vp = ctx->getVertexPipeline();
+        vp.setPosition(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            1.0f
-        )
-    );
-    vp.addVertex();
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                1.0f
+            )
+        );
+        vp.addVertex();
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glVertex4d(GLdouble x, GLdouble y, GLdouble z, GLdouble w) {
@@ -5831,18 +5971,21 @@ SWGLAPI void STDCALL glDrv_glVertex4dv(const GLdouble *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    auto &vp = ctx->getVertexPipeline();
-    vp.setPosition(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        auto &vp = ctx->getVertexPipeline();
+        vp.setPosition(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            static_cast<float>(v[3])
-        )
-    );
-    vp.addVertex();
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                static_cast<float>(v[3])
+            )
+        );
+        vp.addVertex();
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glVertex4f(GLfloat x, GLfloat y, GLfloat z, GLfloat w) {
@@ -5867,12 +6010,15 @@ SWGLAPI void STDCALL glDrv_glVertex4fv(const GLfloat *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    auto &vp = ctx->getVertexPipeline();
-    vp.setPosition(
+    if (v != nullptr) {
 
-        SWGL::Vector(v[0], v[1], v[2], v[3])
-    );
-    vp.addVertex();
+        auto &vp = ctx->getVertexPipeline();
+        vp.setPosition(
+
+            SWGL::Vector(v[0], v[1], v[2], v[3])
+        );
+        vp.addVertex();
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glVertex4i(GLint x, GLint y, GLint z, GLint w) {
@@ -5903,18 +6049,21 @@ SWGLAPI void STDCALL glDrv_glVertex4iv(const GLint *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    auto &vp = ctx->getVertexPipeline();
-    vp.setPosition(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        auto &vp = ctx->getVertexPipeline();
+        vp.setPosition(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            static_cast<float>(v[3])
-        )
-    );
-    vp.addVertex();
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                static_cast<float>(v[3])
+            )
+        );
+        vp.addVertex();
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glVertex4s(GLshort x, GLshort y, GLshort z, GLshort w) {
@@ -5945,18 +6094,21 @@ SWGLAPI void STDCALL glDrv_glVertex4sv(const GLshort *v) {
     GET_CONTEXT_OR_RETURN();
     CAN_BE_CALLED_INSIDE_GL_BEGIN();
 
-    auto &vp = ctx->getVertexPipeline();
-    vp.setPosition(
+    if (v != nullptr) {
 
-        SWGL::Vector(
+        auto &vp = ctx->getVertexPipeline();
+        vp.setPosition(
 
-            static_cast<float>(v[0]),
-            static_cast<float>(v[1]),
-            static_cast<float>(v[2]),
-            static_cast<float>(v[3])
-        )
-    );
-    vp.addVertex();
+            SWGL::Vector(
+
+                static_cast<float>(v[0]),
+                static_cast<float>(v[1]),
+                static_cast<float>(v[2]),
+                static_cast<float>(v[3])
+            )
+        );
+        vp.addVertex();
+    }
 }
 
 SWGLAPI void STDCALL glDrv_glViewport(GLint x, GLint y, GLsizei width, GLsizei height) {
@@ -6177,8 +6329,8 @@ SWGLAPI void STDCALL glDrv_glDrawArrays(GLenum mode, GLint first, GLsizei count)
 
     case GL_POINTS:
     case GL_LINES:
-    case GL_LINE_STRIP:
     case GL_LINE_LOOP:
+    case GL_LINE_STRIP:
     case GL_TRIANGLES:
     case GL_TRIANGLE_STRIP:
     case GL_TRIANGLE_FAN:
@@ -6216,8 +6368,8 @@ SWGLAPI void STDCALL glDrv_glDrawElements(GLenum mode, GLsizei count, GLenum typ
 
         case GL_POINTS:
         case GL_LINES:
-        case GL_LINE_STRIP:
         case GL_LINE_LOOP:
+        case GL_LINE_STRIP:
         case GL_TRIANGLES:
         case GL_TRIANGLE_STRIP:
         case GL_TRIANGLE_FAN:
@@ -6410,6 +6562,8 @@ SWGLAPI void STDCALL glDrv_glPopClientAttrib(void) {
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
+
+    // ...
 }
 
 SWGLAPI void STDCALL glDrv_glPrioritizeTextures(GLsizei n, const GLuint *textures, const GLclampf *priorities) {
@@ -6418,6 +6572,8 @@ SWGLAPI void STDCALL glDrv_glPrioritizeTextures(GLsizei n, const GLuint *texture
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
+
+    // ...
 }
 
 SWGLAPI void STDCALL glDrv_glPushClientAttrib(GLbitfield mask) {
@@ -6426,6 +6582,8 @@ SWGLAPI void STDCALL glDrv_glPushClientAttrib(GLbitfield mask) {
 
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
+
+    // ...
 }
 
 SWGLAPI void STDCALL glDrv_glTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer) {

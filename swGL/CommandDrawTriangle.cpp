@@ -127,14 +127,14 @@ namespace SWGL {
         auto &drawBuffer = thread->getDrawBuffer();
 
         auto &scissor = m_state->scissor;
-        auto &depthTesting = m_state->depthTesting;
-        auto &blending = m_state->blending;
-        auto &alphaTesting = m_state->alphaTesting;
         auto &polygonOffset = m_state->polygonOffset;
-        auto &textureState = m_state->textures;
+        auto &depthTesting = m_state->depthTesting;
+        auto &alphaTesting = m_state->alphaTesting;
+        auto &blending = m_state->blending;
+        auto &colorMask = m_state->colorMask;
         auto &writeDepthAfterAlphaTest = m_state->deferedDepthWrite;
         auto writeDepthAfterDepthTest = depthTesting.isWriteEnabled() && !writeDepthAfterAlphaTest;
-        auto &colorMask = m_state->colorMask;
+        auto &textureState = m_state->textures;
 
         for (auto triangleIdx : m_indices) {
 
@@ -195,8 +195,8 @@ namespace SWGL {
             int startX = minX - drawBuffer.getMinX();
             int startY = minY - drawBuffer.getMinY();
 
-            size_t bufferOffset = (startX << 1) + (startY * drawBuffer.getWidth());
-            size_t bufferStride = (drawBuffer.getWidth() - width) << 1;
+            ptrdiff_t bufferOffset = (startX << 1) + (startY * drawBuffer.getWidth());
+            ptrdiff_t bufferStride = (drawBuffer.getWidth() - width) << 1;
 
             unsigned int *colorBuffer = drawBuffer.getColor() + bufferOffset;
             float *depthBuffer = drawBuffer.getDepth() + bufferOffset;
@@ -237,7 +237,7 @@ namespace SWGL {
             DEFINE_GRADIENT(texT[SWGL_MAX_TEXTURE_UNITS]);
             DEFINE_GRADIENT(texR[SWGL_MAX_TEXTURE_UNITS]);
             DEFINE_GRADIENT(texQ[SWGL_MAX_TEXTURE_UNITS]);
-            for (size_t i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+            for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
                 SETUP_GRADIENT_EQ(texS[i], v1.texCoord[i].x(), v2.texCoord[i].x(), v3.texCoord[i].x());
                 SETUP_GRADIENT_EQ(texT[i], v1.texCoord[i].y(), v2.texCoord[i].y(), v3.texCoord[i].y());
@@ -358,7 +358,7 @@ namespace SWGL {
                         //
                         srcColor = primaryColor;
 
-                        for (auto i = 0; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+                        for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
 
                             auto &texState = textureState[i];
                             if (texState.texData == nullptr) {
@@ -367,8 +367,6 @@ namespace SWGL {
                             }
                             
                             // Get texture sample
-                            // TODO: - Sample only if necessary (GL_BLEND and some GL_COMBINE modes don't
-                            //         really need a texture sample)
                             QFloat rcpQ = _mm_div_ps(_mm_set1_ps(1.0f), GET_GRADIENT_VALUE_AFFINE(texQ[i]));
                             texCoords.s = _mm_mul_ps(rcpQ, GET_GRADIENT_VALUE_AFFINE(texS[i]));
                             texCoords.t = _mm_mul_ps(rcpQ, GET_GRADIENT_VALUE_AFFINE(texT[i]));
@@ -435,9 +433,9 @@ namespace SWGL {
                                         break;
 
                                     case TextureBaseFormat::RGBA:
-                                        srcColor.r = _mm_add_ps(_mm_mul_ps(srcColor.r, _mm_sub_ps(_mm_set1_ps(1.0f), texColor.a)), _mm_mul_ps(texColor.r, texColor.a));
-                                        srcColor.g = _mm_add_ps(_mm_mul_ps(srcColor.g, _mm_sub_ps(_mm_set1_ps(1.0f), texColor.a)), _mm_mul_ps(texColor.g, texColor.a));
-                                        srcColor.b = _mm_add_ps(_mm_mul_ps(srcColor.b, _mm_sub_ps(_mm_set1_ps(1.0f), texColor.a)), _mm_mul_ps(texColor.b, texColor.a));
+                                        srcColor.r = SIMD::lerp(texColor.a, srcColor.r, texColor.r);
+                                        srcColor.g = SIMD::lerp(texColor.a, srcColor.g, texColor.g);
+                                        srcColor.b = SIMD::lerp(texColor.a, srcColor.b, texColor.b);
                                         break;
                                     }
                                     break;
@@ -679,9 +677,9 @@ namespace SWGL {
                                     break;
 
                                 case GL_INTERPOLATE:
-                                    srcColor.r = SIMD::lerp(args[2].r, args[1].r, args[0].r);
-                                    srcColor.g = SIMD::lerp(args[2].g, args[1].g, args[0].g);
-                                    srcColor.b = SIMD::lerp(args[2].b, args[1].b, args[0].b);
+                                    srcColor.r = SIMD::lerp(args[2].a, args[1].r, args[0].r);
+                                    srcColor.g = SIMD::lerp(args[2].a, args[1].g, args[0].g);
+                                    srcColor.b = SIMD::lerp(args[2].a, args[1].b, args[0].b);
                                     break;
                                 }
                             }
