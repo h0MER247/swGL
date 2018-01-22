@@ -54,8 +54,8 @@ namespace SWGL {
 
             // Make sure that width and height are multiples of four. This is needed as 
             // the drawing surfaces uses a quad pixel layout.
-            width = std::max((width + 3) & ~3, m_numBuffersInX * 2);
-            height = std::max((height + 3) & ~3, m_numBuffersInY * 2);
+            width = std::max((((width / m_numBuffersInX) + 3) & ~3) * m_numBuffersInX, m_numBuffersInX * 2);
+            height = std::max((((height / m_numBuffersInY) + 3) & ~3) * m_numBuffersInY, m_numBuffersInY * 2);
 
             // Init storage in which the unswizzled color buffer gets written into
             m_unswizzledColor.resize(width * height);
