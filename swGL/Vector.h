@@ -49,6 +49,9 @@ namespace SWGL {
     public:
         static Vector lerp(const Vector &vA, const Vector &vB, const float t);
         static float dot(const Vector &vA, const Vector &vB);
+        static float length(const Vector &v);
+        static Vector normalize(const Vector &v);
+
         static float dot3(const Vector &vA, const Vector &vB);
         static float length3(const Vector &v);
         static Vector normalize3(const Vector &v);
@@ -57,18 +60,18 @@ namespace SWGL {
         template<typename T>
         static INLINED std::enable_if_t<std::is_integral<T>::value && std::is_signed<T>::value, float> normalizeInteger(T value) {
 
-            static constexpr auto max = static_cast<unsigned int>(std::numeric_limits<T>::max());
-            static constexpr auto min = static_cast<unsigned int>(std::numeric_limits<T>::min());
+            static constexpr auto max = static_cast<float>(std::numeric_limits<T>::max());
+            static constexpr auto min = static_cast<float>(std::numeric_limits<T>::min());
 
-            return (static_cast<float>(value) * 2.0f + 1.0f) /
-                    static_cast<float>(max - min);
+            return (static_cast<float>(value) * 2.0f + 1.0f) / (max - min);
         }
 
         template<typename T>
         static INLINED std::enable_if_t<std::is_integral<T>::value && std::is_unsigned<T>::value, float> normalizeInteger(T value) {
 
-            return static_cast<float>(value) /
-                   static_cast<float>(std::numeric_limits<T>::max());
+            static constexpr auto max = static_cast<float>(std::numeric_limits<T>::max());
+
+            return static_cast<float>(value) / max;
         }
 
     private:

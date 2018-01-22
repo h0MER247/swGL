@@ -120,6 +120,17 @@ namespace SWGL {
     }
 
     // Length of a vector with three components
+    float Vector::length(const Vector &v) {
+
+        return std::sqrt(
+
+            v.x() * v.x() +
+            v.y() * v.y() +
+            v.z() * v.z() +
+            v.w() * v.w()
+        );
+    }
+
     float Vector::length3(const Vector &v) {
 
         return std::sqrt(
@@ -130,7 +141,20 @@ namespace SWGL {
         );
     }
 
-    // Normalizes a vector with three components
+    // Normalizes a vector with three components,
+    Vector Vector::normalize(const Vector &v) {
+
+        float rcpLength = 1.0f / Vector::length(v);
+
+        return Vector(
+
+            v.x() * rcpLength,
+            v.y() * rcpLength,
+            v.z() * rcpLength,
+            v.w() * rcpLength
+        );
+    }
+
     Vector Vector::normalize3(const Vector &v) {
 
         float rcpLength = 1.0f / Vector::length3(v);
