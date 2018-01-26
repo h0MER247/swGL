@@ -96,6 +96,11 @@ namespace SWGL {
     void MatrixStack::setActiveTexture(unsigned int activeTexture) {
 
         m_activeTexture = activeTexture;
+
+        if (m_matrixMode == GL_TEXTURE) {
+
+            m_currentStack = &m_stack[STACK_TEXTURE_0 + m_activeTexture];
+        }
     }
 
 
