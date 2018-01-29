@@ -1,15 +1,17 @@
-#include "Defines.h"
+﻿#include "Defines.h"
 #include "Log.h"
 #include "Vertex.h"
+#include "MatrixStack.h"
 #include "TexCoordGen.h"
 
 namespace SWGL {
+    
+    TexCoordGen::TexCoordGen(Vertex &vertexState, MatrixStack &matrixStack)
 
-    TexCoordGen::TexCoordGen(Vertex &vertexState)
-
-        : m_vertexState(vertexState),
+        : m_activeTexture(0U),
           m_enableMask(0U),
-          m_activeTexture(0U) {
+          m_vertexState(vertexState),
+          m_matrixStack(matrixStack) {
 
     }
 
@@ -72,9 +74,14 @@ namespace SWGL {
             LOG("Unimplemented GL_NORMAL_MAP");
             return 0.0f;
 
-        case GL_REFLECTION_MAP:
-            LOG("Unimplemented GL_REFLECTION_MAP");
-            return 0.0f;
+        // TODO: The vertices eye position should be calculated with the transpose inverse of the model
+        //       view matrix. Also m_vertexState.normal has to be normalized! (btw: both are also needed
+        //       for the lighting calculations). The "3 - texCoordIdx" thingy feels weird and has to go :).
+        case GL_REFLECTION_MAP: {
+            Vector vEye(Vector::normalize(m_vertexState.position * m_matrixStack.getModelViewMatrix()));
+            float dot = 2.0f * Vector::dot3(vEye, m_vertexState.normal);
+            return vEye[3 - texCoordIdx] - (m_vertexState.normal[3 - texCoordIdx] * dot);
+            }
         }
 
         LOG("Invalid mode");
@@ -96,7 +103,6 @@ namespace SWGL {
             if (state.enableMask != 0U) {
 
                 auto &texCoord = m_vertexState.texCoord[i];
-
                 if ((state.enableMask & 1U) != 0U) { texCoord.x() = generateTexCoord(0U, state); }
                 if ((state.enableMask & 2U) != 0U) { texCoord.y() = generateTexCoord(1U, state); }
                 if ((state.enableMask & 4U) != 0U) { texCoord.z() = generateTexCoord(2U, state); }

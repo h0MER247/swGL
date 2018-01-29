@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "OpenGL.h"
 #include "Vector.h"
@@ -33,7 +33,7 @@ namespace SWGL {
     class TexCoordGen {
 
     public:
-        TexCoordGen(Vertex &vertexState);
+        TexCoordGen(Vertex &vertexState, MatrixStack &matrixStack);
         ~TexCoordGen() = default;
 
     public:
@@ -54,6 +54,7 @@ namespace SWGL {
         unsigned int m_activeTexture;
         unsigned int m_enableMask;
         Vertex &m_vertexState;
+        MatrixStack &m_matrixStack;
         TexCoordGenState m_state[SWGL_MAX_TEXTURE_UNITS];
     };
 }
