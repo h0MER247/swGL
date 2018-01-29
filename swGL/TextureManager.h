@@ -1,10 +1,10 @@
 ﻿#pragma once
 
+// TODO: Refactor this "manager" as it "manages" way too much stuff :D
 #include <map>
 #include <deque>
 #include <array>
 #include <vector>
-#include <string>
 #include <memory>
 #include "Defines.h"
 #include "SIMD.h"
@@ -25,6 +25,7 @@ namespace SWGL {
     // Type aliases
     using TextureObjectPtr = std::shared_ptr<TextureObject>;
     using TextureDataPtr = std::shared_ptr<TextureData>;
+    using TexturePixels = std::vector<unsigned int, AlignedAllocator<unsigned int, 16>>;
     using SamplerMethod = void(*)(TextureMipMap &, TextureParameter &, TextureCoordinates &, ARGBColor &);
 
     // Texture sampling methods from TextureSampler.cpp
@@ -91,7 +92,7 @@ namespace SWGL {
 
         int width;
         int height;
-        std::vector<unsigned int, AlignedAllocator<unsigned int, 16>> pixel;
+        TexturePixels pixel;
     };
     using TextureMipMaps = std::array<std::vector<TextureMipMap>, SWGL_MAX_TEXTURE_LOD + 1>;
 
@@ -126,8 +127,6 @@ namespace SWGL {
         void sampleTexels(TextureParameter &texParams, TextureCoordinates &texCoords, ARGBColor &colorOut) override;
     };
 
-
-
     // Stores all the state of a texture
     struct TextureObject {
 
@@ -137,7 +136,7 @@ namespace SWGL {
         TextureDataPtr data;
     };
 
-    // A texture target
+    // Indices of a texture target
     enum TextureTargetIndex : unsigned int {
 
         Target1D = 3U,
@@ -146,6 +145,7 @@ namespace SWGL {
         TargetCubeMap = 0U
     };
 
+    // A texture target
     struct TextureTarget {
 
         TextureObjectPtr texObj = nullptr;
@@ -185,7 +185,6 @@ namespace SWGL {
 
     //
     // Implements the texture management functionality of swGL
-    // TODO: Refactor this class, it is a mess.
     //
     class TextureManager {
 
@@ -198,7 +197,8 @@ namespace SWGL {
         bool loadSubTextureImage2D(GLenum target, GLint mipLevel, GLint x, GLint y, GLsizei width, GLsizei height, GLenum externalFormat, GLenum externalType, const GLvoid *pixels);
 
     private:
-        bool readTextureData2D(GLsizei offsX, GLsizei offsY, GLsizei width, GLsizei height, GLenum externalFormat, GLenum externalType, const GLvoid *src, unsigned int *dst);
+        bool readTextureData2D(GLsizei offsX, GLsizei offsY, GLsizei width, GLsizei height, TextureBaseFormat internalFormat, GLenum externalFormat, GLenum externalType, const GLvoid *src, unsigned int *dst);
+        unsigned int convertFormat(TextureBaseFormat newFormat, unsigned char srcR, unsigned char srcG, unsigned char srcB, unsigned char srcA);
 
     public:
         bool bindTexture(GLenum target, GLuint name);

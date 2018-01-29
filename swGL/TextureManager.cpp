@@ -4,8 +4,25 @@
 
 #if 0
 // Just for debugging purposes
+#include <string>
 #include "TargaWriter.h"
 namespace SWGL {
+
+    static const char *formatToString(TextureBaseFormat format) {
+
+        switch (format) {
+
+        case TextureBaseFormat::Alpha: return "Alpha";
+        case TextureBaseFormat::Intensity: return "Intensity";
+        case TextureBaseFormat::Luminance: return "Luminance";
+        case TextureBaseFormat::LuminanceAlpha: return "LuminanceAlpha";
+        case TextureBaseFormat::RGB: return "RGB";
+        case TextureBaseFormat::RGBA: return "RGBA";
+
+        default:
+            return "Invalid";
+        }
+    }
 
     static void dumpTexture(TextureObjectPtr &texObj, int mipLevel) {
 
@@ -24,7 +41,7 @@ namespace SWGL {
 
                     writeTargaImage(
 
-                        "tex" + std::to_string(texObj->name) + "_face" + std::to_string(i) + "_mip" + std::to_string(mipLevel),
+                        "tex" + std::to_string(texObj->name) + "_face" + std::to_string(i) + "_mip" + std::to_string(mipLevel) + "_fmt_" + formatToString(texObj->data->format),
                         texMip.pixel.data(),
                         texMip.width,
                         texMip.height
@@ -73,14 +90,19 @@ namespace SWGL {
             texData->format = internalFormat;
 
             // Update texture size
-            if (texPixel.size() != width * height) {
+            if (width * height != static_cast<GLint>(texPixel.size())) {
 
                 texPixel.resize(width * height);
                 texMip.width = width;
                 texMip.height = height;
             }
 
-            return readTextureData2D(0, 0, width, height, externalFormat, externalType, pixels, texPixel.data());
+            // Read texture
+            if (pixels != nullptr) {
+
+                return readTextureData2D(0, 0, width, height, internalFormat, externalFormat, externalType, pixels, texPixel.data());
+            }
+            return true;
         }
 
         return false;
@@ -96,6 +118,7 @@ namespace SWGL {
             auto &texData = texObj->data;
             auto &texMip = texData->mips[mipLevel][faceIdx];
             auto &texPixel = texMip.pixel;
+            auto &internalFormat = texData->format;
 
             // Synchronize with the drawing threads if this texture
             // is currently in use
@@ -104,21 +127,98 @@ namespace SWGL {
                 SWGL::Context::getCurrentContext()->getRenderer().finish();
             }
 
-            return readTextureData2D(x, y, width, height, externalFormat, externalType, pixels, texPixel.data());
+            // Read texture
+            if (pixels != nullptr) {
+
+                return readTextureData2D(x, y, width, height, internalFormat, externalFormat, externalType, pixels, texPixel.data());
+            }
+            return true;
         }
 
         return false;
     }
 
-    bool TextureManager::readTextureData2D(GLsizei offsX, GLsizei offsY, GLsizei width, GLsizei height, GLenum externalFormat, GLenum externalType, const GLvoid *src, unsigned int *dst) {
+    bool TextureManager::readTextureData2D(GLsizei offsX, GLsizei offsY, GLsizei width, GLsizei height, TextureBaseFormat internalFormat, GLenum externalFormat, GLenum externalType, const GLvoid *src, unsigned int *dst) {
 
         // TODO: Unpack alignment or other shenanigans aren't taken into account at the moment
-        ptrdiff_t dstXOffs = 4;
+        ptrdiff_t dstXOffs = 1;
         ptrdiff_t dstYOffs = dstXOffs * width;
         ptrdiff_t srcXOffs;
         ptrdiff_t srcYOffs;
 
         switch (externalFormat) {
+
+        case GL_LUMINANCE:
+            switch (externalType) {
+
+            case GL_UNSIGNED_BYTE:
+                srcXOffs = 1;
+                srcYOffs = srcXOffs * width;
+                for (int y = 0; y < height; y++) {
+
+                    auto srcPix = reinterpret_cast<const unsigned char *>(src) + ((y + offsY) * srcYOffs) + (offsX * srcXOffs);
+                    auto dstPix = reinterpret_cast<unsigned int *>(dst) + ((y + offsY) * dstYOffs) + (offsX * dstXOffs);
+
+                    for (int x = 0; x < width; x++, srcPix += srcXOffs, dstPix += dstXOffs) {
+
+                        *dstPix = convertFormat(internalFormat, srcPix[0], srcPix[0], srcPix[0], 0xff);
+                    }
+                }
+                return true;
+
+            default:
+                LOG("Invalid or unimplemented external type %04x for format GL_ALPHA", externalType);
+                return false;
+            }
+            break;
+
+        case GL_ALPHA:
+            switch (externalType) {
+
+            case GL_UNSIGNED_BYTE:
+                srcXOffs = 1;
+                srcYOffs = srcXOffs * width;
+                for (int y = 0; y < height; y++) {
+
+                    auto srcPix = reinterpret_cast<const unsigned char *>(src) + ((y + offsY) * srcYOffs) + (offsX * srcXOffs);
+                    auto dstPix = reinterpret_cast<unsigned int *>(dst) + ((y + offsY) * dstYOffs) + (offsX * dstXOffs);
+
+                    for (int x = 0; x < width; x++, srcPix += srcXOffs, dstPix += dstXOffs) {
+
+                        *dstPix = convertFormat(internalFormat, 0x00, 0x00, 0x00, srcPix[0]);
+                    }
+                }
+                return true;
+
+            default:
+                LOG("Invalid or unimplemented external type %04x for format GL_ALPHA", externalType);
+                return false;
+            }
+            break;
+
+        case GL_BGR:
+            switch (externalType) {
+
+            case GL_UNSIGNED_BYTE:
+                srcXOffs = 3;
+                srcYOffs = srcXOffs * width;
+                for (int y = 0; y < height; y++) {
+
+                    auto srcPix = reinterpret_cast<const unsigned char *>(src) + ((y + offsY) * srcYOffs) + (offsX * srcXOffs);
+                    auto dstPix = reinterpret_cast<unsigned int *>(dst) + ((y + offsY) * dstYOffs) + (offsX * dstXOffs);
+
+                    for (int x = 0; x < width; x++, srcPix += srcXOffs, dstPix += dstXOffs) {
+
+                        *dstPix = convertFormat(internalFormat, srcPix[2], srcPix[1], srcPix[0], 0xff);
+                    }
+                }
+                return true;
+
+            default:
+                LOG("Invalid or unimplemented external type %04x for format GL_RGB", externalType);
+                return false;
+            }
+            break;
 
         case GL_RGB:
             switch (externalType) {
@@ -129,14 +229,11 @@ namespace SWGL {
                 for (int y = 0; y < height; y++) {
 
                     auto srcPix = reinterpret_cast<const unsigned char *>(src) + ((y + offsY) * srcYOffs) + (offsX * srcXOffs);
-                    auto dstPix = reinterpret_cast<unsigned char *>(dst) + ((y + offsY) * dstYOffs) + (offsX * dstXOffs);
+                    auto dstPix = reinterpret_cast<unsigned int *>(dst) + ((y + offsY) * dstYOffs) + (offsX * dstXOffs);
 
                     for (int x = 0; x < width; x++, srcPix += srcXOffs, dstPix += dstXOffs) {
 
-                        dstPix[0] = srcPix[2];
-                        dstPix[1] = srcPix[1];
-                        dstPix[2] = srcPix[0];
-                        dstPix[3] = 0xff;
+                        *dstPix = convertFormat(internalFormat, srcPix[0], srcPix[1], srcPix[2], 0xff);
                     }
                 }
                 return true;
@@ -156,14 +253,11 @@ namespace SWGL {
                 for (int y = 0; y < height; y++) {
 
                     auto srcPix = reinterpret_cast<const unsigned char *>(src) + ((y + offsY) * srcYOffs) + (offsX * srcXOffs);
-                    auto dstPix = reinterpret_cast<unsigned char *>(dst) + ((y + offsY) * dstYOffs) + (offsX * dstXOffs);
+                    auto dstPix = reinterpret_cast<unsigned int *>(dst) + ((y + offsY) * dstYOffs) + (offsX * dstXOffs);
 
                     for (int x = 0; x < width; x++, srcPix += srcXOffs, dstPix += dstXOffs) {
 
-                        dstPix[0] = srcPix[2];
-                        dstPix[1] = srcPix[1];
-                        dstPix[2] = srcPix[0];
-                        dstPix[3] = srcPix[3];
+                        *dstPix = convertFormat(internalFormat, srcPix[0], srcPix[1], srcPix[2], srcPix[3]);
                     }
                 }
                 return true;
@@ -180,17 +274,53 @@ namespace SWGL {
         }
     }
 
+    unsigned int TextureManager::convertFormat(TextureBaseFormat newFormat, unsigned char srcR, unsigned char srcG, unsigned char srcB, unsigned char srcA) {
+
+        #define BUILD_COLOR(R, G, B, A)             \
+            (static_cast<unsigned int>(A) << 24) |  \
+            (static_cast<unsigned int>(R) << 16) |  \
+            (static_cast<unsigned int>(G) << 8)  |  \
+             static_cast<unsigned int>(B)
+
+        switch (newFormat) {
+
+        case TextureBaseFormat::RGBA:
+            return BUILD_COLOR(srcR, srcG, srcB, srcA);
+
+        case TextureBaseFormat::Alpha:
+            return BUILD_COLOR(0x00, 0x00, 0x00, srcA);
+
+        case TextureBaseFormat::Intensity:
+            return BUILD_COLOR(srcR, srcR, srcR, srcR);
+
+        case TextureBaseFormat::Luminance:
+            return BUILD_COLOR(srcR, srcR, srcR, 0xff);
+
+        case TextureBaseFormat::LuminanceAlpha:
+            return BUILD_COLOR(srcR, srcR, srcR, srcA);
+
+        case TextureBaseFormat::RGB:
+            return BUILD_COLOR(srcR, srcG, srcB, 0xff);
+
+        default:
+            LOG("Unimplemented texture base format");
+            return BUILD_COLOR(0x00, 0x00, 0x00, 0x00);
+        }
+
+        #undef BUILD_COLOR
+    }
+
 
 
     bool TextureManager::bindTexture(GLenum target, GLuint name) {
 
-        TextureTarget *texTarget = getTextureTarget(m_activeUnit, target);
+        auto texTarget = getTextureTarget(m_activeUnit, target);
 
         // Bind or unbind a texture to/from a given target
         if (name != 0U) {
 
             // Find the texture
-            TextureObjectPtr texObj = getTextureObjectByName(name);
+            auto texObj = getTextureObjectByName(name);
 
             // Create a new texture object as it doesn't exist yet
             if (texObj == nullptr) {
@@ -331,10 +461,10 @@ namespace SWGL {
 
     bool TextureManager::getCompatibleFormat(GLenum desiredFormat, TextureBaseFormat &compatibleFormat) {
 
-        // swGL doesn't care much about sized formats. Every component
-        // gets stored as a 8 bit integer value, regardless of whether
-        // a sized format was given or not. Makes things easier and is
-        // even allowed by the OpenGL specification.
+        // swGL doesn't care much about sized formats (at least for now).
+        // Every component gets stored as a 8 bit integer value, regardless
+        // of whether a sized format was given or not. Makes things easier
+        // and is even allowed by the OpenGL specification.
 
         switch (desiredFormat) {
 
@@ -383,6 +513,7 @@ namespace SWGL {
         case GL_RGB10:
         case GL_RGB12:
         case GL_RGB16:
+        case GL_BGR:
             compatibleFormat = TextureBaseFormat::RGB;
             return true;
 
@@ -395,11 +526,12 @@ namespace SWGL {
         case GL_RGB10_A2:
         case GL_RGBA12:
         case GL_RGBA16:
+        case GL_BGRA:
             compatibleFormat = TextureBaseFormat::RGBA;
             return true;
 
         default:
-            LOG("Invalid or unimplemented desired internal texture format: %04x", desiredFormat);
+            LOG("Unable to derive a compatible base format for %04x", desiredFormat);
             return false;
         }
     }
@@ -408,7 +540,7 @@ namespace SWGL {
 
     TextureObjectPtr TextureManager::createTextureObject(GLuint name, GLenum target) {
 
-        TextureObjectPtr texObj = std::make_shared<TextureObject>();
+        auto texObj = std::make_shared<TextureObject>();
         int numFaces;
 
         switch (target) {
@@ -425,7 +557,7 @@ namespace SWGL {
 
         case GL_TEXTURE_3D:
             texObj->data = std::make_shared<TextureData3D>();
-            numFaces = 1;
+            numFaces = 1; // TODO: 3D textures aren't implemented at the moment
             break;
 
         case GL_TEXTURE_CUBE_MAP:
