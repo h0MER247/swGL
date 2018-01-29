@@ -134,8 +134,6 @@ SWGLAPI void STDCALL glDrv_glBlendFunc(GLenum srcFactor, GLenum dstFactor) {
 
     case GL_ZERO:
     case GL_ONE:
-    case GL_SRC_COLOR:
-    case GL_ONE_MINUS_SRC_COLOR:
     case GL_DST_COLOR:
     case GL_ONE_MINUS_DST_COLOR:
     case GL_SRC_ALPHA:
@@ -157,8 +155,6 @@ SWGLAPI void STDCALL glDrv_glBlendFunc(GLenum srcFactor, GLenum dstFactor) {
     case GL_ONE:
     case GL_SRC_COLOR:
     case GL_ONE_MINUS_SRC_COLOR:
-    case GL_DST_COLOR:
-    case GL_ONE_MINUS_DST_COLOR:
     case GL_SRC_ALPHA:
     case GL_ONE_MINUS_SRC_ALPHA:
     case GL_DST_ALPHA:
@@ -276,22 +272,22 @@ SWGLAPI void STDCALL glDrv_glClipPlane(GLenum plane, const GLdouble *equation) {
     if (equation != nullptr) {
 
         auto &mvMatrix = ctx->getVertexPipeline().getMatrixStack().getModelViewMatrix();
+        auto planeEq = SWGL::Vector(
 
+            static_cast<float>(equation[0]),
+            static_cast<float>(equation[1]),
+            static_cast<float>(equation[2]),
+            static_cast<float>(equation[3])
+        );
+            
         switch (plane) {
-
+            
         case GL_CLIP_PLANE0:
         case GL_CLIP_PLANE1:
         case GL_CLIP_PLANE2:
         case GL_CLIP_PLANE3:
         case GL_CLIP_PLANE4:
         case GL_CLIP_PLANE5:
-            auto planeEq = SWGL::Vector(
-
-                static_cast<float>(equation[0]),
-                static_cast<float>(equation[1]),
-                static_cast<float>(equation[2]),
-                static_cast<float>(equation[3])
-            );
             ctx->getVertexPipeline().getClipper().setUserPlaneEquation(
 
                 plane - GL_CLIP_PLANE0,
@@ -1563,6 +1559,11 @@ SWGLAPI void STDCALL glDrv_glGetClipPlane(GLenum plane, GLdouble *equation) {
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
     if (equation != nullptr) {
+            
+        auto planeEq = ctx->getVertexPipeline().getClipper().getUserPlaneEquation(
+        
+            plane - GL_CLIP_PLANE0
+        );
 
         switch (plane) {
 
@@ -1572,7 +1573,6 @@ SWGLAPI void STDCALL glDrv_glGetClipPlane(GLenum plane, GLdouble *equation) {
         case GL_CLIP_PLANE3:
         case GL_CLIP_PLANE4:
         case GL_CLIP_PLANE5:
-            auto planeEq = ctx->getVertexPipeline().getClipper().getUserPlaneEquation(plane - GL_CLIP_PLANE0);
             equation[0] = planeEq.x();
             equation[1] = planeEq.y();
             equation[2] = planeEq.z();
@@ -1711,6 +1711,11 @@ SWGLAPI void STDCALL glDrv_glGetIntegerv(GLenum pname, GLint *params) {
 
         case GL_MAX_CLIP_PLANES:
             params[0] = SWGL_MAX_CLIP_PLANES;
+            break;
+
+        case 0x8871://GL_MAX_TEXTURE_COORDS_ARB:
+        case 0x8872://GL_MAX_TEXTURE_IMAGE_UNITS_ARB:
+            params[0] = SWGL_MAX_TEXTURE_UNITS;
             break;
 
         default:
@@ -2860,7 +2865,7 @@ SWGLAPI void STDCALL glDrv_glMaterialiv(GLenum face, GLenum pname, const GLint *
 
         if (pname == GL_SHININESS) {
 
-            glDrv_glMaterialShininessCommon(ctx, isFront, isBack, SWGL::Vector::normalizeInteger(params[0]));
+            glDrv_glMaterialShininessCommon(ctx, isFront, isBack, static_cast<float>(params[0]));
         }
         else if (pname == GL_COLOR_INDEXES) {
 
@@ -5017,11 +5022,16 @@ SWGLAPI void STDCALL glDrv_glTexGenModeCommon(const SWGL::ContextPtr &ctx, GLenu
 
     switch (mode) {
 
+    case GL_NORMAL_MAP:
+    case GL_REFLECTION_MAP:
+        if (coord == GL_Q) {
+
+            ctx->getError().setState(GL_INVALID_ENUM);
+            return;
+        }
     case GL_EYE_LINEAR:
     case GL_OBJECT_LINEAR:
     case GL_SPHERE_MAP:
-    case GL_NORMAL_MAP:
-    case GL_REFLECTION_MAP:
         ctx->getVertexPipeline().getTexGen().setMode(coord - GL_S, mode);
         break;
 
@@ -5032,6 +5042,8 @@ SWGLAPI void STDCALL glDrv_glTexGenModeCommon(const SWGL::ContextPtr &ctx, GLenu
 }
 
 SWGLAPI void STDCALL glDrv_glTexGenEyePlaneCommon(const SWGL::ContextPtr &ctx, GLenum coord, SWGL::Vector planeEq) {
+
+    LOG("A:%f, B:%f, C:%f, D:%f", planeEq.x(), planeEq.y(), planeEq.z(), planeEq.w());
 
     auto &mvMatrix = ctx->getVertexPipeline().getMatrixStack().getModelViewMatrix();
 
@@ -5055,6 +5067,8 @@ SWGLAPI void STDCALL glDrv_glTexGenEyePlaneCommon(const SWGL::ContextPtr &ctx, G
 }
 
 SWGLAPI void STDCALL glDrv_glTexGenObjectPlaneCommon(const SWGL::ContextPtr &ctx, GLenum coord, SWGL::Vector planeEq) {
+
+    LOG("A:%f, B:%f, C:%f, D:%f", planeEq.x(), planeEq.y(), planeEq.z(), planeEq.w());
 
     switch (coord) {
 
@@ -5198,10 +5212,10 @@ SWGLAPI void STDCALL glDrv_glTexGenfv(GLenum coord, GLenum pname, const GLfloat 
                 coord,
                 SWGL::Vector(
 
-                    static_cast<float>(params[0]),
-                    static_cast<float>(params[1]),
-                    static_cast<float>(params[2]),
-                    static_cast<float>(params[3])
+                    params[0],
+                    params[1],
+                    params[2],
+                    params[3]
                 )
             );
             break;
@@ -5252,10 +5266,10 @@ SWGLAPI void STDCALL glDrv_glTexGeniv(GLenum coord, GLenum pname, const GLint *p
                 coord,
                 SWGL::Vector(
 
-                    SWGL::Vector::normalizeInteger(params[0]),
-                    SWGL::Vector::normalizeInteger(params[1]),
-                    SWGL::Vector::normalizeInteger(params[2]),
-                    SWGL::Vector::normalizeInteger(params[3])
+                    static_cast<float>(params[0]),
+                    static_cast<float>(params[1]),
+                    static_cast<float>(params[2]),
+                    static_cast<float>(params[3])
                 )
             );
             break;
@@ -5267,10 +5281,10 @@ SWGLAPI void STDCALL glDrv_glTexGeniv(GLenum coord, GLenum pname, const GLint *p
                 coord,
                 SWGL::Vector(
 
-                    SWGL::Vector::normalizeInteger(params[0]),
-                    SWGL::Vector::normalizeInteger(params[1]),
-                    SWGL::Vector::normalizeInteger(params[2]),
-                    SWGL::Vector::normalizeInteger(params[3])
+                    static_cast<float>(params[0]),
+                    static_cast<float>(params[1]),
+                    static_cast<float>(params[2]),
+                    static_cast<float>(params[3])
                 )
             );
             break;
@@ -5299,7 +5313,7 @@ SWGLAPI void STDCALL glDrv_glTexImage2D(GLenum target, GLint level, GLint intern
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    if (level < 0 || level > SWGL_MAX_TEXTURE_LOD) {
+    if (level < 0 || level > static_cast<GLint>(SWGL_MAX_TEXTURE_LOD)) {
 
         ctx->getError().setState(GL_INVALID_VALUE);
         return;
@@ -5311,13 +5325,13 @@ SWGLAPI void STDCALL glDrv_glTexImage2D(GLenum target, GLint level, GLint intern
         return;
     }
 
-    if (width < 0 || width > SWGL_MAX_TEXTURE_SIZE) {
+    if (width < 0 || width > static_cast<GLint>(SWGL_MAX_TEXTURE_SIZE)) {
 
         ctx->getError().setState(GL_INVALID_VALUE);
         return;
     }
 
-    if (height < 0 || height > SWGL_MAX_TEXTURE_SIZE) {
+    if (height < 0 || height > static_cast<GLint>(SWGL_MAX_TEXTURE_SIZE)) {
 
         ctx->getError().setState(GL_INVALID_VALUE);
         return;
@@ -5326,7 +5340,7 @@ SWGLAPI void STDCALL glDrv_glTexImage2D(GLenum target, GLint level, GLint intern
     if (!isPowerOfTwo(width) || !isPowerOfTwo(height)) {
 
         // Unsupported at the moment
-        LOG("Unsupported non power of two sized texture");
+        LOG("Unimplemented: Texture size (%d x %d) isn't a power of two", width, height);
         return;
     }
 
@@ -6195,8 +6209,6 @@ SWGLAPI void STDCALL glDrv_glBindTexture(GLenum target, GLuint texture) {
     //
     // Bind the texture
     //
-    auto &texManager = ctx->getTextureManager();
-
     if (!ctx->getTextureManager().bindTexture(target, texture)) {
 
         ctx->getError().setState(GL_INVALID_OPERATION);
@@ -6619,19 +6631,19 @@ SWGLAPI void STDCALL glDrv_glTexSubImage2D(GLenum target, GLint level, GLint xof
     GET_CONTEXT_OR_RETURN();
     MUST_BE_CALLED_OUTSIDE_GL_BEGIN();
 
-    if (level < 0 || level > SWGL_MAX_TEXTURE_LOD) {
+    if (level < 0 || level > static_cast<GLint>(SWGL_MAX_TEXTURE_LOD)) {
 
         ctx->getError().setState(GL_INVALID_VALUE);
         return;
     }
 
-    if (width < 0 || width > SWGL_MAX_TEXTURE_SIZE) {
+    if (width < 0 || width > static_cast<GLint>(SWGL_MAX_TEXTURE_SIZE)) {
 
         ctx->getError().setState(GL_INVALID_VALUE);
         return;
     }
 
-    if (height < 0 || height > SWGL_MAX_TEXTURE_SIZE) {
+    if (height < 0 || height > static_cast<GLint>(SWGL_MAX_TEXTURE_SIZE)) {
 
         ctx->getError().setState(GL_INVALID_VALUE);
         return;
@@ -6832,6 +6844,7 @@ SWGLAPI void STDCALL glDrv_glClientActiveTexture(GLenum texture) {
     if (texIdx < SWGL_MAX_TEXTURE_UNITS) {
 
         ctx->getVertexPipeline().getVertexDataArray().setActiveTexture(texIdx);
+
     }
     else {
 

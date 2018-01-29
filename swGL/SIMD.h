@@ -22,9 +22,27 @@ namespace SWGL {
             return _mm_cvtss_f32(value);
         }
 
+        template<int idx>
+        INLINED int extract(QInt value) {
+
+            //return _mm_cvtsi128_si32(_mm_shuffle_epi32(value, _MM_SHUFFLE(0, 0, 0, idx)));
+            return _mm_extract_epi32(value, idx);
+        }
+
+        template<>
+        INLINED int extract<0>(QInt value) {
+
+            return _mm_cvtsi128_si32(value);
+        }
+
         INLINED QFloat absolute(QFloat value) {
 
-            return _mm_andnot_ps(_mm_set1_ps(-0.0f), value);
+            return _mm_andnot_ps(_mm_castsi128_ps(_mm_set1_epi32(0x80000000)), value);
+        }
+
+        INLINED QFloat negate(QFloat value) {
+
+            return _mm_xor_ps(_mm_castsi128_ps(_mm_set1_epi32(0x80000000)), value);
         }
 
         INLINED QFloat clamp(QFloat value, QFloat min, QFloat max) {
@@ -35,6 +53,14 @@ namespace SWGL {
         INLINED QInt clamp(QInt value, QInt min, QInt max) {
 
             return _mm_max_epi32(_mm_min_epi32(value, max), min);
+        }
+
+        INLINED QFloat clamp01(QFloat value) {
+
+            const QFloat zero = _mm_setzero_ps();
+            const QFloat one = _mm_set1_ps(1.0f);
+
+            return _mm_max_ps(_mm_min_ps(value, one), zero);
         }
 
         INLINED QFloat blend(QFloat valueA, QFloat valueB, QFloat mask) {
@@ -95,10 +121,10 @@ namespace SWGL {
         #else
             return _mm_set_epi32(
 
-                base[_mm_extract_epi32(index, 3)],
-                base[_mm_extract_epi32(index, 2)],
-                base[_mm_extract_epi32(index, 1)],
-                base[_mm_extract_epi32(index, 0)]
+                base[extract<3>(index)],
+                base[extract<2>(index)],
+                base[extract<1>(index)],
+                base[extract<0>(index)]
             );
         #endif
         }
@@ -111,6 +137,25 @@ namespace SWGL {
         INLINED QFloat ceil(QFloat value) {
 
             return _mm_round_ps(value, _MM_FROUND_TO_POS_INF | _MM_FROUND_NO_EXC);
+        }
+
+        INLINED QFloat dot3(QFloat x1, QFloat x2, QFloat y1, QFloat y2, QFloat z1, QFloat z2) {
+
+            const QFloat half = _mm_set1_ps(0.5f);
+            const QFloat four = _mm_set1_ps(4.0f);
+            
+            x1 = _mm_sub_ps(x1, half);
+            x2 = _mm_sub_ps(x2, half);
+            y1 = _mm_sub_ps(y1, half);
+            y2 = _mm_sub_ps(y2, half);
+            z1 = _mm_sub_ps(z1, half);
+            z2 = _mm_sub_ps(z2, half);
+
+            QFloat d1 = _mm_mul_ps(x1, x2);
+            QFloat d2 = _mm_mul_ps(y1, y2);
+            QFloat d3 = _mm_mul_ps(z1, z2);
+
+            return _mm_mul_ps(four, _mm_add_ps(_mm_add_ps(d1, d2), d3));
         }
     }
 }

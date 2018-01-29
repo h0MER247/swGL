@@ -8,13 +8,6 @@
 #include "TextureManager.h"
 #include "CommandDrawTriangle.h"
 
-#define DOT3(CHANNEL)                                       \
-    _mm_mul_ps(                                             \
-                                                            \
-        _mm_sub_ps(args[0]. ## CHANNEL, _mm_set1_ps(0.5f)), \
-        _mm_sub_ps(args[1]. ## CHANNEL, _mm_set1_ps(0.5f))  \
-    )
-
 #define GRADIENT_VALUE(NAME) \
     qV ## NAME
 
@@ -68,7 +61,7 @@ namespace SWGL {
         QInt resB = _mm_cvtps_epi32(b);
 
         return _mm_or_si128(
-        
+
             _mm_or_si128(resA, resR),
             _mm_or_si128(resG, resB)
         );
@@ -180,7 +173,9 @@ namespace SWGL {
             int maxX = std::min((std::max({ x1, x2, x3 }) + 0x0f) >> 4, drawBuffer.getMaxX());
 
             if (scissor.isEnabled()) {
-            
+
+                // TODO: I don't think that scissoring works correctly if the coordinates
+                //       are uneven. An example would be minXY=(1, 1) and maxXY=(7, 7)
                 scissor.cut(minX, minY, maxX, maxY);
             }
 
@@ -191,7 +186,9 @@ namespace SWGL {
 
             int width = (1 + (maxX - minX)) & ~1;
 
+            //
             // Determine the write position into the color and depth buffer
+            //
             int startX = minX - drawBuffer.getMinX();
             int startY = minY - drawBuffer.getMinY();
 
@@ -253,12 +250,12 @@ namespace SWGL {
             if (polygonOffset.isFillEnabled()) {
 
                 QFloat m = _mm_max_ps(
-                
+
                     SIMD::absolute(GRADIENT_DX(z)),
                     SIMD::absolute(GRADIENT_DY(z))
                 );
                 zOffset = SIMD::multiplyAdd(
-                
+
                     m,
                     _mm_set1_ps(polygonOffset.getFactor()),
                     _mm_set1_ps(polygonOffset.getRTimesUnits())
@@ -283,7 +280,6 @@ namespace SWGL {
                 QFloat yyyy = _mm_set1_ps(static_cast<float>(y));
 
                 for (int x = minX; x < maxX; x += 2) {
-
 
                     //
                     // Coverage test for a 2x2 pixel quad
@@ -310,14 +306,14 @@ namespace SWGL {
 
                             switch (depthTesting.getTestFunction()) {
 
+                            case GL_NEVER: fragmentMask = _mm_setzero_si128(); break;
                             case GL_LESS: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmplt_ps(currentZ, depthBufferZ))); break;
+                            case GL_EQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpeq_ps(currentZ, depthBufferZ))); break;
                             case GL_LEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmple_ps(currentZ, depthBufferZ))); break;
                             case GL_GREATER: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpgt_ps(currentZ, depthBufferZ))); break;
-                            case GL_GEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpge_ps(currentZ, depthBufferZ))); break;
-                            case GL_EQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpeq_ps(currentZ, depthBufferZ))); break;
                             case GL_NOTEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpneq_ps(currentZ, depthBufferZ))); break;
+                            case GL_GEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpge_ps(currentZ, depthBufferZ))); break;
                             case GL_ALWAYS: break;
-                            case GL_NEVER: fragmentMask = _mm_setzero_si128(); break;
                             }
 
                             // Check if any fragment survived the depth test
@@ -351,31 +347,31 @@ namespace SWGL {
                         primaryColor.r = GET_GRADIENT_VALUE_PERSP(primaryR);
                         primaryColor.g = GET_GRADIENT_VALUE_PERSP(primaryG);
                         primaryColor.b = GET_GRADIENT_VALUE_PERSP(primaryB);
-                        
+
 
                         //
                         // Texture sampling and blending for each active texture unit
                         //
                         srcColor = primaryColor;
 
-                        for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+                        for (auto texUnit = 0U; texUnit < SWGL_MAX_TEXTURE_UNITS; texUnit++) {
 
-                            auto &texState = textureState[i];
+                            auto &texState = textureState[texUnit];
                             if (texState.texData == nullptr) {
 
                                 continue;
                             }
-                            
+
                             // Get texture sample
-                            QFloat rcpQ = _mm_div_ps(_mm_set1_ps(1.0f), GET_GRADIENT_VALUE_AFFINE(texQ[i]));
-                            texCoords.s = _mm_mul_ps(rcpQ, GET_GRADIENT_VALUE_AFFINE(texS[i]));
-                            texCoords.t = _mm_mul_ps(rcpQ, GET_GRADIENT_VALUE_AFFINE(texT[i]));
-                            texCoords.r = _mm_mul_ps(rcpQ, GET_GRADIENT_VALUE_AFFINE(texR[i]));
+                            QFloat rcpQ = _mm_div_ps(_mm_set1_ps(1.0f), GET_GRADIENT_VALUE_AFFINE(texQ[texUnit]));
+                            texCoords.s = _mm_mul_ps(rcpQ, GET_GRADIENT_VALUE_AFFINE(texS[texUnit]));
+                            texCoords.t = _mm_mul_ps(rcpQ, GET_GRADIENT_VALUE_AFFINE(texT[texUnit]));
+                            texCoords.r = _mm_mul_ps(rcpQ, GET_GRADIENT_VALUE_AFFINE(texR[texUnit]));
                             texState.texData->sampleTexels(texState.texParams, texCoords, texColor);
 
                             // Execute the texturing function
                             if (texState.texEnv.mode != GL_COMBINE) {
-                                
+
                                 switch (texState.texEnv.mode) {
 
                                 case GL_REPLACE:
@@ -409,7 +405,7 @@ namespace SWGL {
                                     case TextureBaseFormat::Alpha:
                                         srcColor.a = _mm_mul_ps(srcColor.a, texColor.a);
                                         break;
-                                    
+
                                     case TextureBaseFormat::LuminanceAlpha:
                                     case TextureBaseFormat::Intensity:
                                     case TextureBaseFormat::RGBA:
@@ -425,6 +421,13 @@ namespace SWGL {
 
                                 case GL_DECAL:
                                     switch (texState.texData->format) {
+
+                                    case TextureBaseFormat::Alpha:
+                                    case TextureBaseFormat::Intensity:
+                                    case TextureBaseFormat::Luminance:
+                                    case TextureBaseFormat::LuminanceAlpha:
+                                        // Undefined
+                                        break;
 
                                     case TextureBaseFormat::RGB:
                                         srcColor.r = texColor.r;
@@ -495,83 +498,109 @@ namespace SWGL {
                             }
                             else {
 
-                                ARGBColor args[3];
+                                ARGBColor args[3], result;
 
-                                auto &modeAlpha = texState.texEnv.combineModeAlpha;
                                 auto &modeRGB = texState.texEnv.combineModeRGB;
+                                auto &modeAlpha = texState.texEnv.combineModeAlpha;
 
                                 //
-                                // Read alpha arguments
+                                // Alpha
                                 //
-                                for (int j = 0, n = texState.texEnv.numArgsAlpha; j < n; j++) {
+                                if (modeRGB != GL_DOT3_RGBA) {
 
-                                    auto &arg = args[j];
-                                    auto &src = texState.texEnv.sourceAlpha[j];
-                                    auto &mod = texState.texEnv.operandAlpha[j];
+                                    // Read argument(s) and apply the modifiers
+                                    for (int argIdx = 0, n = texState.texEnv.numArgsAlpha; argIdx < n; argIdx++) {
 
-                                    switch (src) {
+                                        auto &arg = args[argIdx];
+                                        auto &src = texState.texEnv.sourceAlpha[argIdx];
+                                        auto &mod = texState.texEnv.operandAlpha[argIdx];
 
-                                    case GL_TEXTURE:
-                                        arg.a = texColor.a;
-                                        break;
+                                        switch (src) {
 
-                                    case GL_CONSTANT:
-                                        arg.a = _mm_set1_ps(texState.texEnv.colorConstA);
-                                        break;
+                                        case GL_TEXTURE:
+                                            arg.a = texColor.a;
+                                            break;
 
-                                    case GL_PRIMARY_COLOR:
-                                        arg.a = primaryColor.a;
-                                        break;
+                                        case GL_CONSTANT:
+                                            arg.a = _mm_set1_ps(texState.texEnv.colorConstA);
+                                            break;
 
-                                    case GL_PREVIOUS:
-                                        arg.a = srcColor.a;
-                                        break;
+                                        case GL_PRIMARY_COLOR:
+                                            arg.a = primaryColor.a;
+                                            break;
+
+                                        case GL_PREVIOUS:
+                                            arg.a = srcColor.a;
+                                            break;
+                                        }
+
+                                        if (mod == GL_ONE_MINUS_SRC_ALPHA) {
+
+                                            arg.a = _mm_sub_ps(_mm_set1_ps(1.0f), arg.a);
+                                        }
                                     }
 
-                                    // Apply modifier
-                                    if (mod == GL_ONE_MINUS_SRC_ALPHA) {
+                                    // Combine alpha
+                                    switch (modeAlpha) {
 
-                                        arg.a = _mm_sub_ps(_mm_set1_ps(1.0f), arg.a);
+                                    case GL_REPLACE:
+                                        result.a = args[0].a;
+                                        break;
+
+                                    case GL_MODULATE:
+                                        result.a = _mm_mul_ps(args[0].a, args[1].a);
+                                        break;
+
+                                    case GL_ADD:
+                                        result.a = _mm_add_ps(args[0].a, args[1].a);
+                                        break;
+
+                                    case GL_ADD_SIGNED:
+                                        result.a = _mm_sub_ps(_mm_add_ps(args[0].a, args[1].a), _mm_set1_ps(0.5f));
+                                        break;
+
+                                    case GL_SUBTRACT:
+                                        result.a = _mm_sub_ps(args[0].a, args[1].a);
+                                        break;
+
+                                    case GL_INTERPOLATE:
+                                        result.a = SIMD::lerp(args[2].a, args[1].a, args[0].a);
+                                        break;
                                     }
                                 }
 
                                 //
-                                // Read red, green and blue arguments
+                                // RGB
                                 //
-                                for (int j = 0, n = texState.texEnv.numArgsRGB; j < n; j++) {
+                                for (int argIdx = 0, n = texState.texEnv.numArgsRGB; argIdx < n; argIdx++) {
 
-                                    auto &src = texState.texEnv.sourceRGB[j];
-                                    auto &mod = texState.texEnv.operandRGB[j];
-                                    auto &arg = args[j];
+                                    auto &src = texState.texEnv.sourceRGB[argIdx];
+                                    auto &mod = texState.texEnv.operandRGB[argIdx];
+                                    auto &arg = args[argIdx];
 
+                                    // Read argument(s) and apply the modifiers
                                     switch (src) {
 
                                     case GL_TEXTURE:
-                                        arg.r = texColor.r;
-                                        arg.g = texColor.g;
-                                        arg.b = texColor.b;
+                                        arg = texColor;
                                         break;
 
                                     case GL_CONSTANT:
+                                        arg.a = _mm_set1_ps(texState.texEnv.colorConstA);
                                         arg.r = _mm_set1_ps(texState.texEnv.colorConstR);
                                         arg.g = _mm_set1_ps(texState.texEnv.colorConstG);
                                         arg.b = _mm_set1_ps(texState.texEnv.colorConstB);
                                         break;
 
                                     case GL_PRIMARY_COLOR:
-                                        arg.r = primaryColor.r;
-                                        arg.g = primaryColor.g;
-                                        arg.b = primaryColor.b;
+                                        arg = primaryColor;
                                         break;
 
                                     case GL_PREVIOUS:
-                                        arg.r = srcColor.r;
-                                        arg.g = srcColor.g;
-                                        arg.b = srcColor.b;
+                                        arg = srcColor;
                                         break;
                                     }
 
-                                    // Apply modifier
                                     switch (mod) {
 
                                     case GL_SRC_COLOR:
@@ -597,93 +626,72 @@ namespace SWGL {
                                     }
                                 }
 
-                                //
-                                // Combine colors
-                                //
-                                if (modeRGB != GL_DOT3_RGBA) {
-
-                                    switch (modeAlpha) {
-
-                                    case GL_REPLACE:
-                                        srcColor.a = args[0].a;
-                                        break;
-
-                                    case GL_MODULATE:
-                                        srcColor.a = _mm_mul_ps(args[0].a, args[1].a);
-                                        break;
-
-                                    case GL_ADD:
-                                        srcColor.a = _mm_add_ps(args[0].a, args[1].a);
-                                        break;
-
-                                    case GL_ADD_SIGNED:
-                                        srcColor.a = _mm_sub_ps(_mm_add_ps(args[0].a, args[1].a), _mm_set1_ps(0.5f));
-                                        break;
-
-                                    case GL_SUBTRACT:
-                                        srcColor.a = _mm_sub_ps(args[0].a, args[1].a);
-                                        break;
-
-                                    case GL_INTERPOLATE:
-                                        srcColor.a = SIMD::lerp(args[2].a, args[1].a, args[0].a);
-                                        break;
-                                    }
-                                }
-
                                 // Combine red, green and blue
                                 switch (modeRGB) {
 
                                 case GL_REPLACE:
-                                    srcColor.r = args[0].r;
-                                    srcColor.g = args[0].g;
-                                    srcColor.b = args[0].b;
+                                    result.r = args[0].r;
+                                    result.g = args[0].g;
+                                    result.b = args[0].b;
                                     break;
 
                                 case GL_MODULATE:
-                                    srcColor.r = _mm_mul_ps(args[0].r, args[1].r);
-                                    srcColor.g = _mm_mul_ps(args[0].g, args[1].g);
-                                    srcColor.b = _mm_mul_ps(args[0].b, args[1].b);
+                                    result.r = _mm_mul_ps(args[0].r, args[1].r);
+                                    result.g = _mm_mul_ps(args[0].g, args[1].g);
+                                    result.b = _mm_mul_ps(args[0].b, args[1].b);
                                     break;
 
                                 case GL_ADD:
-                                    srcColor.r = _mm_add_ps(args[0].r, args[1].r);
-                                    srcColor.g = _mm_add_ps(args[0].g, args[1].g);
-                                    srcColor.b = _mm_add_ps(args[0].b, args[1].b);
+                                    result.r = _mm_add_ps(args[0].r, args[1].r);
+                                    result.g = _mm_add_ps(args[0].g, args[1].g);
+                                    result.b = _mm_add_ps(args[0].b, args[1].b);
                                     break;
 
                                 case GL_ADD_SIGNED:
-                                    srcColor.r = _mm_sub_ps(_mm_add_ps(args[0].r, args[1].r), _mm_set1_ps(0.5f));
-                                    srcColor.g = _mm_sub_ps(_mm_add_ps(args[0].g, args[1].g), _mm_set1_ps(0.5f));
-                                    srcColor.b = _mm_sub_ps(_mm_add_ps(args[0].b, args[1].b), _mm_set1_ps(0.5f));
+                                    result.r = _mm_sub_ps(_mm_add_ps(args[0].r, args[1].r), _mm_set1_ps(0.5f));
+                                    result.g = _mm_sub_ps(_mm_add_ps(args[0].g, args[1].g), _mm_set1_ps(0.5f));
+                                    result.b = _mm_sub_ps(_mm_add_ps(args[0].b, args[1].b), _mm_set1_ps(0.5f));
                                     break;
 
                                 case GL_SUBTRACT:
-                                    srcColor.r = _mm_sub_ps(args[0].r, args[1].r);
-                                    srcColor.g = _mm_sub_ps(args[0].g, args[1].g);
-                                    srcColor.b = _mm_sub_ps(args[0].b, args[1].b);
+                                    result.r = _mm_sub_ps(args[0].r, args[1].r);
+                                    result.g = _mm_sub_ps(args[0].g, args[1].g);
+                                    result.b = _mm_sub_ps(args[0].b, args[1].b);
                                     break;
 
                                 case GL_DOT3_RGB:
-                                    srcColor.r = _mm_mul_ps(_mm_set1_ps(4.0f), _mm_add_ps(_mm_add_ps(DOT3(r), DOT3(g)), DOT3(b)));
-                                    srcColor.g = srcColor.r;
-                                    srcColor.b = srcColor.r;
+                                    result.r = SIMD::dot3(args[0].r, args[1].r, args[0].g, args[1].g, args[0].b, args[1].b);
+                                    result.g = result.r;
+                                    result.b = result.r;
                                     break;
 
                                 case GL_DOT3_RGBA:
-                                    srcColor.a = _mm_mul_ps(_mm_set1_ps(4.0f), _mm_add_ps(_mm_add_ps(DOT3(r), DOT3(g)), DOT3(b)));
-                                    srcColor.r = srcColor.a;
-                                    srcColor.g = srcColor.a;
-                                    srcColor.b = srcColor.a;
+                                    result.a = SIMD::dot3(args[0].r, args[1].r, args[0].g, args[1].g, args[0].b, args[1].b);
+                                    result.r = result.a;
+                                    result.g = result.a;
+                                    result.b = result.a;
                                     break;
 
                                 case GL_INTERPOLATE:
-                                    srcColor.r = SIMD::lerp(args[2].a, args[1].r, args[0].r);
-                                    srcColor.g = SIMD::lerp(args[2].a, args[1].g, args[0].g);
-                                    srcColor.b = SIMD::lerp(args[2].a, args[1].b, args[0].b);
+                                    result.r = SIMD::lerp(args[2].r, args[1].r, args[0].r);
+                                    result.g = SIMD::lerp(args[2].g, args[1].g, args[0].g);
+                                    result.b = SIMD::lerp(args[2].b, args[1].b, args[0].b);
                                     break;
                                 }
+
+                                srcColor.a = _mm_mul_ps(result.a, _mm_set1_ps(texState.texEnv.colorScaleA));
+                                srcColor.r = _mm_mul_ps(result.r, _mm_set1_ps(texState.texEnv.colorScaleRGB));
+                                srcColor.g = _mm_mul_ps(result.g, _mm_set1_ps(texState.texEnv.colorScaleRGB));
+                                srcColor.b = _mm_mul_ps(result.b, _mm_set1_ps(texState.texEnv.colorScaleRGB));
                             }
+
+                            // Not quite sure about that
+                            //srcColor.a = SIMD::clamp01(srcColor.a);
+                            //srcColor.r = SIMD::clamp01(srcColor.r);
+                            //srcColor.g = SIMD::clamp01(srcColor.g);
+                            //srcColor.b = SIMD::clamp01(srcColor.b);
                         }
+
 
                         //
                         // Alpha testing
@@ -694,14 +702,14 @@ namespace SWGL {
 
                             switch (alphaTesting.getTestFunction()) {
 
+                            case GL_NEVER: fragmentMask = _mm_setzero_si128(); break;
                             case GL_LESS: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmplt_ps(srcColor.a, refVal))); break;
+                            case GL_EQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpeq_ps(srcColor.a, refVal))); break;
                             case GL_LEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmple_ps(srcColor.a, refVal))); break;
                             case GL_GREATER: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpgt_ps(srcColor.a, refVal))); break;
-                            case GL_GEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpge_ps(srcColor.a, refVal))); break;
-                            case GL_EQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpeq_ps(srcColor.a, refVal))); break;
                             case GL_NOTEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpneq_ps(srcColor.a, refVal))); break;
+                            case GL_GEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpge_ps(srcColor.a, refVal))); break;
                             case GL_ALWAYS: break;
-                            case GL_NEVER: fragmentMask = _mm_setzero_si128(); break;
                             }
 
                             // Check if any fragment survived the alpha test
@@ -736,176 +744,139 @@ namespace SWGL {
                             const QFloat normalize = _mm_set1_ps(1.0f / 255.0f);
                             const QInt mask = _mm_set1_epi32(0xff);
 
-                            ARGBColor dstColor = {
-
-                                _mm_mul_ps(normalize, _mm_cvtepi32_ps(_mm_srli_epi32(quadBackbuffer, 24))),
-                                _mm_mul_ps(normalize, _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(quadBackbuffer, 16), mask))),
-                                _mm_mul_ps(normalize, _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(quadBackbuffer, 8), mask))),
-                                _mm_mul_ps(normalize, _mm_cvtepi32_ps(_mm_and_si128(quadBackbuffer, mask)))
-                            };
+                            ARGBColor dstColor;
+                            dstColor.a = _mm_mul_ps(normalize, _mm_cvtepi32_ps(_mm_srli_epi32(quadBackbuffer, 24)));
+                            dstColor.r = _mm_mul_ps(normalize, _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(quadBackbuffer, 16), mask)));
+                            dstColor.g = _mm_mul_ps(normalize, _mm_cvtepi32_ps(_mm_and_si128(_mm_srli_epi32(quadBackbuffer, 8), mask)));
+                            dstColor.b = _mm_mul_ps(normalize, _mm_cvtepi32_ps(_mm_and_si128(quadBackbuffer, mask)));
 
                             // Determine the source and destination blending factors
-                            QFloat srcFactorA, srcFactorR, srcFactorG, srcFactorB;
-                            QFloat dstFactorA, dstFactorR, dstFactorG, dstFactorB;
+                            ARGBColor srcFactor, dstFactor;
 
                             switch (blending.getSourceFactor()) {
 
                             case GL_ZERO:
-                                srcFactorA = _mm_setzero_ps();
-                                srcFactorR = _mm_setzero_ps();
-                                srcFactorG = _mm_setzero_ps();
-                                srcFactorB = _mm_setzero_ps();
+                                srcFactor.a = _mm_setzero_ps();
+                                srcFactor.r = _mm_setzero_ps();
+                                srcFactor.g = _mm_setzero_ps();
+                                srcFactor.b = _mm_setzero_ps();
                                 break;
 
                             case GL_ONE:
-                                srcFactorA = _mm_set1_ps(1.0f);
-                                srcFactorR = _mm_set1_ps(1.0f);
-                                srcFactorG = _mm_set1_ps(1.0f);
-                                srcFactorB = _mm_set1_ps(1.0f);
-                                break;
-
-                            case GL_SRC_COLOR:
-                                srcFactorA = srcColor.a;
-                                srcFactorR = srcColor.r;
-                                srcFactorG = srcColor.g;
-                                srcFactorB = srcColor.b;
-                                break;
-
-                            case GL_ONE_MINUS_SRC_COLOR:
-                                srcFactorA = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
-                                srcFactorR = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.r);
-                                srcFactorG = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.g);
-                                srcFactorB = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.b);
+                                srcFactor.a = _mm_set1_ps(1.0f);
+                                srcFactor.r = _mm_set1_ps(1.0f);
+                                srcFactor.g = _mm_set1_ps(1.0f);
+                                srcFactor.b = _mm_set1_ps(1.0f);
                                 break;
 
                             case GL_DST_COLOR:
-                                srcFactorA = dstColor.a;
-                                srcFactorR = dstColor.r;
-                                srcFactorG = dstColor.g;
-                                srcFactorB = dstColor.b;
+                                srcFactor = dstColor;
                                 break;
 
                             case GL_ONE_MINUS_DST_COLOR:
-                                srcFactorA = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
-                                srcFactorR = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.r);
-                                srcFactorG = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.g);
-                                srcFactorB = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.b);
+                                srcFactor.a = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
+                                srcFactor.r = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.r);
+                                srcFactor.g = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.g);
+                                srcFactor.b = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.b);
                                 break;
 
                             case GL_SRC_ALPHA:
-                                srcFactorA = srcColor.a;
-                                srcFactorR = srcColor.a;
-                                srcFactorG = srcColor.a;
-                                srcFactorB = srcColor.a;
+                                srcFactor.a = srcColor.a;
+                                srcFactor.r = srcColor.a;
+                                srcFactor.g = srcColor.a;
+                                srcFactor.b = srcColor.a;
                                 break;
 
                             case GL_ONE_MINUS_SRC_ALPHA:
-                                srcFactorA = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
-                                srcFactorR = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
-                                srcFactorG = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
-                                srcFactorB = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
+                                srcFactor.a = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
+                                srcFactor.r = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
+                                srcFactor.g = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
+                                srcFactor.b = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
                                 break;
 
                             case GL_DST_ALPHA:
-                                srcFactorA = dstColor.a;
-                                srcFactorR = dstColor.a;
-                                srcFactorG = dstColor.a;
-                                srcFactorB = dstColor.a;
+                                srcFactor.a = dstColor.a;
+                                srcFactor.r = dstColor.a;
+                                srcFactor.g = dstColor.a;
+                                srcFactor.b = dstColor.a;
                                 break;
 
                             case GL_ONE_MINUS_DST_ALPHA:
-                                srcFactorA = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
-                                srcFactorR = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
-                                srcFactorG = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
-                                srcFactorB = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
+                                srcFactor.a = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
+                                srcFactor.r = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
+                                srcFactor.g = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
+                                srcFactor.b = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
                                 break;
 
                             case GL_SRC_ALPHA_SATURATE:
-                                srcFactorA = _mm_set1_ps(1.0f);
-                                srcFactorR = _mm_min_ps(srcColor.a, _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a));
-                                srcFactorG = _mm_min_ps(srcColor.a, _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a));
-                                srcFactorB = _mm_min_ps(srcColor.a, _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a));
+                                srcFactor.a = _mm_set1_ps(1.0f);
+                                srcFactor.r = _mm_min_ps(srcColor.a, _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a));
+                                srcFactor.g = _mm_min_ps(srcColor.a, _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a));
+                                srcFactor.b = _mm_min_ps(srcColor.a, _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a));
                                 break;
                             }
 
                             switch (blending.getDestinationFactor()) {
 
                             case GL_ZERO:
-                                dstFactorA = _mm_setzero_ps();
-                                dstFactorR = _mm_setzero_ps();
-                                dstFactorG = _mm_setzero_ps();
-                                dstFactorB = _mm_setzero_ps();
+                                dstFactor.a = _mm_setzero_ps();
+                                dstFactor.r = _mm_setzero_ps();
+                                dstFactor.g = _mm_setzero_ps();
+                                dstFactor.b = _mm_setzero_ps();
                                 break;
 
                             case GL_ONE:
-                                dstFactorA = _mm_set1_ps(1.0f);
-                                dstFactorR = _mm_set1_ps(1.0f);
-                                dstFactorG = _mm_set1_ps(1.0f);
-                                dstFactorB = _mm_set1_ps(1.0f);
+                                dstFactor.a = _mm_set1_ps(1.0f);
+                                dstFactor.r = _mm_set1_ps(1.0f);
+                                dstFactor.g = _mm_set1_ps(1.0f);
+                                dstFactor.b = _mm_set1_ps(1.0f);
                                 break;
 
                             case GL_SRC_COLOR:
-                                dstFactorA = srcColor.a;
-                                dstFactorR = srcColor.r;
-                                dstFactorG = srcColor.g;
-                                dstFactorB = srcColor.b;
+                                dstFactor = srcColor;
                                 break;
 
                             case GL_ONE_MINUS_SRC_COLOR:
-                                dstFactorA = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
-                                dstFactorR = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.r);
-                                dstFactorG = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.g);
-                                dstFactorB = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.b);
-                                break;
-
-                            case GL_DST_COLOR:
-                                dstFactorA = dstColor.a;
-                                dstFactorR = dstColor.r;
-                                dstFactorG = dstColor.g;
-                                dstFactorB = dstColor.b;
-                                break;
-
-                            case GL_ONE_MINUS_DST_COLOR:
-                                dstFactorA = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
-                                dstFactorR = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.r);
-                                dstFactorG = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.g);
-                                dstFactorB = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.b);
+                                dstFactor.a = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
+                                dstFactor.r = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.r);
+                                dstFactor.g = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.g);
+                                dstFactor.b = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.b);
                                 break;
 
                             case GL_SRC_ALPHA:
-                                dstFactorA = srcColor.a;
-                                dstFactorR = srcColor.a;
-                                dstFactorG = srcColor.a;
-                                dstFactorB = srcColor.a;
+                                dstFactor.a = srcColor.a;
+                                dstFactor.r = srcColor.a;
+                                dstFactor.g = srcColor.a;
+                                dstFactor.b = srcColor.a;
                                 break;
 
                             case GL_ONE_MINUS_SRC_ALPHA:
-                                dstFactorA = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
-                                dstFactorR = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
-                                dstFactorG = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
-                                dstFactorB = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
+                                dstFactor.a = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
+                                dstFactor.r = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
+                                dstFactor.g = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
+                                dstFactor.b = _mm_sub_ps(_mm_set1_ps(1.0f), srcColor.a);
                                 break;
 
                             case GL_DST_ALPHA:
-                                dstFactorA = dstColor.a;
-                                dstFactorR = dstColor.a;
-                                dstFactorG = dstColor.a;
-                                dstFactorB = dstColor.a;
+                                dstFactor.a = dstColor.a;
+                                dstFactor.r = dstColor.a;
+                                dstFactor.g = dstColor.a;
+                                dstFactor.b = dstColor.a;
                                 break;
 
                             case GL_ONE_MINUS_DST_ALPHA:
-                                dstFactorA = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
-                                dstFactorR = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
-                                dstFactorG = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
-                                dstFactorB = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
+                                dstFactor.a = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
+                                dstFactor.r = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
+                                dstFactor.g = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
+                                dstFactor.b = _mm_sub_ps(_mm_set1_ps(1.0f), dstColor.a);
                                 break;
                             }
 
                             // Perform the blending
-                            srcColor.a = _mm_add_ps(_mm_mul_ps(srcColor.a, srcFactorA), _mm_mul_ps(dstColor.a, dstFactorA));
-                            srcColor.r = _mm_add_ps(_mm_mul_ps(srcColor.r, srcFactorR), _mm_mul_ps(dstColor.r, dstFactorR));
-                            srcColor.g = _mm_add_ps(_mm_mul_ps(srcColor.g, srcFactorG), _mm_mul_ps(dstColor.g, dstFactorG));
-                            srcColor.b = _mm_add_ps(_mm_mul_ps(srcColor.b, srcFactorB), _mm_mul_ps(dstColor.b, dstFactorB));
+                            srcColor.a = _mm_add_ps(_mm_mul_ps(srcColor.a, srcFactor.a), _mm_mul_ps(dstColor.a, dstFactor.a));
+                            srcColor.r = _mm_add_ps(_mm_mul_ps(srcColor.r, srcFactor.r), _mm_mul_ps(dstColor.r, dstFactor.r));
+                            srcColor.g = _mm_add_ps(_mm_mul_ps(srcColor.g, srcFactor.g), _mm_mul_ps(dstColor.g, dstFactor.g));
+                            srcColor.b = _mm_add_ps(_mm_mul_ps(srcColor.b, srcFactor.b), _mm_mul_ps(dstColor.b, dstFactor.b));
                         }
 
                         quadBlendingResult = getIntegerRGBA(srcColor);
@@ -926,7 +897,7 @@ namespace SWGL {
                         // Store final color in the color buffer
                         //
                         _mm_store_si128(
-                        
+
                             reinterpret_cast<QInt *>(colorBuffer),
                             SIMD::blend(quadBackbuffer, quadBlendingResult, fragmentMask)
                         );
@@ -966,4 +937,3 @@ namespace SWGL {
 #undef GRADIENT_DY
 #undef GRADIENT_DX
 #undef GRADIENT_VALUE
-#undef DOT3
