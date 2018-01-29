@@ -115,7 +115,7 @@ namespace SWGL {
             0, 0,
             width, height,
             0, 0,
-            0, height,
+            height - m_height, m_height,
             reinterpret_cast<void *>(dst),
             &m_bmi,
             DIB_RGB_COLORS
