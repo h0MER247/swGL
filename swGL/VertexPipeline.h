@@ -44,7 +44,7 @@ namespace SWGL {
         void drawArrayElements(GLenum mode, int first, int count);
 
     public:
-        TexCoordGen & getTexGen() { return m_texCoordGen; }
+        TexCoordGen &getTexGen() { return m_texCoordGen; }
         Lighting &getLighting() { return m_lighting; }
         Culling &getCulling() { return m_culling; }
         Viewport &getViewport() { return m_viewport; }
@@ -54,6 +54,7 @@ namespace SWGL {
 
     private:
         void addTriangle(Vertex &v1, Vertex &v2, Vertex &v3);
+        void addLine(Vertex &v1, Vertex &v2);
         void drawTriangles();
 
     private:
