@@ -7,10 +7,12 @@
 #include "Clipper.h"
 
 namespace SWGL {
-
+    
     Clipper::Clipper()
     
-        : m_clipPlaneEqs{
+        : m_transInvProjMatrix(Matrix::getIdentity()),
+          m_isAnyUserPlaneEnabled(false),
+          m_clipPlaneEqs{
         
             Vector( 0.0f,  0.0f, -1.0f, 1.0f), // Near
             Vector( 0.0f,  0.0f,  1.0f, 1.0f), // Far
@@ -18,10 +20,9 @@ namespace SWGL {
             Vector( 0.0f,  1.0f,  0.0f, 1.0f), // Bottom
             Vector(-1.0f,  0.0f,  0.0f, 1.0f), // Right
             Vector( 1.0f,  0.0f,  0.0f, 1.0f)  // Left
-          },
-          m_isAnyUserPlaneEnabled(false),
-          m_transInvProjMatrix(Matrix::getIdentity()) {
+          } {
 
+    
     }
 
 
@@ -48,7 +49,7 @@ namespace SWGL {
         }
         else {
 
-            for (int i = 0; i < SWGL_MAX_CLIP_PLANES; i++) {
+            for (auto i = 0U; i < SWGL_MAX_CLIP_PLANES; i++) {
 
                 if (m_userClipPlanes[i].isEnabled) {
 
@@ -63,7 +64,7 @@ namespace SWGL {
 
         m_transInvProjMatrix = projMatrix.getTransposedInverse();
 
-        for (int i = 0; i < SWGL_MAX_CLIP_PLANES; i++) {
+        for (auto i = 0U; i < SWGL_MAX_CLIP_PLANES; i++) {
 
             if (m_userClipPlanes[i].isEnabled) {
 
@@ -124,11 +125,11 @@ namespace SWGL {
             // Determine if the triangle must be clipped against a user defined plane
             if (m_isAnyUserPlaneEnabled) {
 
-                for (int i = 0; i < SWGL_MAX_CLIP_PLANES; i++) {
+                for (auto i = 0U; i < SWGL_MAX_CLIP_PLANES; i++) {
 
                     if (isUserPlaneEnabled(i)) {
 
-                        for (int j = 0; j < 3; j++) {
+                        for (auto j = 0U; j < 3U; j++) {
 
                             if (Vector::dot(m_clipPlaneEqs[6 + i], t.v[j].projected) < 0.0f) {
 
@@ -177,7 +178,7 @@ namespace SWGL {
             //
             const Vector &planeEq = m_clipPlaneEqs[planeIdx];
 
-            for (int i = 0, n = vInList.size() - 1; i <= n; i++) {
+            for (auto i = 0U, n = vInList.size() - 1; i <= n; i++) {
 
                 Vertex &current = vInList[i];
                 Vertex &next = vInList[i == n ? 0 : i + 1];
@@ -212,7 +213,7 @@ namespace SWGL {
                         intersection.projected = Vector::lerp(current.projected, next.projected, t);
                         intersection.colorPrimary = Vector::lerp(current.colorPrimary, next.colorPrimary, t);
                         intersection.colorSecondary = Vector::lerp(current.colorSecondary, next.colorSecondary, t);
-                        for (int j = 0; j < SWGL_MAX_TEXTURE_UNITS; j++) {
+                        for (auto j = 0U; j < SWGL_MAX_TEXTURE_UNITS; j++) {
 
                             intersection.texCoord[j] = Vector::lerp(current.texCoord[j], next.texCoord[j], t);
                         }
@@ -224,7 +225,7 @@ namespace SWGL {
                         intersection.projected = Vector::lerp(next.projected, current.projected, t);
                         intersection.colorPrimary = Vector::lerp(next.colorPrimary, current.colorPrimary, t);
                         intersection.colorSecondary = Vector::lerp(next.colorSecondary, current.colorSecondary, t);
-                        for (int j = 0; j < SWGL_MAX_TEXTURE_UNITS; j++) {
+                        for (auto j = 0U; j < SWGL_MAX_TEXTURE_UNITS; j++) {
 
                             intersection.texCoord[j] = Vector::lerp(next.texCoord[j], current.texCoord[j], t);
                         }

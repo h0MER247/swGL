@@ -33,7 +33,7 @@ namespace SWGL {
         void setActiveTexture(unsigned int activeTexture);
 
     public:
-        Matrix & getCurrentMatrix() const;
+        Matrix &getCurrentMatrix() const;
         Matrix &getModelViewMatrix() const;
         Matrix &getProjectionMatrix() const;
         Matrix &getColorMatrix() const;

@@ -1,7 +1,6 @@
 ﻿#include <memory>
 #include <algorithm>
 #include "Defines.h"
-#include "Log.h"
 #include "DrawSurface.h"
 
 namespace SWGL {
@@ -28,7 +27,7 @@ namespace SWGL {
         m_numBuffersInY = 1 << (numSubDivY - 1);
 
         // Initialize drawing buffer
-        for (int i = 0; i < SWGL_NUM_DRAW_THREADS; i++) {
+        for (auto i = 0U; i < SWGL_NUM_DRAW_THREADS; i++) {
 
             m_buffer[i] = std::make_shared<DrawBuffer>();
         }
@@ -52,8 +51,7 @@ namespace SWGL {
             m_width = width;
             m_height = height;
 
-            // Make sure that width and height are multiples of four. This is needed as 
-            // the drawing surfaces uses a quad pixel layout.
+            // Make sure that the surface can be evenly divided between the buffers
             width = std::max((((width / m_numBuffersInX) + 3) & ~3) * m_numBuffersInX, m_numBuffersInX * 2);
             height = std::max((((height / m_numBuffersInY) + 3) & ~3) * m_numBuffersInY, m_numBuffersInY * 2);
 

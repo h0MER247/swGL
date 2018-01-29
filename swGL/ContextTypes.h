@@ -67,9 +67,7 @@ namespace SWGL {
 
         void setOffset(float factor, float units) {
 
-            // TODO: Find out why r = std::numeric_limits<float>::epsilon() does
-            //       not work correctly for Half-Life.
-            static constexpr float r = 0.00005f;
+            static constexpr float r = 1.0f / 16777216.0f;
 
             m_factor = factor;
             m_units = units;
@@ -124,7 +122,7 @@ namespace SWGL {
     public:
         void setEnable(bool isEnabled) {
 
-            m_isEnabled = isEnabled;;
+            m_isEnabled = isEnabled;
         }
 
         void setFactors(GLenum srcFactor, GLenum dstFactor) {
@@ -540,10 +538,10 @@ namespace SWGL {
               m_y(0),
               m_width(0),
               m_height(0),
-              m_scaleX(0.0f), m_translateX(0.0f),
+              m_scaleZ(0.0f), m_translateZ(0.0f),
               m_scaleY(0.0f), m_translateY(0.0f),
-              m_scaleZ(0.0f), m_translateZ(0.0f) {
-
+              m_scaleX(0.0f), m_translateX(0.0f) {
+                
             setDepthRange(0.0f, 1.0f);
         }
         ~Viewport() = default;
@@ -552,10 +550,9 @@ namespace SWGL {
         void setDimensions(int x, int y, int width, int height) {
 
             // Clamp width and height to a maximum of 2048 as this is the maximum
-            // size that can be rasterized by the rasterizer without the risk of
-            // integer overflows.
-            m_width = std::clamp(width, 0, 2048);;
-            m_height = std::clamp(height, 0, 2048);;
+            // size that can be rasterized without risking integer overflows.
+            m_width = std::clamp(width, 0, 2048);
+            m_height = std::clamp(height, 0, 2048);
             m_x = x;
             m_y = y;
 

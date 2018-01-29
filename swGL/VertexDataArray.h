@@ -14,14 +14,14 @@ namespace SWGL {
     // Reads data from client memory into Vector's
     //
     class VectorReader {
-
+        
     public:
         VectorReader(bool normalizeValues, bool setWTo1) :
 
-            m_normalizeValues(normalizeValues),
-            m_setWTo1(setWTo1),
             m_isEnabled(false),
-            m_addr(nullptr) {
+            m_addr(nullptr),
+            m_normalizeValues(normalizeValues),
+            m_setWTo1(setWTo1) {
 
         }
         ~VectorReader() = default;
@@ -67,11 +67,11 @@ namespace SWGL {
 
             m_stride = stride == 0U ? sizeof(T) * numArgs : stride;
 
-            #define DEFINE_READER(ARG1, ARG2, ARG3, ARG4)                               \
-                m_reader = [&addr = m_addr, &stride = m_stride] (unsigned int index) {  \
-                                                                                        \
-                    auto p = reinterpret_cast<const T *>(addr + stride * index);        \
-                    return Vector(ARG1, ARG2, ARG3, ARG4);                              \
+            #define DEFINE_READER(ARG1, ARG2, ARG3, ARG4)                                   \
+                m_reader = [&myAddr = m_addr, &myStride = m_stride] (unsigned int index) {  \
+                                                                                            \
+                    auto p = reinterpret_cast<const T *>(myAddr + myStride * index);        \
+                    return Vector(ARG1, ARG2, ARG3, ARG4);                                  \
                 }
 
             switch (numArgs) {
@@ -200,7 +200,7 @@ namespace SWGL {
         }
 
     public:
-        VectorReader & getPosition() {
+        VectorReader &getPosition() {
 
             return *m_position;
         }
@@ -291,15 +291,15 @@ namespace SWGL {
                     }
 
                     // Update texture coordinate(s)
-                    for (auto j = 0U; j < SWGL_MAX_TEXTURE_UNITS; j++) {
+                    for (auto texUnit = 0U; texUnit < SWGL_MAX_TEXTURE_UNITS; texUnit++) {
 
-                        if (m_texCoord[j]->isEnabled()) {
+                        if (m_texCoord[texUnit]->isEnabled()) {
 
-                            v.texCoord[j] = m_texCoord[j]->read(i);
+                            v.texCoord[texUnit] = m_texCoord[texUnit]->read(i);
                         }
                         else {
 
-                            v.texCoord[j] = m_vertexState.texCoord[j];
+                            v.texCoord[texUnit] = m_vertexState.texCoord[texUnit];
                         }
                     }
                 }

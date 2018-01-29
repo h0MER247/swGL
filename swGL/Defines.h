@@ -14,7 +14,6 @@
 #define PACKED(decl) __pragma(pack(push, 1)) decl __pragma(pack(pop))
 #endif
 
-
 // Enables avx2 instructions to gather texture samples (if avx2 is available).
 #define SWGL_USE_AVX2_GATHER 0
 
@@ -30,7 +29,7 @@
 // The maximum number of matrices for one stack
 static constexpr unsigned int SWGL_MAX_MATRIXSTACK_DEPTH = 32U;
 
-// The total number of texture units
+// The total number of texture units (Doom 3 runs a little bit better with 4)
 static constexpr unsigned int SWGL_MAX_TEXTURE_UNITS = 2U;
 
 // Maximum level of detail for a texture
@@ -60,7 +59,7 @@ static constexpr bool isPowerOfTwo(T value) {
 
 // Some compile time error checks
 static_assert(isPowerOfTwo(SWGL_NUM_DRAW_THREADS), "The number of drawing threads has to be a power of two");
-static_assert(SWGL_MAX_MATRIXSTACK_DEPTH >= 32U, "The matrix stack depth must be at least 32");
-static_assert(SWGL_MAX_TEXTURE_UNITS >= 2U, "The number of texture units must be at least 2");
-static_assert(SWGL_MAX_LIGHTS >= 8U, "The number of lights must be at least 8");
-static_assert(SWGL_MAX_CLIP_PLANES >= 6U, "The number of user defined clipping planes must be at least 6");
+static_assert(SWGL_MAX_MATRIXSTACK_DEPTH >= 32U, "The matrix stack depth has to be at least 32");
+static_assert(SWGL_MAX_TEXTURE_UNITS >= 2U, "The number of texture units has to be at least 2");
+static_assert(SWGL_MAX_LIGHTS >= 8U, "The number of lights has to be at least 8");
+static_assert(SWGL_MAX_CLIP_PLANES >= 6U, "The number of user defined clipping planes has to be at least 6");

@@ -1,5 +1,4 @@
-﻿#include <algorithm>
-#include <array>
+﻿#include <array>
 #include <vector>
 #include "Defines.h"
 #include "Context.h"
@@ -21,13 +20,13 @@ namespace SWGL {
 
 
     void Renderer::init() {
-
-        for (int i = 0; i < SWGL_NUM_DRAW_THREADS; i++) {
+        
+        for (auto i = 0U; i < SWGL_NUM_DRAW_THREADS; i++) {
 
             m_drawThreads[i] = std::make_unique<DrawThread>(
 
                 m_drawSurface.getBuffer(i)
-                );
+            );
             m_drawThreads[i]->start();
         }
     }
@@ -41,7 +40,7 @@ namespace SWGL {
         auto &scissor = ctx->getScissor();
         auto clearColor = ctx->getClearValues().getClearColor();
 
-        for (int i = 0; i < SWGL_NUM_DRAW_THREADS; i++) {
+        for (auto i = 0U; i < SWGL_NUM_DRAW_THREADS; i++) {
 
             m_drawThreads[i]->addCommand(
 
@@ -64,7 +63,7 @@ namespace SWGL {
         auto &scissor = ctx->getScissor();
         auto clearDepth = ctx->getClearValues().getClearDepth();
 
-        for (int i = 0; i < SWGL_NUM_DRAW_THREADS; i++) {
+        for (auto i = 0U; i < SWGL_NUM_DRAW_THREADS; i++) {
 
             m_drawThreads[i]->addCommand(
 
@@ -79,6 +78,24 @@ namespace SWGL {
             );
         }
     }
+
+#if 0
+    static const char *envtostr(GLenum ev) {
+
+        switch (ev) {
+
+        case GL_REPLACE: return "GL_REPLACE";
+        case GL_MODULATE: return "GL_MODULATE";
+        case GL_DECAL: return "GL_DECAL";
+        case GL_ADD: return "GL_ADD";
+        case GL_BLEND: return "GL_BLEND";
+        case GL_COMBINE: return "GL_COMBINE";
+
+        default:
+        return std::to_string(ev).c_str();
+        }
+    }
+#endif
 
     void Renderer::drawTriangles(TriangleList &triangles) {
 
@@ -110,7 +127,12 @@ namespace SWGL {
             if (unit.currentTarget != nullptr) {
 
                 auto &texObj = unit.currentTarget->texObj;
-                if (texObj != nullptr && texObj->data != nullptr) {
+
+                // TODO: Implement a flag for texture completeness (texObj->isComplete or
+                //       something like that)
+                if (texObj != nullptr &&
+                    texObj->data != nullptr &&
+                    texObj->data->maxLOD > -1) {
 
                     texState.texEnv = unit.texEnv;
                     texState.texData = texObj->data;
@@ -121,6 +143,7 @@ namespace SWGL {
 
             texState.texData = nullptr;
         }
+
 
         // Figure out which triangle must be rendered by which thread
         std::array<std::vector<int>, SWGL_NUM_DRAW_THREADS> bins;
@@ -208,7 +231,7 @@ namespace SWGL {
 
     void Renderer::shutdown() {
 
-        for (int i = 0; i < SWGL_NUM_DRAW_THREADS; i++) {
+        for (auto i = 0U; i < SWGL_NUM_DRAW_THREADS; i++) {
 
             m_drawThreads[i]->addCommand(
 
@@ -216,7 +239,7 @@ namespace SWGL {
             );
         }
 
-        for (int i = 0; i < SWGL_NUM_DRAW_THREADS; i++) {
+        for (auto i = 0U; i < SWGL_NUM_DRAW_THREADS; i++) {
 
             m_drawThreads[i]->join();
         }
@@ -228,7 +251,7 @@ namespace SWGL {
 
         m_latch.reset(SWGL_NUM_DRAW_THREADS);
 
-        for (int i = 0; i < SWGL_NUM_DRAW_THREADS; i++) {
+        for (auto i = 0U; i < SWGL_NUM_DRAW_THREADS; i++) {
 
             m_drawThreads[i]->addCommand(
 

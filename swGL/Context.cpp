@@ -14,7 +14,8 @@ namespace SWGL {
     Context::Context(ContextID id, HDC hdc)
     
         : m_id(id),
-          m_isCurrent(false) {
+          m_isCurrent(false),
+          m_glExtensions("") {
 
         // Initialize drawing surface with the given device context
         auto &drawSurface = m_renderer.getDrawSurface();
@@ -163,6 +164,8 @@ namespace SWGL {
             return proc->second;
         }
 
+        LOG("Procedure %s isn't implemented", name.c_str());
+
         return nullptr;
     }
 
@@ -173,7 +176,7 @@ namespace SWGL {
 
     void Context::addExtension(std::string extension) {
 
-        if (m_glExtensions.size() > 0) {
+        if (!m_glExtensions.empty()) {
 
             m_glExtensions.append(" ");
         }
