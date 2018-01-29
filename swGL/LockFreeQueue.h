@@ -22,7 +22,7 @@ namespace SWGL {
         ~LockFreeQueue() = default;
 
     public:
-        bool push(T &&item) {
+        bool push(T &item) {
 
             const auto currentTail = m_tail.load(std::memory_order_relaxed);
             const auto nextTail = getNextIndex(currentTail);
