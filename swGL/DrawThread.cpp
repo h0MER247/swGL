@@ -48,23 +48,29 @@ namespace SWGL {
         // increases the FPS by a significant amount.
         m_workloadEstimate += workloadEstimate;
 
-        bool couldPush = m_commandQueue.push(std::move(command));
-        if (!couldPush || m_workloadEstimate >= 32 || isFlushingQueue) {
-
-            m_workloadEstimate = 0;
+        for (;;) {
+        
+            bool couldPush = m_commandQueue.push(command);
 
             // Tell the draw thread that there is work to do
-            {
-                std::lock_guard<std::mutex> cs(m_mutex);
-                m_isWorkAvailable = true;
+            if (!couldPush || m_workloadEstimate >= 32 || isFlushingQueue) {
+
+                {
+                    std::lock_guard<std::mutex> cs(m_mutex);
+                    m_isWorkAvailable = true;
+                }
+                m_workAvailable.notify_one();
+
+                if (!couldPush) { continue; }
             }
-            m_workAvailable.notify_one();
 
-            // If necessary, spin until the command is pushed on
-            // to the list
-            while (!couldPush) {
+            if (couldPush) {
 
-                couldPush = m_commandQueue.push(std::move(command));
+                if (m_workloadEstimate >= 32) {
+                
+                    m_workloadEstimate = 0;
+                }
+                break;
             }
         }
     }
