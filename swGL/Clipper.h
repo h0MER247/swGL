@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include "Matrix.h"
-
 namespace SWGL {
 
     //
@@ -14,59 +12,39 @@ namespace SWGL {
         ~Clipper() = default;
 
     public:
-        void setUserPlaneEquation(int index, Vector planeEq);
-        void setUserPlaneEnable(int index, bool isEnabled);
-        void updateUserPlanes(Matrix &projMatrix);
+        bool clipTriangles(TriangleList &triangles);
 
-        Vector getUserPlaneEquation(int index);
-        bool isUserPlaneEnabled(int index);
+    private:
+        void clipTriangle(Triangle &t, unsigned int clipcode, TriangleList &out);
+
+    public:
+        void setUserPlaneEquation(unsigned int index, Vector planeEq);
+        void setUserPlaneEnable(unsigned int index, bool isEnabled);
+        Vector getUserPlaneEquation(unsigned int index);
+        bool isUserPlaneEnabled(unsigned int index);
         bool isAnyUserPlaneEnabled();
 
     private:
-        void updateUserPlane(int index);
-
-    public:
-        void clipTriangles(TriangleList &triangles);
-
-    private:
-        void clipTriangle(Triangle &t, int clipcode, TriangleList &out);
-
-    private:
-        enum Clipcode : int {
+        enum Clipcode : unsigned int {
 
             // Frustum
-            None = 0,
-            Near = 1,
-            Far = 2,
-            Top = 4,
-            Bottom = 8,
-            Right = 16,
-            Left = 32,
-            All = 63,
+            None = 0U,
+            Near = 1U,
+            Far = 2U,
+            Top = 4U,
+            Bottom = 8U,
+            Right = 16U,
+            Left = 32U,
+            All = 63U,
 
             // User defined
-            User = 64
+            User = 64U
         };
 
-        struct UserClipPlane {
-
-            UserClipPlane()
-
-                : isEnabled(false),
-                  equation(Vector(0.0f, 0.0f, 0.0f, 0.0f)) {
-
-            }
-
-            bool isEnabled;
-            Vector equation;
-        };
-
-        static constexpr size_t OFFSET_USER_PLANES = 6;
+        static constexpr unsigned int OFFSET_USER_PLANES = 6U;
 
     private:
-        Matrix m_transInvProjMatrix;
-        bool m_isAnyUserPlaneEnabled;
-        UserClipPlane m_userClipPlanes[SWGL_MAX_CLIP_PLANES];
         Vector m_clipPlaneEqs[6 + SWGL_MAX_CLIP_PLANES];
+        unsigned int m_userPlaneEnableMask;
     };
 }

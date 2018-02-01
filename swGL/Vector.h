@@ -7,6 +7,9 @@
 
 namespace SWGL {
 
+    //
+    //
+    //
     class Vector {
 
     public:
@@ -38,9 +41,6 @@ namespace SWGL {
         const float &operator[](int idx) const;
 
     public:
-        const float *data() const;
-
-    public:
         Vector &operator*=(const float &rhs);
         friend Vector operator*(const Vector &lhs, const float &rhs);
         friend Vector operator-(const Vector &lhs, const Vector &rhs);
@@ -48,10 +48,11 @@ namespace SWGL {
 
     public:
         static Vector lerp(const Vector &vA, const Vector &vB, const float t);
+        
         static float dot(const Vector &vA, const Vector &vB);
         static float length(const Vector &v);
         static Vector normalize(const Vector &v);
-
+        
         static float dot3(const Vector &vA, const Vector &vB);
         static float length3(const Vector &v);
         static Vector normalize3(const Vector &v);

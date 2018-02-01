@@ -37,11 +37,6 @@ namespace SWGL {
 
 
 
-    // Return address of the first vector element
-    const float *Vector::data() const { return m_data; }
-
-
-
     // Scalar multiplication
     Vector &Vector::operator*=(const float &rhs) {
 

@@ -1,5 +1,6 @@
 ﻿#include <cmath>
 #include <memory>
+#include <algorithm>
 #include "Vector.h"
 #include "Matrix.h"
 
@@ -10,7 +11,7 @@ namespace SWGL {
                    float m20, float m21, float m22, float m23,
                    float m30, float m31, float m32, float m33) {
 
-        Matrix &M = *this;
+        auto &M = *this;
 
         M(0, 0) = m00; M(0, 1) = m01; M(0, 2) = m02; M(0, 3) = m03;
         M(1, 0) = m10; M(1, 1) = m11; M(1, 2) = m12; M(1, 3) = m13;
@@ -33,18 +34,18 @@ namespace SWGL {
 
 
 
-    // Return address of the first matrix element
-    const float *Matrix::data() const {
+    // Write matrix to a certain memory address
+    void Matrix::writeTo(float *addr) const {
 
-        return &m_data[0][0];
+        auto src = &m_data[0][0];
+        std::copy(src, src + 16, addr);
     }
-
 
 
     // Assign matrix
     Matrix &Matrix::operator=(const Matrix &rhs) {
 
-        memcpy(m_data, rhs.m_data, 16 * sizeof(float));
+        rhs.writeTo(&m_data[0][0]);
         return *this;
     }
 
@@ -53,7 +54,7 @@ namespace SWGL {
     // Multiply this matrix with another matrix
     Matrix &Matrix::operator*=(const Matrix &rhs) {
 
-        Matrix &M = *this;
+        auto &M = *this;
 
         M = M * rhs;
         return M;
@@ -101,9 +102,9 @@ namespace SWGL {
 
 
     // Returns true if this matrix is the identity matrix
-    bool Matrix::isIdentity() {
+    bool Matrix::isIdentity() const {
 
-        Matrix &M = *this;
+        auto &M = *this;
 
         return M(0, 0) == 1.0f && M(0, 1) == 0.0f && M(0, 2) == 0.0f && M(0, 3) == 0.0f &&
                M(1, 0) == 0.0f && M(1, 1) == 1.0f && M(1, 2) == 0.0f && M(1, 3) == 0.0f &&
@@ -112,9 +113,9 @@ namespace SWGL {
     }
 
     // Return the transpose of this matrix
-    Matrix Matrix::getTranspose() {
+    Matrix Matrix::getTranspose() const {
 
-        Matrix &M = *this;
+        auto &M = *this;
         return Matrix(
 
             M(0, 0), M(1, 0), M(2, 0), M(3, 0),
@@ -125,9 +126,9 @@ namespace SWGL {
     }
 
     // Return the transposed inverse of this matrix
-    Matrix Matrix::getTransposedInverse() {
+    Matrix Matrix::getTransposedInverse() const {
 
-        Matrix &M = *this;
+        auto &M = *this;
 
         // Calculate minors
         float A_ = M(2, 2) * M(3, 3) - M(3, 2) * M(2, 3);
@@ -189,7 +190,7 @@ namespace SWGL {
 
 
     // Return identity matrix
-    Matrix Matrix::getIdentity() {
+    Matrix Matrix::buildIdentity() {
 
         return Matrix(
         
@@ -201,7 +202,7 @@ namespace SWGL {
     }
 
     // Return orthogonal projection matrix
-    Matrix Matrix::getOrtho(float l, float r, float b, float t, float n, float f) {
+    Matrix Matrix::buildOrtho(float l, float r, float b, float t, float n, float f) {
 
         float tx = -(r + l) / (r - l);
         float ty = -(t + b) / (t - b);
@@ -217,7 +218,7 @@ namespace SWGL {
     }
 
     // Return perspective projection matrix
-    Matrix Matrix::getFrustum(float l, float r, float b, float t, float n, float f) {
+    Matrix Matrix::buildFrustum(float l, float r, float b, float t, float n, float f) {
 
         float A = (r + l) / (r - l);
         float B = (t + b) / (t - b);
@@ -234,7 +235,7 @@ namespace SWGL {
     }
 
     // Return rotation matrix
-    Matrix Matrix::getRotation(float angle, float x, float y, float z) {
+    Matrix Matrix::buildRotation(float angle, float x, float y, float z) {
 
         float invLen = 1.0f / std::sqrt(x * x + y * y + z * z);
         x *= invLen;
@@ -259,7 +260,7 @@ namespace SWGL {
     }
 
     // Return scale matrix
-    Matrix Matrix::getScale(float x, float y, float z) {
+    Matrix Matrix::buildScale(float x, float y, float z) {
 
         return Matrix(
         
@@ -271,7 +272,7 @@ namespace SWGL {
     }
 
     // Return translation matrix
-    Matrix Matrix::getTranslation(float x, float y, float z) {
+    Matrix Matrix::buildTranslation(float x, float y, float z) {
 
         return Matrix(
        
@@ -279,6 +280,29 @@ namespace SWGL {
             0.0f, 1.0f, 0.0f, y,
             0.0f, 0.0f, 1.0f, z,
             0.0f, 0.0f, 0.0f, 1.0f
+        );
+    }
+
+    // Return custom matrix from a memory source
+    Matrix Matrix::buildFrom(const float *addr) {
+
+        return Matrix(
+
+            addr[ 0], addr[ 1], addr[ 2], addr[ 3],
+            addr[ 4], addr[ 5], addr[ 6], addr[ 7],
+            addr[ 8], addr[ 9], addr[10], addr[11],
+            addr[12], addr[13], addr[14], addr[15]
+        );
+    }
+
+    Matrix Matrix::buildFrom(const double *addr) {
+
+        return Matrix(
+
+            static_cast<float>(addr[ 0]), static_cast<float>(addr[ 1]), static_cast<float>(addr[ 2]), static_cast<float>(addr[ 3]),
+            static_cast<float>(addr[ 4]), static_cast<float>(addr[ 5]), static_cast<float>(addr[ 6]), static_cast<float>(addr[ 7]),
+            static_cast<float>(addr[ 8]), static_cast<float>(addr[ 9]), static_cast<float>(addr[10]), static_cast<float>(addr[11]),
+            static_cast<float>(addr[12]), static_cast<float>(addr[13]), static_cast<float>(addr[14]), static_cast<float>(addr[15])
         );
     }
 }

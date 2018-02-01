@@ -23,7 +23,7 @@ namespace SWGL {
         const float &operator()(int i, int j) const;
 
     public:
-        const float *data() const;
+        void writeTo(float *addr) const;
 
     public:
         Matrix &operator=(const Matrix &rhs);
@@ -34,17 +34,19 @@ namespace SWGL {
         friend Vector operator*(const Vector &lhs, const Matrix &rhs);
 
     public:
-        bool isIdentity();
-        Matrix getTranspose();
-        Matrix getTransposedInverse();
+        bool isIdentity() const;
+        Matrix getTranspose() const;
+        Matrix getTransposedInverse() const;
 
     public:
-        static Matrix getIdentity();
-        static Matrix getOrtho(float left, float right, float bottom, float top, float zNear, float zFar);
-        static Matrix getFrustum(float left, float right, float bottom, float top, float zNear, float zFar);
-        static Matrix getRotation(float angle, float x, float y, float z);
-        static Matrix getScale(float x, float y, float z);
-        static Matrix getTranslation(float x, float y, float z);
+        static Matrix buildIdentity();
+        static Matrix buildOrtho(float left, float right, float bottom, float top, float zNear, float zFar);
+        static Matrix buildFrustum(float left, float right, float bottom, float top, float zNear, float zFar);
+        static Matrix buildRotation(float angle, float x, float y, float z);
+        static Matrix buildScale(float x, float y, float z);
+        static Matrix buildTranslation(float x, float y, float z);
+        static Matrix buildFrom(const float *addr);
+        static Matrix buildFrom(const double *addr);
 
     private:
         float m_data[4][4];

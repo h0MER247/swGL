@@ -16,12 +16,10 @@ namespace SWGL {
     //
     struct Vertex {
 
-        Vertex() = default;
-        ~Vertex() = default;
-        
         // Position
-        Vector position;
-        Vector projected;
+        Vector posObj;
+        Vector posEye;
+        Vector posProj;
 
         // Normal
         Vector normal;

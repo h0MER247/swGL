@@ -456,9 +456,9 @@ namespace SWGL {
             
                 if(m_cullFace != GL_FRONT_AND_BACK) {
 
-                    float a = (v1.projected.x() * v2.projected.y() - v1.projected.y() * v2.projected.x()) * v3.projected.w() +
-                              (v1.projected.y() * v3.projected.x() - v1.projected.x() * v3.projected.y()) * v2.projected.w() +
-                              (v2.projected.x() * v3.projected.y() - v3.projected.x() * v2.projected.y()) * v1.projected.w();
+                    float a = (v1.posProj.x() * v2.posProj.y() - v1.posProj.y() * v2.posProj.x()) * v3.posProj.w() +
+                              (v1.posProj.y() * v3.posProj.x() - v1.posProj.x() * v3.posProj.y()) * v2.posProj.w() +
+                              (v2.posProj.x() * v3.posProj.y() - v3.posProj.x() * v2.posProj.y()) * v1.posProj.w();
 
                     return (a > 0.0f) ^ (m_cullFace == GL_FRONT) ^ (m_frontFaceWinding == GL_CW);
                 }

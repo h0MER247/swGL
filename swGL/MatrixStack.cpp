@@ -10,10 +10,9 @@ namespace SWGL {
 
             for (auto &matrix : stack.matrix) {
 
-                matrix = Matrix::getIdentity();
+                matrix = Matrix::buildIdentity();
             }
             stack.currentMatrix = &stack.matrix[0];
-            stack.wasUpdated = false;
         }
 
         setMatrixMode(GL_MODELVIEW);
@@ -52,46 +51,10 @@ namespace SWGL {
 
 
 
-    bool MatrixStack::canPush() {
+    void MatrixStack::setCurrentMatrix(Matrix matrix) {
 
-        return m_currentStack->currentMatrix < m_currentStack->matrix + SWGL_MAX_MATRIXSTACK_DEPTH;
+        *m_currentStack->currentMatrix = matrix;
     }
-
-    void MatrixStack::push() {
-
-        Matrix *srcMatrix = m_currentStack->currentMatrix;
-        Matrix *dstMatrix = m_currentStack->currentMatrix + 1;
-
-        *dstMatrix = *srcMatrix;
-        m_currentStack->currentMatrix++;
-    }
-
-    bool MatrixStack::canPop() {
-
-        return m_currentStack->currentMatrix > m_currentStack->matrix;
-    }
-
-    void MatrixStack::pop() {
-
-        m_currentStack->currentMatrix--;
-    }
-
-
-
-    void MatrixStack::updateCurrentMatrixStack() {
-
-        m_currentStack->wasUpdated = true;
-    }
-
-    bool MatrixStack::wasMatrixStackUpdated(unsigned int stack) {
-
-        bool wasUpdated = m_stack[stack].wasUpdated;
-        m_stack[stack].wasUpdated = false;
-
-        return wasUpdated;
-    }
-
-
 
     void MatrixStack::setActiveTexture(unsigned int activeTexture) {
 
@@ -102,35 +65,65 @@ namespace SWGL {
             m_currentStack = &m_stack[STACK_TEXTURE_0 + m_activeTexture];
         }
     }
+    
+
+
+    bool MatrixStack::push() {
+
+        if (m_currentStack->currentMatrix < m_currentStack->matrix + SWGL_MAX_MATRIXSTACK_DEPTH) {
+
+            auto src = m_currentStack->currentMatrix;
+            auto dst = m_currentStack->currentMatrix + 1;
+
+            *dst = *src;
+
+            m_currentStack->currentMatrix++;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool MatrixStack::pop() {
+
+        if (m_currentStack->currentMatrix > m_currentStack->matrix) {
+
+            m_currentStack->currentMatrix--;
+            return true;
+        }
+
+        return false;
+    }
 
 
 
-    Matrix &MatrixStack::getCurrentMatrix() const {
+
+    const Matrix &MatrixStack::getCurrentMatrix() const {
 
         return *m_currentStack->currentMatrix;
     }
 
-    Matrix &MatrixStack::getModelViewMatrix() const {
+    const Matrix &MatrixStack::getModelViewMatrix() const {
 
         return *m_stack[STACK_MODELVIEW].currentMatrix;
     }
 
-    Matrix &MatrixStack::getProjectionMatrix() const {
+    const Matrix &MatrixStack::getProjectionMatrix() const {
 
         return *m_stack[STACK_PROJECTION].currentMatrix;
     }
 
-    Matrix &MatrixStack::getColorMatrix() const {
+    const Matrix &MatrixStack::getColorMatrix() const {
 
         return *m_stack[STACK_COLOR].currentMatrix;
     }
 
-    Matrix &MatrixStack::getTextureMatrix() const {
+    const Matrix &MatrixStack::getTextureMatrix() const {
 
         return *m_stack[STACK_TEXTURE_0 + m_activeTexture].currentMatrix;
     }
 
-    Matrix &MatrixStack::getTextureMatrix(unsigned int idx) const {
+    const Matrix &MatrixStack::getTextureMatrix(unsigned int idx) const {
 
         return *m_stack[STACK_TEXTURE_0 + idx].currentMatrix;
     }

@@ -6,12 +6,9 @@
 
 namespace SWGL {
     
-    TexCoordGen::TexCoordGen(Vertex &vertexState, MatrixStack &matrixStack)
+    TexCoordGen::TexCoordGen()
 
-        : m_activeTexture(0U),
-          m_enableMask(0U),
-          m_vertexState(vertexState),
-          m_matrixStack(matrixStack) {
+        : m_activeTexture(0U) {
 
     }
 
@@ -21,29 +18,27 @@ namespace SWGL {
 
         if (isEnabled) {
 
-            m_enableMask |= 1U << m_activeTexture;
-            m_state[m_activeTexture].enableMask |= 1U << texCoordIdx;
+            m_state[m_activeTexture].enableMask |= 1U << (3U - texCoordIdx);
         }
         else {
 
-            m_enableMask &= ~(1U << m_activeTexture);
-            m_state[m_activeTexture].enableMask &= ~(1U << texCoordIdx);
+            m_state[m_activeTexture].enableMask &= ~(1U << (3U - texCoordIdx));
         }
     }
 
     void TexCoordGen::setMode(unsigned int texCoordIdx, GLenum mode) {
 
-        m_state[m_activeTexture].data[texCoordIdx].mode = mode;
+        m_state[m_activeTexture].data[3U - texCoordIdx].mode = mode;
     }
 
     void TexCoordGen::setObjectPlane(unsigned int texCoordIdx, Vector plane) {
 
-        m_state[m_activeTexture].data[texCoordIdx].objectPlane = plane;
+        m_state[m_activeTexture].data[3U - texCoordIdx].objectPlane = plane;
     }
 
     void TexCoordGen::setEyePlane(unsigned int texCoordIdx, Vector plane) {
 
-        m_state[m_activeTexture].data[texCoordIdx].eyePlane = plane;
+        m_state[m_activeTexture].data[3U - texCoordIdx].eyePlane = plane;
     }
 
     void TexCoordGen::setActiveTexture(unsigned int activeTexture) {
@@ -53,60 +48,45 @@ namespace SWGL {
 
 
 
-    float TexCoordGen::generateTexCoord(unsigned int texCoordIdx, TexCoordGenState &state) {
+    bool TexCoordGen::isEnabled(unsigned int texUnit) {
 
-        const auto &data = state.data[texCoordIdx];
-
-        switch (data.mode) {
-
-        case GL_EYE_LINEAR:
-            LOG("Unimplemented GL_EYE_LINEAR");
-            return 0.0f;
-
-        case GL_OBJECT_LINEAR:
-            return Vector::dot(m_vertexState.position, data.objectPlane);
-
-        case GL_SPHERE_MAP:
-            LOG("Unimplemented GL_SPHERE_MAP");
-            return 0.0f;
-
-        case GL_NORMAL_MAP:
-            LOG("Unimplemented GL_NORMAL_MAP");
-            return 0.0f;
-
-        // TODO: The vertices eye position should be calculated with the transpose inverse of the model
-        //       view matrix. Also m_vertexState.normal has to be normalized! (btw: both are also needed
-        //       for the lighting calculations). The "3 - texCoordIdx" thingy feels weird and has to go :).
-        case GL_REFLECTION_MAP: {
-            Vector vEye(Vector::normalize(m_vertexState.position * m_matrixStack.getModelViewMatrix()));
-            float dot = 2.0f * Vector::dot3(vEye, m_vertexState.normal);
-            return vEye[3 - texCoordIdx] - (m_vertexState.normal[3 - texCoordIdx] * dot);
-            }
-        }
-
-        LOG("Invalid mode");
-        return 0.0f;
+        return m_state[texUnit].enableMask != 0U;
     }
 
+    void TexCoordGen::generate(Vertex &v, unsigned int texUnit) {
 
+        auto &state = m_state[texUnit];
 
-    bool TexCoordGen::isEnabled() {
+        for (auto i = 0U; i < 4U; i++) {
 
-        return m_enableMask != 0U;
-    }
+            if ((state.enableMask & (1U << i)) != 0U) {
 
-    void TexCoordGen::generate() {
+                auto &data = state.data[i];
+                auto &texCoord = v.texCoord[texUnit];
 
-        for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+                switch (data.mode) {
 
-            auto &state = m_state[i];
-            if (state.enableMask != 0U) {
+                case GL_EYE_LINEAR:
+                    texCoord[i] = Vector::dot(v.posEye, data.eyePlane);
+                    break;
 
-                auto &texCoord = m_vertexState.texCoord[i];
-                if ((state.enableMask & 1U) != 0U) { texCoord.x() = generateTexCoord(0U, state); }
-                if ((state.enableMask & 2U) != 0U) { texCoord.y() = generateTexCoord(1U, state); }
-                if ((state.enableMask & 4U) != 0U) { texCoord.z() = generateTexCoord(2U, state); }
-                if ((state.enableMask & 8U) != 0U) { texCoord.w() = generateTexCoord(3U, state); }
+                case GL_OBJECT_LINEAR:
+                    texCoord[i] = Vector::dot(v.posObj, data.objectPlane);
+                    break;
+
+                case GL_SPHERE_MAP:
+                    LOG("Unimplemented texture generation mode: GL_SPHERE_MAP");
+                    texCoord[i] = 0.0f;
+                    break;
+
+                case GL_NORMAL_MAP:
+                    texCoord[i] = v.normal[i];
+                    break;
+
+                case GL_REFLECTION_MAP:
+                    texCoord[i] = v.posEye[i] - (v.normal[i] * 2.0f * Vector::dot3(v.posEye, v.normal));
+                    break;
+                }
             }
         }
     }

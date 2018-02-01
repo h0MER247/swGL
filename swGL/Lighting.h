@@ -226,16 +226,13 @@ namespace SWGL {
         }
 
     public:
-        void calculateLighting(TriangleList &triangles, Matrix &mvMatrix) {
+        void calculateLighting(TriangleList &triangles) {
 
             // TODO: Specular light, two sided lighting, optimization, etc...
 
             for (auto &t : triangles) {
 
                 for (auto &v : t.v) {
-
-                    // Calculate eye position of the vertex
-                    auto vertexPosition = v.position * mvMatrix;
 
                     //
                     // Calculate lighting
@@ -263,7 +260,7 @@ namespace SWGL {
                         float lightAttenuation = 1.0f;
                         if (light.position.w() != 0.0f) {
 
-                            vertexToLight = light.position - vertexPosition;
+                            vertexToLight = light.position - v.posEye;
 
                             float len = Vector::length3(vertexToLight);
 

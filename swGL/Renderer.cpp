@@ -79,24 +79,6 @@ namespace SWGL {
         }
     }
 
-#if 0
-    static const char *envtostr(GLenum ev) {
-
-        switch (ev) {
-
-        case GL_REPLACE: return "GL_REPLACE";
-        case GL_MODULATE: return "GL_MODULATE";
-        case GL_DECAL: return "GL_DECAL";
-        case GL_ADD: return "GL_ADD";
-        case GL_BLEND: return "GL_BLEND";
-        case GL_COMBINE: return "GL_COMBINE";
-
-        default:
-        return std::to_string(ev).c_str();
-        }
-    }
-#endif
-
     void Renderer::drawTriangles(TriangleList &triangles) {
 
         auto &context = *Context::getCurrentContext();
@@ -153,13 +135,13 @@ namespace SWGL {
         auto numBinsX = m_drawSurface.getNumBuffersInX();
         auto numBinsY = m_drawSurface.getNumBuffersInY();
 
-        for (int i = 0, n = drawState->triangles.size(); i < n; i++) {
+        for (auto i = 0u, n = drawState->triangles.size(); i < n; i++) {
 
             auto &t = drawState->triangles[i];
 
-            auto &v1 = t.v[0].position;
-            auto &v2 = t.v[1].position;
-            auto &v3 = t.v[2].position;
+            auto &v1 = t.v[0].posObj;
+            auto &v2 = t.v[1].posObj;
+            auto &v3 = t.v[2].posObj;
 
             // Determine the triangles bounding box
             float y1 = v1.y(), y2 = v2.y(), y3 = v3.y();

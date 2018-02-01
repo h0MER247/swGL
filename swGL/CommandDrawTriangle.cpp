@@ -21,7 +21,7 @@
     QFloat GRADIENT_VALUE(NAME), GRADIENT_DX(NAME), GRADIENT_DY(NAME)
 
 #define SETUP_GRADIENT_EQ(NAME, Q1, Q2, Q3) \
-    setupGradientEquation(GRADIENT_VALUE(NAME), GRADIENT_DX(NAME), GRADIENT_DY(NAME), Q1, Q2, Q3, v1.position.x(), v1.position.y(), fdx21, fdy21, fdx31, fdy31, rcpArea)
+    setupGradientEquation(GRADIENT_VALUE(NAME), GRADIENT_DX(NAME), GRADIENT_DY(NAME), Q1, Q2, Q3, v1.posObj.x(), v1.posObj.y(), fdx21, fdy21, fdx31, fdy31, rcpArea)
 
 #define GET_GRADIENT_VALUE_AFFINE(NAME) \
     _mm_add_ps(qV ## NAME, _mm_add_ps(_mm_mul_ps(xxxx, GRADIENT_DX(NAME)), _mm_mul_ps(yyyy, GRADIENT_DY(NAME))))
@@ -139,29 +139,29 @@ namespace SWGL {
             //
             // Calculate the triangles reciprocal area
             //
-            float rcpArea = 1.0f / ((v2.position.x() - v1.position.x()) * (v3.position.y() - v1.position.y()) -
-                                    (v2.position.y() - v1.position.y()) * (v3.position.x() - v1.position.x()));
+            float rcpArea = 1.0f / ((v2.posObj.x() - v1.posObj.x()) * (v3.posObj.y() - v1.posObj.y()) -
+                                    (v2.posObj.y() - v1.posObj.y()) * (v3.posObj.x() - v1.posObj.x()));
 
             //
             // Calculate fixed point coordinates
             //
             int x1, y1, x2, y2, x3, y3;
 
-            x1 = static_cast<int>(v1.position.x() * 16.0f);
-            y1 = static_cast<int>(v1.position.y() * 16.0f);
+            x1 = static_cast<int>(v1.posObj.x() * 16.0f);
+            y1 = static_cast<int>(v1.posObj.y() * 16.0f);
             if (rcpArea < 0.0f) {
 
-                x2 = static_cast<int>(v2.position.x() * 16.0f);
-                y2 = static_cast<int>(v2.position.y() * 16.0f);
-                x3 = static_cast<int>(v3.position.x() * 16.0f);
-                y3 = static_cast<int>(v3.position.y() * 16.0f);
+                x2 = static_cast<int>(v2.posObj.x() * 16.0f);
+                y2 = static_cast<int>(v2.posObj.y() * 16.0f);
+                x3 = static_cast<int>(v3.posObj.x() * 16.0f);
+                y3 = static_cast<int>(v3.posObj.y() * 16.0f);
             }
             else {
 
-                x2 = static_cast<int>(v3.position.x() * 16.0f);
-                y2 = static_cast<int>(v3.position.y() * 16.0f);
-                x3 = static_cast<int>(v2.position.x() * 16.0f);
-                y3 = static_cast<int>(v2.position.y() * 16.0f);
+                x2 = static_cast<int>(v3.posObj.x() * 16.0f);
+                y2 = static_cast<int>(v3.posObj.y() * 16.0f);
+                x3 = static_cast<int>(v2.posObj.x() * 16.0f);
+                y3 = static_cast<int>(v2.posObj.y() * 16.0f);
             }
 
             //
@@ -195,8 +195,8 @@ namespace SWGL {
             ptrdiff_t bufferOffset = (startX << 1) + (startY * drawBuffer.getWidth());
             ptrdiff_t bufferStride = (drawBuffer.getWidth() - width) << 1;
 
-            unsigned int *colorBuffer = drawBuffer.getColor() + bufferOffset;
-            float *depthBuffer = drawBuffer.getDepth() + bufferOffset;
+            auto colorBuffer = drawBuffer.getColor() + bufferOffset;
+            auto depthBuffer = drawBuffer.getDepth() + bufferOffset;
 
             //
             // Determine the triangle edge equations
@@ -212,14 +212,14 @@ namespace SWGL {
             //
             // Determine the gradient equations
             //
-            float fdx21 = v2.position.x() - v1.position.x(), fdy21 = v2.position.y() - v1.position.y();
-            float fdx31 = v3.position.x() - v1.position.x(), fdy31 = v3.position.y() - v1.position.y();
+            float fdx21 = v2.posObj.x() - v1.posObj.x(), fdy21 = v2.posObj.y() - v1.posObj.y();
+            float fdx31 = v3.posObj.x() - v1.posObj.x(), fdy31 = v3.posObj.y() - v1.posObj.y();
 
             DEFINE_GRADIENT(z);
-            SETUP_GRADIENT_EQ(z, v1.position.z(), v2.position.z(), v3.position.z());
+            SETUP_GRADIENT_EQ(z, v1.posObj.z(), v2.posObj.z(), v3.posObj.z());
 
             DEFINE_GRADIENT(rcpW);
-            SETUP_GRADIENT_EQ(rcpW, v1.position.w(), v2.position.w(), v3.position.w());
+            SETUP_GRADIENT_EQ(rcpW, v1.posObj.w(), v2.posObj.w(), v3.posObj.w());
 
             DEFINE_GRADIENT(primaryA);
             SETUP_GRADIENT_EQ(primaryA, v1.colorPrimary.a(), v2.colorPrimary.a(), v3.colorPrimary.a());

@@ -1,6 +1,5 @@
 ﻿#include <cmath>
 #include "Context.h"
-#include "MatrixStack.h"
 #include "VertexPipeline.h"
 
 namespace SWGL {
@@ -8,8 +7,7 @@ namespace SWGL {
     VertexPipeline::VertexPipeline()
     
         : m_isInsideGLBegin(false),
-          m_texCoordGen(m_vertexState, m_matrixStack),
-          m_vertexDataArray(m_vertexState) {
+          m_vertexDataArray(m_matrixStack, m_texCoordGen) {
 
         setNormal(Vector(0.0f, 0.0f, 1.0f, 0.0f));
         setPrimaryColor(Vector(1.0f, 1.0f, 1.0f, 1.0f));
@@ -25,24 +23,6 @@ namespace SWGL {
 
         m_primitiveType = primitiveType;
         m_isInsideGLBegin = true;
-
-        // Update matrices
-        bool wasProjMatUpdated = m_matrixStack.wasMatrixStackUpdated(MatrixStack::STACK_PROJECTION);
-        bool wasModelViewMatUpdated = m_matrixStack.wasMatrixStackUpdated(MatrixStack::STACK_MODELVIEW);
-
-        if (wasProjMatUpdated || wasModelViewMatUpdated) {
-
-            m_mvpMatrix = m_matrixStack.getProjectionMatrix() *
-                          m_matrixStack.getModelViewMatrix();
-        }
-
-        if (m_clipper.isAnyUserPlaneEnabled() && wasProjMatUpdated) {
-
-            m_clipper.updateUserPlanes(
-            
-                m_matrixStack.getProjectionMatrix()
-            );
-        }
     }
 
     void VertexPipeline::end() {
@@ -56,18 +36,18 @@ namespace SWGL {
             break;
 
         case GL_LINE_LOOP:
-            if (m_vertices.size() < 2) { break; }
+            if (m_vertices.size() < 2U) { break; }
             for (auto i = 0U, n = m_vertices.size() - 1; i <= n; i++) {
 
                 Vertex &v1 = m_vertices[i];
-                Vertex &v2 = i == n ? m_vertices[0] : m_vertices[i + 1U];
+                Vertex &v2 = i == n ? m_vertices[0] : m_vertices[i + 1];
                 
                 addLine(v1, v2);
             }
             break;
 
         case GL_LINE_STRIP:
-            if (m_vertices.size() < 2) { break; }
+            if (m_vertices.size() < 2U) { break; }
             for (auto i = 0U, n = m_vertices.size() - 1; i < n; i++) {
 
                 Vertex &v1 = m_vertices[i];
@@ -78,7 +58,7 @@ namespace SWGL {
             break;
 
         case GL_LINES:
-            if (m_vertices.size() < 2) { break; }
+            if (m_vertices.size() < 2U) { break; }
             for (auto i = 0U, n = m_vertices.size(); i < n; i += 2) {
 
                 Vertex &v1 = m_vertices[i];
@@ -89,7 +69,7 @@ namespace SWGL {
             break;
 
         case GL_TRIANGLES:
-            if (m_vertices.size() < 3) { break; }
+            if (m_vertices.size() < 3U) { break; }
             for (auto i = 0U, n = m_vertices.size() - 2; i < n; i += 3) {
 
                 Vertex &v1 = m_vertices[i];
@@ -101,7 +81,7 @@ namespace SWGL {
             break;
 
         case GL_TRIANGLE_STRIP:
-            if (m_vertices.size() < 3) { break; }
+            if (m_vertices.size() < 3U) { break; }
             for (auto i = 0U, n = m_vertices.size() - 2; i < n; i++) {
 
                 Vertex &v1 = m_vertices[i];
@@ -119,8 +99,8 @@ namespace SWGL {
 
         case GL_TRIANGLE_FAN:
         case GL_POLYGON:
-            if (m_vertices.size() < 3) { break; }
-            for (auto i = 1U, n = m_vertices.size() - 1U; i < n; i++) {
+            if (m_vertices.size() < 3U) { break; }
+            for (auto i = 1U, n = m_vertices.size() - 1; i < n; i++) {
 
                 Vertex &v1 = m_vertices[0];
                 Vertex &v2 = m_vertices[i];
@@ -131,7 +111,7 @@ namespace SWGL {
             break;
 
         case GL_QUADS:
-            if (m_vertices.size() < 4) { break; }
+            if (m_vertices.size() < 4U) { break; }
             for (auto i = 0U, n = m_vertices.size() - 3; i < n; i += 4) {
 
                 Vertex &v1 = m_vertices[i];
@@ -145,7 +125,7 @@ namespace SWGL {
             break;
 
         case GL_QUAD_STRIP:
-            if (m_vertices.size() < 4) { break; }
+            if (m_vertices.size() < 4U) { break; }
             for (auto i = 0U, n = m_vertices.size() - 3; i < n; i += 2) {
 
                 Vertex &v1 = m_vertices[i];
@@ -184,8 +164,8 @@ namespace SWGL {
         float rcpViewportScaleY = 2.0f / static_cast<float>(m_viewport.getHeight());
 
         // Calculate the lines normal n = normalize(-dx, dy)
-        float nx = -((v2.projected.y() / v2.projected.w()) - (v1.projected.y() / v1.projected.w()));
-        float ny =  ((v2.projected.x() / v2.projected.w()) - (v1.projected.x() / v1.projected.w()));
+        float nx = -((v2.posProj.y() / v2.posProj.w()) - (v1.posProj.y() / v1.posProj.w()));
+        float ny =  ((v2.posProj.x() / v2.posProj.w()) - (v1.posProj.x() / v1.posProj.w()));
         float rcpLength = 1.0f / std::sqrt(nx * nx + ny * ny);
         nx *= rcpLength;
         ny *= rcpLength;
@@ -196,17 +176,17 @@ namespace SWGL {
         ny *= halfLineWidth;
 
         // Now create the vertices that define two triangles which are used to draw the line
-        Vertex v[4] { v1, v1, v2, v2 };
+        Vertex v[] { v1, v1, v2, v2 };
 
-        v[0].projected.x() += ( nx * v1.projected.w()) * rcpViewportScaleX;
-        v[0].projected.y() += ( ny * v1.projected.w()) * rcpViewportScaleY;
-        v[1].projected.x() += (-nx * v1.projected.w()) * rcpViewportScaleX;
-        v[1].projected.y() += (-ny * v1.projected.w()) * rcpViewportScaleY;
+        v[0].posProj.x() += ( nx * v1.posProj.w()) * rcpViewportScaleX;
+        v[0].posProj.y() += ( ny * v1.posProj.w()) * rcpViewportScaleY;
+        v[1].posProj.x() += (-nx * v1.posProj.w()) * rcpViewportScaleX;
+        v[1].posProj.y() += (-ny * v1.posProj.w()) * rcpViewportScaleY;
 
-        v[2].projected.x() += ( nx * v2.projected.w()) * rcpViewportScaleX;
-        v[2].projected.y() += ( ny * v2.projected.w()) * rcpViewportScaleY;
-        v[3].projected.x() += (-nx * v2.projected.w()) * rcpViewportScaleX;
-        v[3].projected.y() += (-ny * v2.projected.w()) * rcpViewportScaleY;
+        v[2].posProj.x() += ( nx * v2.posProj.w()) * rcpViewportScaleX;
+        v[2].posProj.y() += ( ny * v2.posProj.w()) * rcpViewportScaleY;
+        v[3].posProj.x() += (-nx * v2.posProj.w()) * rcpViewportScaleX;
+        v[3].posProj.y() += (-ny * v2.posProj.w()) * rcpViewportScaleY;
 
         addTriangle(v[0], v[1], v[2]);
         addTriangle(v[2], v[1], v[3]);
@@ -231,147 +211,124 @@ namespace SWGL {
 
     void VertexPipeline::setPosition(const Vector &position) {
 
-        m_vertexState.position = position;
-        m_vertexState.projected = position * m_mvpMatrix;
+        m_vertexState.posObj = position;
+        m_vertexState.posEye = m_vertexState.posObj * m_matrixStack.getModelViewMatrix();
+        m_vertexState.posProj = m_vertexState.posEye * m_matrixStack.getProjectionMatrix();
     }
 
     void VertexPipeline::addVertex() {
 
-        if (m_texCoordGen.isEnabled()) {
-
-            m_texCoordGen.generate();
-        }
-
         // TODO: Only execute this if needed
         for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
-        
+
+            if (m_texCoordGen.isEnabled(i)) {
+
+                m_texCoordGen.generate(m_vertexState, i);
+            }
+
             m_vertexState.texCoord[i] = m_vertexState.texCoord[i] * m_matrixStack.getTextureMatrix(i);
         }
 
         m_vertices.emplace_back(m_vertexState);
     }
 
+
+
     void VertexPipeline::setArrayElement(unsigned int idx) {
 
-        if (m_vertexDataArray.getColor().isEnabled()) {
+        // Color
+        if (m_vertexDataArray.isVertexColorEnabled()) {
 
-            setPrimaryColor(m_vertexDataArray.getColor().read(idx));
+            setPrimaryColor(m_vertexDataArray.getVertexColor(idx));
         }
 
-        if (m_vertexDataArray.getNormal().isEnabled()) {
+        // Normal
+        if (m_vertexDataArray.isVertexNormalEnabled()) {
 
-            setNormal(m_vertexDataArray.getNormal().read(idx));
+            setNormal(m_vertexDataArray.getVertexNormal(idx));
         }
 
-        for (auto i = 0U; i < SWGL_MAX_TEXTURE_UNITS; i++) {
+        // Texture coordinates
+        for (auto texUnit = 0U; texUnit < SWGL_MAX_TEXTURE_UNITS; texUnit++) {
 
-            auto &texCoord = m_vertexDataArray.getTexCoord(i);
-            if (texCoord.isEnabled()) {
+            if (m_vertexDataArray.isVertexTexCoordEnabled(texUnit)) {
 
-                setTexCoord(i, texCoord.read(idx));
+                setTexCoord(texUnit, m_vertexDataArray.getVertexTexCoord(idx, texUnit));
             }
         }
 
-        if (m_vertexDataArray.getPosition().isEnabled()) {
+        // Position
+        if (m_vertexDataArray.isVertexPositionEnabled()) {
 
-            setPosition(m_vertexDataArray.getPosition().read(idx));
+            setPosition(m_vertexDataArray.getVertexPosition(idx));
             addVertex();
         }
     }
 
 
 
-    void VertexPipeline::lockArrayElements(unsigned int firstIndex, unsigned int count) {
+    void VertexPipeline::drawIndexedArrayElements(GLenum mode, unsigned int count, GLenum type, const GLvoid *indices) {
 
-        m_vertexDataArray.lock(firstIndex, count);
-    }
+        if (m_vertexDataArray.isVertexPositionEnabled()) {
 
-    void VertexPipeline::unlockArrayElements() {
+            begin(mode); {
 
-        m_vertexDataArray.unlock();
-    }
+                // TODO: Figure something else out as this isn't a good solution
+                IndexSupplier supplier;
+                switch (type) {
 
+                case GL_UNSIGNED_BYTE:
+                    supplier = [&idx = indices] (unsigned int i) {
 
+                        return static_cast<unsigned int>(reinterpret_cast<const unsigned char *>(idx)[i]);
+                    };
+                    break;
 
-    void VertexPipeline::drawIndexedArrayElements(GLenum mode, int count, GLenum type, const GLvoid *indices) {
+                case GL_UNSIGNED_SHORT:
+                    supplier = [&idx = indices](unsigned int i) {
 
-        begin(mode); {
+                        return static_cast<unsigned int>(reinterpret_cast<const unsigned short *>(idx)[i]);
+                    };
+                    break;
 
-            m_vertexDataArray.prefetch(m_mvpMatrix, m_matrixStack.getModelViewMatrix());
+                case GL_UNSIGNED_INT:
+                    supplier = [&idx = indices](unsigned int i) {
 
-            switch (type) {
-
-            case GL_UNSIGNED_BYTE:
-                for (int i = 0; i < count; i++) {
-
-                    auto index = static_cast<unsigned int>(reinterpret_cast<const unsigned char *>(indices)[i]);
-
-                    if (m_vertexDataArray.getPrefetchedVertex(index)) {
+                        return reinterpret_cast<const unsigned int *>(idx)[i];
+                    };
+                    break;
+                }
                     
-                        addVertex();
-                    }
-                    else {
+                m_vertexDataArray.fetchVertices(
 
-                        setArrayElement(index);
-                    }
-                }
-                break;
-
-            case GL_UNSIGNED_SHORT:
-                for (int i = 0; i < count; i++) {
-
-                    auto index = static_cast<unsigned int>(reinterpret_cast<const unsigned short *>(indices)[i]);
-
-                    if (m_vertexDataArray.getPrefetchedVertex(index)) {
-                    
-                        addVertex();
-                    }
-                    else {
-
-                        setArrayElement(index);
-                    }
-                }
-                break;
-
-            case GL_UNSIGNED_INT:
-                for (int i = 0; i < count; i++) {
-
-                    auto index = reinterpret_cast<const unsigned int *>(indices)[i];
-
-                    if (m_vertexDataArray.getPrefetchedVertex(index)) {
-
-                        addVertex();
-                    }
-                    else {
-
-                        setArrayElement(index);
-                    }
-                }
-                break;
+                    m_vertexState,
+                    m_vertices,
+                    0U,
+                    count,
+                    supplier
+                );
             }
+            end();
         }
-        end();
     }
 
-    void VertexPipeline::drawArrayElements(GLenum mode, int first, int count) {
+    void VertexPipeline::drawArrayElements(GLenum mode, unsigned int first, unsigned int count) {
 
-        begin(mode); {
+        if (m_vertexDataArray.isVertexPositionEnabled()) {
 
-            m_vertexDataArray.prefetch(m_mvpMatrix, m_matrixStack.getModelViewMatrix());
+            begin(mode); {
 
-            for (auto i = first, n = first + count; i < n; i++) {
+                m_vertexDataArray.fetchVertices(
 
-                if (m_vertexDataArray.getPrefetchedVertex(i)) {
-
-                    addVertex();
-                }
-                else {
-
-                    setArrayElement(i);
-                }
+                    m_vertexState,
+                    m_vertices,
+                    first,
+                    count,
+                    [] (unsigned int i) { return i; }
+                );
             }
+            end();
         }
-        end();
     }
 
 
@@ -380,23 +337,17 @@ namespace SWGL {
 
         if (m_lighting.isEnabled()) {
 
-            m_lighting.calculateLighting(
-
-                m_triangles,
-                m_matrixStack.getModelViewMatrix()
-            );
+            m_lighting.calculateLighting(m_triangles);
         }
 
-        m_clipper.clipTriangles(m_triangles);
-
-        if (!m_triangles.empty()) {
+        if (m_clipper.clipTriangles(m_triangles)) {
 
             for (auto &t : m_triangles) {
 
-                for (int i = 0; i < 3; i++) {
+                for (auto &v : t.v) {
 
-                    auto &proj = t.v[i].projected;
-                    auto &raster = t.v[i].position;
+                    auto &proj = v.posProj;
+                    auto &raster = v.posObj;
 
                     // Perspective division
                     auto rhw = 1.0f / proj.w();
@@ -406,11 +357,11 @@ namespace SWGL {
                     raster.y() = proj.y() * rhw;
                     raster.x() = proj.x() * rhw;
 
-                    t.v[i].colorPrimary *= rhw;
-                    t.v[i].colorSecondary *= rhw;
-                    for (auto j = 0U; j < SWGL_MAX_TEXTURE_UNITS; j++) {
+                    v.colorPrimary *= rhw;
+                    v.colorSecondary *= rhw;
+                    for (auto &texCoord : v.texCoord) {
 
-                        t.v[i].texCoord[j] *= rhw;
+                        texCoord *= rhw;
                     }
 
                     // Viewport transformation

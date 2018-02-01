@@ -20,25 +20,20 @@ namespace SWGL {
         GLenum getMatrixMode();
 
     public:
-        bool canPush();
-        void push();
-        bool canPop();
-        void pop();
-
-    public:
-        void updateCurrentMatrixStack();
-        bool wasMatrixStackUpdated(unsigned int stack);
-
-    public:
+        void setCurrentMatrix(Matrix matrix);
         void setActiveTexture(unsigned int activeTexture);
 
     public:
-        Matrix &getCurrentMatrix() const;
-        Matrix &getModelViewMatrix() const;
-        Matrix &getProjectionMatrix() const;
-        Matrix &getColorMatrix() const;
-        Matrix &getTextureMatrix() const;
-        Matrix &getTextureMatrix(unsigned int idx) const;
+        bool push();
+        bool pop();
+
+    public:
+        const Matrix &getCurrentMatrix() const;
+        const Matrix &getModelViewMatrix() const;
+        const Matrix &getProjectionMatrix() const;
+        const Matrix &getColorMatrix() const;
+        const Matrix &getTextureMatrix() const;
+        const Matrix &getTextureMatrix(unsigned int idx) const;
 
     private:
         unsigned int m_activeTexture;
@@ -49,12 +44,11 @@ namespace SWGL {
 
             Matrix matrix[SWGL_MAX_MATRIXSTACK_DEPTH];
             Matrix *currentMatrix;
-            bool wasUpdated;
         };
         Stack m_stack[3 + SWGL_MAX_TEXTURE_UNITS];
         Stack *m_currentStack;
 
-    public:
+    private:
         static constexpr unsigned int STACK_MODELVIEW = 0U;
         static constexpr unsigned int STACK_PROJECTION = 1U;
         static constexpr unsigned int STACK_COLOR = 2U;

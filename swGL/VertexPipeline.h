@@ -1,12 +1,10 @@
 ﻿#pragma once
 
 #include <vector>
-#include <array>
 #include "OpenGL.h"
 #include "Vertex.h"
 #include "Triangle.h"
 #include "Clipper.h"
-#include "Matrix.h"
 #include "ContextTypes.h"
 #include "MatrixStack.h"
 #include "VertexDataArray.h"
@@ -38,10 +36,8 @@ namespace SWGL {
         void setArrayElement(unsigned int idx);
 
     public:
-        void lockArrayElements(unsigned int firstIndex, unsigned int count);
-        void unlockArrayElements();
-        void drawIndexedArrayElements(GLenum mode, int count, GLenum type, const GLvoid *indices);
-        void drawArrayElements(GLenum mode, int first, int count);
+        void drawIndexedArrayElements(GLenum mode, unsigned int count, GLenum type, const GLvoid *indices);
+        void drawArrayElements(GLenum mode, unsigned int first, unsigned int count);
 
     public:
         TexCoordGen &getTexGen() { return m_texCoordGen; }
@@ -61,7 +57,6 @@ namespace SWGL {
         bool m_isInsideGLBegin;
         Vertex m_vertexState;
         GLenum m_primitiveType;
-        Matrix m_mvpMatrix;
 
     private:
         TexCoordGen m_texCoordGen;

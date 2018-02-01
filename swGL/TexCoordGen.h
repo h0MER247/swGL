@@ -8,32 +8,10 @@ namespace SWGL {
     //
     //
     //
-    struct TexCoordGenState {
-
-        unsigned int enableMask = 0U;
-
-        struct {
-
-            GLenum mode;
-            Vector objectPlane;
-            Vector eyePlane;
-
-        } data[4] = {
-
-            { GL_EYE_LINEAR, Vector(1.0f, 0.0f, 0.0f, 0.0f), Vector(1.0f, 0.0f, 0.0f, 0.0f) },
-            { GL_EYE_LINEAR, Vector(0.0f, 1.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f, 0.0f) },
-            { GL_EYE_LINEAR, Vector(0.0f, 0.0f, 0.0f, 0.0f), Vector(0.0f, 0.0f, 0.0f, 0.0f) },
-            { GL_EYE_LINEAR, Vector(0.0f, 0.0f, 0.0f, 0.0f), Vector(0.0f, 0.0f, 0.0f, 0.0f) }
-        };
-    };
-
-    //
-    //
-    //
     class TexCoordGen {
 
     public:
-        TexCoordGen(Vertex &vertexState, MatrixStack &matrixStack);
+        TexCoordGen();
         ~TexCoordGen() = default;
 
     public:
@@ -43,18 +21,32 @@ namespace SWGL {
         void setEyePlane(unsigned int texCoordIdx, Vector plane);
         void setActiveTexture(unsigned int activeTexture);
 
-    private:
-        float generateTexCoord(unsigned int texCoordIdx, TexCoordGenState &state);
-
     public:
-        bool isEnabled();
-        void generate();
+        bool isEnabled(unsigned int texUnit);
+        void generate(Vertex &v, unsigned int texUnit);
+
+    private:
+        struct TexCoordGenState {
+
+            unsigned int enableMask = 0U;
+
+            struct {
+
+                GLenum mode;
+                Vector objectPlane;
+                Vector eyePlane;
+
+            } data[4] = {
+
+                { GL_EYE_LINEAR, Vector(1.0f, 0.0f, 0.0f, 0.0f), Vector(1.0f, 0.0f, 0.0f, 0.0f) },
+                { GL_EYE_LINEAR, Vector(0.0f, 1.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f, 0.0f) },
+                { GL_EYE_LINEAR, Vector(0.0f, 0.0f, 0.0f, 0.0f), Vector(0.0f, 0.0f, 0.0f, 0.0f) },
+                { GL_EYE_LINEAR, Vector(0.0f, 0.0f, 0.0f, 0.0f), Vector(0.0f, 0.0f, 0.0f, 0.0f) }
+            };
+        };
+        TexCoordGenState m_state[SWGL_MAX_TEXTURE_UNITS];
 
     private:
         unsigned int m_activeTexture;
-        unsigned int m_enableMask;
-        Vertex &m_vertexState;
-        MatrixStack &m_matrixStack;
-        TexCoordGenState m_state[SWGL_MAX_TEXTURE_UNITS];
     };
 }

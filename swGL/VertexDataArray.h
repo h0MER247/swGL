@@ -5,7 +5,7 @@
 #include <memory>
 #include "Vector.h"
 #include "Vertex.h"
-#include "Matrix.h"
+#include "TexCoordGen.h"
 #include "OpenGL.h"
 
 namespace SWGL {
@@ -50,13 +50,13 @@ namespace SWGL {
             m_isEnabled = isEnabled;
         }
 
-        bool isEnabled() {
+        bool isEnabled() const {
 
             return m_isEnabled;
         }
 
     public:
-        Vector read(unsigned int index) {
+        Vector read(unsigned int index) const {
 
             return m_reader(index);
         }
@@ -165,8 +165,7 @@ namespace SWGL {
     };
 
     using VectorReaderPtr = std::unique_ptr<VectorReader>;
-
-
+    using IndexSupplier = std::function<unsigned int(unsigned int)>;
 
     //
     // Implementation of a vertex data array that is used in glArrayElement() / glDrawElements(), etc.
@@ -174,11 +173,11 @@ namespace SWGL {
     class VertexDataArray {
 
     public:
-        VertexDataArray(Vertex &vertexState)
+        VertexDataArray(MatrixStack &matrixStack, TexCoordGen &texGen)
 
-            : m_isLocked(false),
-              m_activeTexture(0U),
-              m_vertexState(vertexState) {
+            : m_activeTexture(0U),
+              m_matrixStack(matrixStack),
+              m_texGen(texGen) {
 
             m_position = std::make_unique<VectorReader>(false, true);
             m_normal = std::make_unique<VectorReader>(true, false);
@@ -188,8 +187,6 @@ namespace SWGL {
 
                 m_texCoord[i] = std::make_unique<VectorReader>(false, true);
             }
-
-            m_prefetchedVertices.resize(MAX_VERTICES);
         }
         ~VertexDataArray() = default;
 
@@ -199,109 +196,156 @@ namespace SWGL {
             m_activeTexture = activeTexture;
         }
 
+        void setSourcePointer(GLenum source, const void *addr, GLenum type, unsigned int stride, unsigned int numArgs) {
+
+            switch (source) {
+
+            case GL_VERTEX_ARRAY:
+                m_position->setSource(addr, type, stride, numArgs);
+                break;
+
+            case GL_NORMAL_ARRAY:
+                m_normal->setSource(addr, type, stride, numArgs);
+                break;
+
+            case GL_COLOR_ARRAY:
+                m_color->setSource(addr, type, stride, numArgs);
+                break;
+
+            case GL_TEXTURE_COORD_ARRAY:
+                m_texCoord[m_activeTexture]->setSource(addr, type, stride, numArgs);
+                break;
+            }
+        }
+
+        void setSourceEnable(GLenum source, bool isEnabled) {
+
+            switch (source) {
+
+            case GL_VERTEX_ARRAY:
+                m_position->setEnable(isEnabled);
+                break;
+
+            case GL_NORMAL_ARRAY:
+                m_normal->setEnable(isEnabled);
+                break;
+
+            case GL_COLOR_ARRAY:
+                m_color->setEnable(isEnabled);
+                break;
+
+            case GL_TEXTURE_COORD_ARRAY:
+                m_texCoord[m_activeTexture]->setEnable(isEnabled);
+                break;
+            }
+        }
+
     public:
-        VectorReader &getPosition() {
+        inline bool isVertexColorEnabled() const {
 
-            return *m_position;
+            return m_color->isEnabled();
         }
 
-        VectorReader &getNormal() {
+        inline bool isVertexNormalEnabled() const {
 
-            return *m_normal;
+            return m_normal->isEnabled();
         }
 
-        VectorReader &getColor() {
+        inline bool isVertexPositionEnabled() const {
 
-            return *m_color;
+            return m_position->isEnabled();
         }
 
-        VectorReader &getTexCoord() {
+        inline bool isVertexTexCoordEnabled(unsigned int texUnit) const {
 
-            return *m_texCoord[m_activeTexture];
-        }
-
-        VectorReader &getTexCoord(unsigned int index) {
-
-            return *m_texCoord[index];
+            return m_texCoord[texUnit]->isEnabled();
         }
 
     public:
-        void lock(unsigned int firstIdx, unsigned int count) {
+        inline Vector getVertexColor(unsigned int index) {
 
-            m_isLocked = true;
-
-            m_firstIdx = firstIdx;
-            m_lastIdx = firstIdx + std::min(count, MAX_VERTICES) - 1U;
+            return m_color->read(index);
         }
 
-        void unlock() {
+        inline Vector getVertexNormal(unsigned int index) {
 
-            m_isLocked = false;
+            return m_normal->read(index);
         }
 
-        bool getPrefetchedVertex(unsigned int index) {
+        inline Vector getVertexPosition(unsigned int index) {
 
-            if (m_isLocked && index >= m_firstIdx && index <= m_lastIdx) {
+            return m_position->read(index);
+        }
 
-                m_vertexState = m_prefetchedVertices[index - m_firstIdx];
-                return true;
+        inline Vector getVertexTexCoord(unsigned int index, unsigned int texUnit) {
+
+            return m_texCoord[texUnit]->read(index);
+        }
+
+    public:
+        void fetchVertices(Vertex currentState, VertexList &vertices, unsigned int first, unsigned int count, IndexSupplier indexSupplier) {
+
+            // Reset vertex post transform cache
+            for (auto &cacheEntry : m_postTransformCache) {
+
+                cacheEntry.index = 0xffffffff;
             }
 
-            return false;
-        }
+            //
+            // Read vertices
+            //
+            for (auto i = first, n = first + count; i < n; i++) {
 
-        void prefetch(Matrix &mvpMatrix, Matrix &mvMatrix) {
+                // Get the index to the vertex
+                auto idx = indexSupplier(i);
 
-            if (m_isLocked) {
 
-                for (auto i = m_firstIdx, j = 0U; i <= m_lastIdx; i++, j++) {
+                // Look inside the post transform cache first
+                auto &cacheEntry = m_postTransformCache[idx & 0x1f];
+                if (cacheEntry.index == idx) {
 
-                    auto &v = m_prefetchedVertices[j];
+                    vertices.emplace_back(cacheEntry.vertex);
+                }
+                else {
 
-                    // Update position
-                    if (m_position->isEnabled()) {
+                    // Position
+                    currentState.posObj = getVertexPosition(idx);
+                    currentState.posEye = currentState.posObj * m_matrixStack.getModelViewMatrix();
+                    currentState.posProj = currentState.posEye * m_matrixStack.getProjectionMatrix();
 
-                        v.position = m_position->read(i);
-                        v.projected = v.position * mvpMatrix;
-                    }
-                    else {
+                    // Normal
+                    if (isVertexNormalEnabled()) {
 
-                        v.position = m_vertexState.position;
-                        v.projected = m_vertexState.projected;
-                    }
-
-                    // Update normal
-                    if (m_normal->isEnabled()) {
-
-                        v.normal = m_normal->read(i) * mvMatrix;
-                    }
-                    else {
-
-                        v.normal = m_vertexState.normal;
+                        currentState.normal = getVertexNormal(idx) * m_matrixStack.getModelViewMatrix();
                     }
 
-                    // Update color
-                    if (m_color->isEnabled()) {
+                    // Color
+                    if (isVertexColorEnabled()) {
 
-                        v.colorPrimary = m_color->read(i);
-                    }
-                    else {
-
-                        v.colorPrimary = m_vertexState.colorPrimary;
+                        currentState.colorPrimary = getVertexColor(idx);
                     }
 
-                    // Update texture coordinate(s)
+                    // Texture coordinates
                     for (auto texUnit = 0U; texUnit < SWGL_MAX_TEXTURE_UNITS; texUnit++) {
 
-                        if (m_texCoord[texUnit]->isEnabled()) {
+                        if (m_texGen.isEnabled(texUnit)) {
 
-                            v.texCoord[texUnit] = m_texCoord[texUnit]->read(i);
+                            m_texGen.generate(currentState, texUnit);
+                            currentState.texCoord[texUnit] = currentState.texCoord[texUnit] * m_matrixStack.getTextureMatrix(texUnit);
                         }
-                        else {
+                        else if (isVertexTexCoordEnabled(texUnit)) {
 
-                            v.texCoord[texUnit] = m_vertexState.texCoord[texUnit];
+                            currentState.texCoord[texUnit] = getVertexTexCoord(idx, texUnit);
+                            currentState.texCoord[texUnit] = currentState.texCoord[texUnit] * m_matrixStack.getTextureMatrix(texUnit);
                         }
                     }
+
+                    // Add vertex to the cache
+                    cacheEntry.index = idx;
+                    cacheEntry.vertex = currentState;
+
+                    // Add vertex
+                    vertices.emplace_back(currentState);
                 }
             }
         }
@@ -313,14 +357,18 @@ namespace SWGL {
         VectorReaderPtr m_texCoord[SWGL_MAX_TEXTURE_UNITS];
 
     private:
-        bool m_isLocked;
-        unsigned int m_firstIdx;
-        unsigned int m_lastIdx;
         unsigned int m_activeTexture;
-        Vertex &m_vertexState;
-        VertexList m_prefetchedVertices;
 
     private:
-        static constexpr unsigned int MAX_VERTICES = 4096U;
+        MatrixStack &m_matrixStack;
+        TexCoordGen &m_texGen;
+
+    private:
+        struct CachedVertex {
+
+            unsigned int index;
+            Vertex vertex;
+        };
+        CachedVertex m_postTransformCache[32];
     };
 }

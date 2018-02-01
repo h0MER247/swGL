@@ -1,18 +1,15 @@
 ﻿#include <vector>
 #include <intrin.h>
-#include "OpenGL.h"
 #include "Vertex.h"
 #include "Triangle.h"
-#include "Matrix.h"
 #include "Clipper.h"
 
+// TODO: Try to implement guard band clipping to (mostly) avoid the costly analytical clipping
 namespace SWGL {
     
     Clipper::Clipper()
     
-        : m_transInvProjMatrix(Matrix::getIdentity()),
-          m_isAnyUserPlaneEnabled(false),
-          m_clipPlaneEqs{
+        : m_clipPlaneEqs{
         
             Vector( 0.0f,  0.0f, -1.0f, 1.0f), // Near
             Vector( 0.0f,  0.0f,  1.0f, 1.0f), // Far
@@ -20,82 +17,18 @@ namespace SWGL {
             Vector( 0.0f,  1.0f,  0.0f, 1.0f), // Bottom
             Vector(-1.0f,  0.0f,  0.0f, 1.0f), // Right
             Vector( 1.0f,  0.0f,  0.0f, 1.0f)  // Left
-          } {
-
-    
-    }
-
-
-
-    void Clipper::setUserPlaneEquation(int index, Vector planeEq) {
-
-        auto &plane = m_userClipPlanes[index];
-
-        plane.equation = planeEq;
-        if (plane.isEnabled) {
-        
-            updateUserPlane(index);
-        }
-    }
-
-    void Clipper::setUserPlaneEnable(int index, bool isEnabled) {
-
-        m_userClipPlanes[index].isEnabled = isEnabled;
-        m_isAnyUserPlaneEnabled = isEnabled;
-        
-        if (isEnabled) {
-
-            updateUserPlane(index);
-        }
-        else {
-
-            for (auto i = 0U; i < SWGL_MAX_CLIP_PLANES; i++) {
-
-                if (m_userClipPlanes[i].isEnabled) {
-
-                    m_isAnyUserPlaneEnabled = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    void Clipper::updateUserPlanes(Matrix &projMatrix) {
-
-        m_transInvProjMatrix = projMatrix.getTransposedInverse();
+          },
+          m_userPlaneEnableMask(0U) {
 
         for (auto i = 0U; i < SWGL_MAX_CLIP_PLANES; i++) {
 
-            if (m_userClipPlanes[i].isEnabled) {
-
-                updateUserPlane(i);
-            }
+            m_clipPlaneEqs[OFFSET_USER_PLANES + i] = Vector(0.0f, 0.0f, 0.0f, 0.0f);
         }
     }
 
-    Vector Clipper::getUserPlaneEquation(int index) {
-    
-        return m_userClipPlanes[index].equation;
-    }
-
-    bool Clipper::isUserPlaneEnabled(int index) {
-
-        return m_userClipPlanes[index].isEnabled;
-    }
-
-    bool Clipper::isAnyUserPlaneEnabled() {
-
-        return m_isAnyUserPlaneEnabled;
-    }
-
-    void Clipper::updateUserPlane(int index) {
-
-        m_clipPlaneEqs[OFFSET_USER_PLANES + index] = m_userClipPlanes[index].equation * m_transInvProjMatrix;
-    }
 
 
-
-    void Clipper::clipTriangles(TriangleList &triangles) {
+    bool Clipper::clipTriangles(TriangleList &triangles) {
 
         std::vector<Triangle> outputList;
 
@@ -103,38 +36,38 @@ namespace SWGL {
 
             // Generate the Sutherland-Hodgman style clipcodes to determine if the
             // triangle must be clipped against a plane of the view frustum.
-            int clipOr = Clipcode::None;
-            int clipAnd = Clipcode::All;
+            unsigned int clipOr = Clipcode::None;
+            unsigned int clipAnd = Clipcode::All;
 
-            for (int i = 0; i < 3; i++) {
+            for (auto &v : t.v) {
 
-                Vertex &v = t.v[i];
-
-                int clipCode = Clipcode::None;
-                if (v.projected.x() < -v.projected.w()) clipCode |= Clipcode::Left;
-                if (v.projected.x() >  v.projected.w()) clipCode |= Clipcode::Right;
-                if (v.projected.y() < -v.projected.w()) clipCode |= Clipcode::Bottom;
-                if (v.projected.y() >  v.projected.w()) clipCode |= Clipcode::Top;
-                if (v.projected.z() < -v.projected.w()) clipCode |= Clipcode::Far;
-                if (v.projected.z() >  v.projected.w()) clipCode |= Clipcode::Near;
+                unsigned int clipCode = Clipcode::None;
+                if (v.posProj.x() < -v.posProj.w()) { clipCode |= Clipcode::Left; }
+                if (v.posProj.x() >  v.posProj.w()) { clipCode |= Clipcode::Right; }
+                if (v.posProj.y() < -v.posProj.w()) { clipCode |= Clipcode::Bottom; }
+                if (v.posProj.y() >  v.posProj.w()) { clipCode |= Clipcode::Top; }
+                if (v.posProj.z() < -v.posProj.w()) { clipCode |= Clipcode::Far; }
+                if (v.posProj.z() >  v.posProj.w()) { clipCode |= Clipcode::Near; }
 
                 clipOr |= clipCode;
                 clipAnd &= clipCode;
             }
 
             // Determine if the triangle must be clipped against a user defined plane
-            if (m_isAnyUserPlaneEnabled) {
+            if (isAnyUserPlaneEnabled()) {
 
                 for (auto i = 0U; i < SWGL_MAX_CLIP_PLANES; i++) {
 
                     if (isUserPlaneEnabled(i)) {
 
-                        for (auto j = 0U; j < 3U; j++) {
+                        auto &planeEq = m_clipPlaneEqs[OFFSET_USER_PLANES + i];
+                        auto d1 = Vector::dot(planeEq, t.v[0].posEye) < 0.0f;
+                        auto d2 = Vector::dot(planeEq, t.v[1].posEye) < 0.0f;
+                        auto d3 = Vector::dot(planeEq, t.v[2].posEye) < 0.0f;
 
-                            if (Vector::dot(m_clipPlaneEqs[6 + i], t.v[j].projected) < 0.0f) {
+                        if (d1 | d2 | d3) {
 
-                                clipOr |= Clipcode::User << i;
-                            }
+                            clipOr |= Clipcode::User << i;
                         }
                     }
                 }
@@ -145,8 +78,8 @@ namespace SWGL {
 
                 if (clipOr == Clipcode::None) {
 
-                    // The triangle is completely inside the view frustum and user defined
-                    // clipping planes
+                    // The triangle is completely inside the view frustum and the user
+                    // defined clipping planes
                     outputList.emplace_back(t);
                 }
                 else {
@@ -158,12 +91,16 @@ namespace SWGL {
             }
         }
 
-        triangles = std::move(outputList);
+        if (!outputList.empty()) {
+
+            triangles = std::move(outputList);
+            return true;
+        }
+
+        return false;
     }
 
-
-
-    void Clipper::clipTriangle(Triangle &t, int clipcode, TriangleList &out) {
+    void Clipper::clipTriangle(Triangle &t, unsigned int clipcode, TriangleList &out) {
 
         std::vector<Vertex> vInList{t.v[0], t.v[1], t.v[2]};
         std::vector<Vertex> vOutList;
@@ -171,22 +108,22 @@ namespace SWGL {
         unsigned long planeIdx;
         while (_BitScanForward(&planeIdx, clipcode)) {
 
-            clipcode ^= 1 << planeIdx;
+            clipcode ^= 1U << planeIdx;
 
             //
             // Clip all vertices against the current plane
             //
-            const Vector &planeEq = m_clipPlaneEqs[planeIdx];
+            auto isUserPlane = planeIdx >= OFFSET_USER_PLANES;
+            auto &planeEq = m_clipPlaneEqs[planeIdx];
 
             for (auto i = 0U, n = vInList.size() - 1; i <= n; i++) {
 
                 Vertex &current = vInList[i];
                 Vertex &next = vInList[i == n ? 0 : i + 1];
 
-                // Calculate dot products with the plane equation to determine
-                // the distances to the plane
-                float d1 = Vector::dot(planeEq, current.projected);
-                float d2 = Vector::dot(planeEq, next.projected);
+                // Calculate the distance of "current" and "next" to the plane
+                float d1 = Vector::dot(planeEq, isUserPlane ? current.posEye : current.posProj);
+                float d2 = Vector::dot(planeEq, isUserPlane ? next.posEye : next.posProj);
 
                 bool isCurrentInside = d1 >= 0.0f;
                 bool isNextInside = d2 >= 0.0f;
@@ -205,14 +142,14 @@ namespace SWGL {
 
                     // Always clip from the inside out to avoid t-junctions
                     Vertex intersection;
-
                     if (isCurrentInside) {
 
                         float t = d1 / (d1 - d2);
 
-                        intersection.projected = Vector::lerp(current.projected, next.projected, t);
+                        intersection.posProj = Vector::lerp(current.posProj, next.posProj, t);
+                        intersection.posEye = Vector::lerp(current.posEye, next.posEye, t);
                         intersection.colorPrimary = Vector::lerp(current.colorPrimary, next.colorPrimary, t);
-                        intersection.colorSecondary = Vector::lerp(current.colorSecondary, next.colorSecondary, t);
+                        //intersection.colorSecondary = Vector::lerp(current.colorSecondary, next.colorSecondary, t);
                         for (auto j = 0U; j < SWGL_MAX_TEXTURE_UNITS; j++) {
 
                             intersection.texCoord[j] = Vector::lerp(current.texCoord[j], next.texCoord[j], t);
@@ -222,9 +159,10 @@ namespace SWGL {
 
                         float t = d2 / (d2 - d1);
 
-                        intersection.projected = Vector::lerp(next.projected, current.projected, t);
+                        intersection.posProj = Vector::lerp(next.posProj, current.posProj, t);
+                        intersection.posEye = Vector::lerp(next.posEye, current.posEye, t);
                         intersection.colorPrimary = Vector::lerp(next.colorPrimary, current.colorPrimary, t);
-                        intersection.colorSecondary = Vector::lerp(next.colorSecondary, current.colorSecondary, t);
+                        //intersection.colorSecondary = Vector::lerp(next.colorSecondary, current.colorSecondary, t);
                         for (auto j = 0U; j < SWGL_MAX_TEXTURE_UNITS; j++) {
 
                             intersection.texCoord[j] = Vector::lerp(next.texCoord[j], current.texCoord[j], t);
@@ -236,22 +174,53 @@ namespace SWGL {
             }
 
             // Leave this method if there aren't enough vertices for a triangle
-            if (vOutList.size() < 3) {
-                
-                return;
-            }
+            if (vOutList.size() < 3U) { return; }
 
-            vInList = std::move(vOutList);
+            std::swap(vInList, vOutList);
             vOutList.clear();
         }
 
         // Triangulate the vertices into a triangle fan
-        for (int i = 1, n = vInList.size() - 1; i < n; i++) {
+        for (auto i = 1U, n = vInList.size() - 1; i < n; i++) {
 
             out.emplace_back(
 
                 Triangle(vInList[0], vInList[i], vInList[i + 1])
             );
         }
+    }
+
+
+
+    void Clipper::setUserPlaneEquation(unsigned int index, Vector planeEq) {
+
+        m_clipPlaneEqs[OFFSET_USER_PLANES + index] = planeEq;
+    }
+
+    void Clipper::setUserPlaneEnable(unsigned int index, bool isEnabled) {
+
+        if (isEnabled) {
+
+            m_userPlaneEnableMask |= 1U << index;
+        }
+        else {
+
+            m_userPlaneEnableMask &= ~(1U << index);
+        }
+    }
+
+    Vector Clipper::getUserPlaneEquation(unsigned int index) {
+
+        return m_clipPlaneEqs[OFFSET_USER_PLANES + index];
+    }
+
+    bool Clipper::isUserPlaneEnabled(unsigned int index) {
+
+        return (m_userPlaneEnableMask & (1U << index)) != 0U;
+    }
+
+    bool Clipper::isAnyUserPlaneEnabled() {
+
+        return m_userPlaneEnableMask != 0U;
     }
 }
