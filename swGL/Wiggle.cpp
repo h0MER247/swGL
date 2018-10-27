@@ -262,3 +262,16 @@ SWGLAPI BOOL STDCALL glDrv_wglGetDeviceGammaRamp(HDC hdc, LPVOID lpRamp) {
     return true;
 #endif
 }
+
+SWGLAPI const char * STDCALL glDrv_wglGetExtensionsString(HDC hdc) {
+
+	LOG("HDC: %p", hdc);
+
+	auto &context = SWGL::Context::getCurrentContext();
+	if (context != nullptr) {
+
+		return context->getLibExtensions();
+	}
+
+	return nullptr;
+}

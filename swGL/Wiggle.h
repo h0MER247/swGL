@@ -34,4 +34,5 @@ SWGLAPI BOOL STDCALL glDrv_wglUseFontOutlinesW(HDC hdc, DWORD dw1, DWORD dw2, DW
 // -------------------------------------------------------
 SWGLAPI BOOL STDCALL glDrv_wglSetDeviceGammaRamp(HDC hdc, LPVOID lpRamp);
 SWGLAPI BOOL STDCALL glDrv_wglGetDeviceGammaRamp(HDC hdc, LPVOID lpRamp);
+SWGLAPI const char * STDCALL glDrv_wglGetExtensionsString(HDC hdc);
 // -------------------------------------------------------

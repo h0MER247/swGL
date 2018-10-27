@@ -132,7 +132,11 @@ namespace SWGL {
 
             addProcedure("wglGetDeviceGammaRamp3DFX", ADDRESS_OF(glDrv_wglGetDeviceGammaRamp));
             addProcedure("wglSetDeviceGammaRamp3DFX", ADDRESS_OF(glDrv_wglSetDeviceGammaRamp));
-        }
+		}
+		addExtension("WGL_ARB_extensions_string"); {
+
+			addProcedure("wglGetExtensionsStringARB", ADDRESS_OF(glDrv_wglGetExtensionsString));
+		}
     }
 
 
