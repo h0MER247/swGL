@@ -138,27 +138,27 @@ SWGLAPI PROC STDCALL glDrv_wglGetProcAddress(LPCSTR s) {
 
 SWGLAPI BOOL STDCALL glDrv_wglMakeCurrent(HDC hdc, HGLRC hglrc) {
 
-	LOG("Make context %p current, hdc = %p", hglrc, hdc);
+    LOG("Make context %p current, hdc = %p", hglrc, hdc);
 
-	if (hglrc != nullptr) {
+    if (hglrc != nullptr) {
 
-		auto context = SWGL::Context::getContext(
-			reinterpret_cast<SWGL::ContextID>(hglrc)
-		);
+        auto context = SWGL::Context::getContext(
+            reinterpret_cast<SWGL::ContextID>(hglrc)
+        );
 
-		if (context != nullptr) {
+        if (context != nullptr) {
 
-			SWGL::Context::setCurrentContext(context, hdc);
-			return TRUE;
-		}
-	}
-	else {
+            SWGL::Context::setCurrentContext(context, hdc);
+            return TRUE;
+        }
+    }
+    else {
 
-		SWGL::Context::setCurrentContext(nullptr, nullptr);
-		return TRUE;
-	}
+        SWGL::Context::setCurrentContext(nullptr, nullptr);
+        return TRUE;
+    }
 
-	return FALSE;
+    return FALSE;
 }
 
 SWGLAPI BOOL STDCALL glDrv_wglRealizeLayerPalette(HDC hdc, int iLayerPlane, BOOL b) {
@@ -268,13 +268,13 @@ SWGLAPI BOOL STDCALL glDrv_wglGetDeviceGammaRamp(HDC hdc, LPVOID lpRamp) {
 
 SWGLAPI const char * STDCALL glDrv_wglGetExtensionsString(HDC hdc) {
 
-	LOG("HDC: %p", hdc);
+    LOG("HDC: %p", hdc);
 
-	auto &context = SWGL::Context::getCurrentContext();
-	if (context != nullptr) {
+    auto &context = SWGL::Context::getCurrentContext();
+    if (context != nullptr) {
 
-		return context->getLibExtensions();
-	}
+        return context->getLibExtensions();
+    }
 
-	return nullptr;
+    return nullptr;
 }

@@ -132,11 +132,11 @@ namespace SWGL {
 
             addProcedure("wglGetDeviceGammaRamp3DFX", ADDRESS_OF(glDrv_wglGetDeviceGammaRamp));
             addProcedure("wglSetDeviceGammaRamp3DFX", ADDRESS_OF(glDrv_wglSetDeviceGammaRamp));
-		}
-		addExtension("WGL_ARB_extensions_string"); {
+        }
+        addExtension("WGL_ARB_extensions_string"); {
 
-			addProcedure("wglGetExtensionsStringARB", ADDRESS_OF(glDrv_wglGetExtensionsString));
-		}
+            addProcedure("wglGetExtensionsStringARB", ADDRESS_OF(glDrv_wglGetExtensionsString));
+        }
     }
 
 
@@ -230,28 +230,28 @@ namespace SWGL {
         return false;
     }
 
-	void Context::setCurrentContext(ContextPtr context, HDC hdc) {
+    void Context::setCurrentContext(ContextPtr context, HDC hdc) {
 
-		if (m_currentContext != nullptr &&
-			m_currentContext != context) {
+        if (m_currentContext != nullptr &&
+            m_currentContext != context) {
 
-			m_currentContext->shutdown();
-		}
+            m_currentContext->shutdown();
+        }
 
-		if (context != nullptr) {
+        if (context != nullptr) {
 
-			if (context != m_currentContext) {
-				context->init();
-				m_currentContext = context;
-			}
+            if (context != m_currentContext) {
+                context->init();
+                m_currentContext = context;
+            }
 
-			m_currentContext->getRenderer().getDrawSurface().setHDC(hdc);
-		}
-		else {
+            m_currentContext->getRenderer().getDrawSurface().setHDC(hdc);
+        }
+        else {
 
-			m_currentContext = nullptr;
-		}
-	}
+            m_currentContext = nullptr;
+        }
+    }
 
     const ContextPtr &Context::getCurrentContext() {
 
