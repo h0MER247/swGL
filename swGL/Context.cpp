@@ -230,22 +230,28 @@ namespace SWGL {
         return false;
     }
 
-    void Context::setCurrentContext(ContextPtr context, HDC hdc) {
+	void Context::setCurrentContext(ContextPtr context, HDC hdc) {
 
-        if (m_currentContext != nullptr &&
-            m_currentContext != context) {
+		if (m_currentContext != nullptr &&
+			m_currentContext != context) {
 
-            m_currentContext->shutdown();
-        }
+			m_currentContext->shutdown();
+		}
 
-        m_currentContext = context;
+		if (context != nullptr) {
 
-        if (m_currentContext != nullptr) {
+			if (context != m_currentContext) {
+				context->init();
+				m_currentContext = context;
+			}
 
-            m_currentContext->init();
-            m_currentContext->getRenderer().getDrawSurface().setHDC(hdc);
-        }
-    }
+			m_currentContext->getRenderer().getDrawSurface().setHDC(hdc);
+		}
+		else {
+
+			m_currentContext = nullptr;
+		}
+	}
 
     const ContextPtr &Context::getCurrentContext() {
 

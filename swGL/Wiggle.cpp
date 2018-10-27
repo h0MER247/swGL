@@ -138,24 +138,27 @@ SWGLAPI PROC STDCALL glDrv_wglGetProcAddress(LPCSTR s) {
 
 SWGLAPI BOOL STDCALL glDrv_wglMakeCurrent(HDC hdc, HGLRC hglrc) {
 
-    LOG("Make context %p current, hdc = %p", hglrc, hdc);
+	LOG("Make context %p current, hdc = %p", hglrc, hdc);
 
-    if (hglrc != nullptr) {
+	if (hglrc != nullptr) {
 
-        auto context = SWGL::Context::getContext(reinterpret_cast<SWGL::ContextID>(hglrc));
-        if (context != nullptr) {
+		auto context = SWGL::Context::getContext(
+			reinterpret_cast<SWGL::ContextID>(hglrc)
+		);
 
-            SWGL::Context::setCurrentContext(context, hdc);
-            return TRUE;
-        }
-    }
-    else {
+		if (context != nullptr) {
 
-        SWGL::Context::setCurrentContext(nullptr, nullptr);
-        return TRUE;
-    }
+			SWGL::Context::setCurrentContext(context, hdc);
+			return TRUE;
+		}
+	}
+	else {
 
-    return FALSE;
+		SWGL::Context::setCurrentContext(nullptr, nullptr);
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 SWGLAPI BOOL STDCALL glDrv_wglRealizeLayerPalette(HDC hdc, int iLayerPlane, BOOL b) {

@@ -35,56 +35,69 @@ namespace SWGL {
 
 
 
-    void DrawSurface::setHDC(HDC hdc) {
+	void DrawSurface::setHDC(HDC hdc) {
 
-        m_hdc = hdc;
+		m_hdc = hdc;
+		m_hWnd = WindowFromDC(hdc);
 
-        RECT r;
-        GetClientRect(WindowFromDC(m_hdc), &r);
+		updateDimensions();
+	}
 
-        int width = static_cast<int>(r.right - r.left);
-        int height = static_cast<int>(r.bottom - r.top);
+	void DrawSurface::updateDimensions() {
 
-        // Resize the drawing surface if needed
-        if (width != m_width || height != m_height) {
+		// Try to figure out the actual window size
+		RECT r;
+		GetClientRect(m_hWnd, &r);
 
-            m_width = width;
-            m_height = height;
+		int width = static_cast<int>(r.right - r.left);
+		int height = static_cast<int>(r.bottom - r.top);
 
-            // Make sure that the surface can be evenly divided between the buffers
-            width = std::max((((width / m_numBuffersInX) + 3) & ~3) * m_numBuffersInX, m_numBuffersInX * 2);
-            height = std::max((((height / m_numBuffersInY) + 3) & ~3) * m_numBuffersInY, m_numBuffersInY * 2);
+		// Resize the drawing surface if needed
+		if (width != m_width || height != m_height) {
 
-            // Init storage in which the unswizzled color buffer gets written into
-            m_unswizzledColor.resize(width * height);
+			m_width = width;
+			m_height = height;
 
-            // Setup bitmap info structure which is needed for SetDIBitsToDevice()
-            memset(&m_bmi, 0, sizeof(BITMAPINFO));
-            m_bmi.bmiHeader.biSize = sizeof(BITMAPINFO);
-            m_bmi.bmiHeader.biWidth = width;
-            m_bmi.bmiHeader.biHeight = height;
-            m_bmi.bmiHeader.biPlanes = 1;
-            m_bmi.bmiHeader.biBitCount = 32;
-            m_bmi.bmiHeader.biCompression = BI_RGB;
+			// Make sure that the surface can be evenly divided between the buffers
+			// This works if width and height (because DrawBuffer::unswizzle relies on it)
+			// and the quotient of width/height and m_numBuffersInX/m_numBuffersInY
+			// are a multiple of two (because CommandDrawTriangle::execute and maybe
+			// some other methods i can't remember rely on it).
+			width = std::max((width + 1) & ~1, m_numBuffersInX * 2);
+			while (((width / m_numBuffersInX) & 1) != 0) { width += 2; }
+			height = std::max((height + 1) & ~1, m_numBuffersInY * 2);
+			while (((height / m_numBuffersInY) & 1) != 0) { height += 2; }
 
-            // Initialize the buffer for each drawing thread
-            m_bufferWidth = width / m_numBuffersInX;
-            m_bufferHeight = height / m_numBuffersInY;
+			// Init storage in which the unswizzled color buffer gets written into
+			m_unswizzledColor.resize(width * height);
 
-            for (int y = 0, idx = 0; y < m_numBuffersInY; y++) {
+			// Setup bitmap info structure which is needed for SetDIBitsToDevice()
+			memset(&m_bmi, 0, sizeof(BITMAPINFO));
+			m_bmi.bmiHeader.biSize = sizeof(BITMAPINFO);
+			m_bmi.bmiHeader.biWidth = width;
+			m_bmi.bmiHeader.biHeight = height;
+			m_bmi.bmiHeader.biPlanes = 1;
+			m_bmi.bmiHeader.biBitCount = 32;
+			m_bmi.bmiHeader.biCompression = BI_RGB;
 
-                for (int x = 0; x < m_numBuffersInX; x++) {
+			// Initialize the buffer for each drawing thread
+			m_bufferWidth = width / m_numBuffersInX;
+			m_bufferHeight = height / m_numBuffersInY;
 
-                    auto minX = x * m_bufferWidth;
-                    auto minY = y * m_bufferHeight;
-                    auto maxX = (x == m_numBuffersInX - 1) ? width : (x + 1) * m_bufferWidth;
-                    auto maxY = (y == m_numBuffersInY - 1) ? height : (y + 1) * m_bufferHeight;
+			for (int y = 0, idx = 0; y < m_numBuffersInY; y++) {
 
-                    m_buffer[idx++]->resize(minX, minY, maxX, maxY);
-                }
-            }
-        }
-    }
+				for (int x = 0; x < m_numBuffersInX; x++) {
+
+					auto minX = x * m_bufferWidth;
+					auto minY = y * m_bufferHeight;
+					auto maxX = (x == m_numBuffersInX - 1) ? width : (x + 1) * m_bufferWidth;
+					auto maxY = (y == m_numBuffersInY - 1) ? height : (y + 1) * m_bufferHeight;
+
+					m_buffer[idx++]->resize(minX, minY, maxX, maxY);
+				}
+			}
+		}
+	}
 
 
 
@@ -120,5 +133,8 @@ namespace SWGL {
             &m_bmi,
             DIB_RGB_COLORS
         );
+
+		// Update hdc dimensions
+		updateDimensions();
     }
 }

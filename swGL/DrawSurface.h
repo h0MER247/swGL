@@ -34,6 +34,9 @@ namespace SWGL {
     public:
         void swap();
 
+	private:
+		void updateDimensions();
+
     #if !SWGL_USE_HARDWARE_GAMMA
     public:
         static GammaRamp &getGammaRamp() {
@@ -46,6 +49,7 @@ namespace SWGL {
     #endif
 
     private:
+		HWND m_hWnd;
         HDC m_hdc;
         BITMAPINFO m_bmi;
         int m_width;
