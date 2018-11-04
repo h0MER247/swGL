@@ -245,8 +245,6 @@ namespace SWGL {
             //
             // Calculate polygon offset (see page 77, glspec13.pdf)
             //
-            QFloat zOffset;
-
             if (polygonOffset.isFillEnabled()) {
 
                 QFloat m = _mm_max_ps(
@@ -254,16 +252,15 @@ namespace SWGL {
                     SIMD::absolute(GRADIENT_DX(z)),
                     SIMD::absolute(GRADIENT_DY(z))
                 );
-                zOffset = SIMD::multiplyAdd(
+
+                QFloat zOffset = SIMD::multiplyAdd(
 
                     m,
                     _mm_set1_ps(polygonOffset.getFactor()),
                     _mm_set1_ps(polygonOffset.getRTimesUnits())
                 );
-            }
-            else {
 
-                zOffset = _mm_set1_ps(0.0f);
+                GRADIENT_VALUE(z) = _mm_add_ps(GRADIENT_VALUE(z), zOffset);
             }
 
 
@@ -305,9 +302,7 @@ namespace SWGL {
                             currentZ = _mm_cvtps_epi32(
                                 _mm_mul_ps(
                                     _mm_set1_ps(16777215.0f),
-                                    SIMD::clamp01(
-                                        _mm_add_ps(zOffset, GET_GRADIENT_VALUE_AFFINE(z))
-                                    )
+                                    SIMD::clamp01(GET_GRADIENT_VALUE_AFFINE(z))
                                 )
                             );
 
