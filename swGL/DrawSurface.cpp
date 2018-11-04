@@ -90,10 +90,14 @@ namespace SWGL {
 
                     auto minX = x * m_bufferWidth;
                     auto minY = y * m_bufferHeight;
-                    auto maxX = (x == m_numBuffersInX - 1) ? width : (x + 1) * m_bufferWidth;
-                    auto maxY = (y == m_numBuffersInY - 1) ? height : (y + 1) * m_bufferHeight;
+                    auto maxX = x < m_numBuffersInX ? minX + m_bufferWidth : width;
+                    auto maxY = y < m_numBuffersInY ? minY + m_bufferHeight : height;
 
-                    m_buffer[idx++]->resize(minX, minY, maxX, maxY);
+                    m_buffer[idx]->resize(minX, minY, maxX, maxY);
+                    m_buffer[idx]->clearColor(0, minX, minY, maxX, maxY);
+                    m_buffer[idx]->clearDepth(0, minX, minY, maxX, maxY);
+
+                    idx++;
                 }
             }
         }
