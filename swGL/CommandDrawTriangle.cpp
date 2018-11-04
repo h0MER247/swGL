@@ -313,14 +313,13 @@ namespace SWGL {
 
                             switch (depthTesting.getTestFunction()) {
 
-                            case GL_NEVER: fragmentMask = _mm_setzero_si128(); break;
-                            case GL_LESS: fragmentMask = _mm_and_si128(fragmentMask, _mm_cmplt_epi32(currentZ, depthBufferZ)); break;
-                            case GL_EQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_cmpeq_epi32(currentZ, depthBufferZ)); break;
-                            case GL_LEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_cmple_epi32(currentZ, depthBufferZ)); break;
-                            case GL_GREATER: fragmentMask = _mm_and_si128(fragmentMask, _mm_cmpgt_epi32(currentZ, depthBufferZ)); break;
-                            case GL_NOTEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_cmpneq_epi32(currentZ, depthBufferZ)); break;
-                            case GL_GEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_cmpge_epi32(currentZ, depthBufferZ)); break;
-                            case GL_ALWAYS: break;
+                            case GL_NEVER: goto nextQuad;
+                            case GL_LESS: fragmentMask = _mm_and_si128(_mm_cmplt_epi32(currentZ, depthBufferZ), fragmentMask); break;
+                            case GL_EQUAL: fragmentMask = _mm_and_si128(_mm_cmpeq_epi32(currentZ, depthBufferZ), fragmentMask); break;
+                            case GL_LEQUAL: fragmentMask = _mm_andnot_si128(_mm_cmpgt_epi32(currentZ, depthBufferZ), fragmentMask); break;
+                            case GL_GREATER: fragmentMask = _mm_and_si128(_mm_cmpgt_epi32(currentZ, depthBufferZ), fragmentMask); break;
+                            case GL_NOTEQUAL: fragmentMask = _mm_andnot_si128(_mm_cmpeq_epi32(currentZ, depthBufferZ), fragmentMask); break;
+                            case GL_GEQUAL: fragmentMask = _mm_andnot_si128(_mm_cmplt_epi32(currentZ, depthBufferZ), fragmentMask); break;
                             }
 
                             // Check if any fragment survived the depth test
