@@ -297,22 +297,29 @@ namespace SWGL {
                         //
                         // (Early) Depth test
                         //
-                        QFloat depthBufferZ, currentZ;
+                        QInt depthBufferZ, currentZ;
 
                         if (depthTesting.isTestEnabled()) {
 
-                            depthBufferZ = _mm_load_ps(depthBuffer);
-                            currentZ = _mm_add_ps(zOffset, GET_GRADIENT_VALUE_AFFINE(z));
+                            depthBufferZ = _mm_load_si128(reinterpret_cast<QInt *>(depthBuffer));
+                            currentZ = _mm_cvtps_epi32(
+                                _mm_mul_ps(
+                                    _mm_set1_ps(16777215.0f),
+                                    SIMD::clamp01(
+                                        _mm_add_ps(zOffset, GET_GRADIENT_VALUE_AFFINE(z))
+                                    )
+                                )
+                            );
 
                             switch (depthTesting.getTestFunction()) {
 
                             case GL_NEVER: fragmentMask = _mm_setzero_si128(); break;
-                            case GL_LESS: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmplt_ps(currentZ, depthBufferZ))); break;
-                            case GL_EQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpeq_ps(currentZ, depthBufferZ))); break;
-                            case GL_LEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmple_ps(currentZ, depthBufferZ))); break;
-                            case GL_GREATER: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpgt_ps(currentZ, depthBufferZ))); break;
-                            case GL_NOTEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpneq_ps(currentZ, depthBufferZ))); break;
-                            case GL_GEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_castps_si128(_mm_cmpge_ps(currentZ, depthBufferZ))); break;
+                            case GL_LESS: fragmentMask = _mm_and_si128(fragmentMask, _mm_cmplt_epi32(currentZ, depthBufferZ)); break;
+                            case GL_EQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_cmpeq_epi32(currentZ, depthBufferZ)); break;
+                            case GL_LEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_cmple_epi32(currentZ, depthBufferZ)); break;
+                            case GL_GREATER: fragmentMask = _mm_and_si128(fragmentMask, _mm_cmpgt_epi32(currentZ, depthBufferZ)); break;
+                            case GL_NOTEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_cmpneq_epi32(currentZ, depthBufferZ)); break;
+                            case GL_GEQUAL: fragmentMask = _mm_and_si128(fragmentMask, _mm_cmpge_epi32(currentZ, depthBufferZ)); break;
                             case GL_ALWAYS: break;
                             }
 
@@ -325,10 +332,10 @@ namespace SWGL {
                             // Write the new depth values to the depth buffer
                             if (writeDepthAfterDepthTest) {
 
-                                _mm_store_ps(
+                                _mm_store_si128(
 
-                                    depthBuffer,
-                                    SIMD::blend(depthBufferZ, currentZ, _mm_castsi128_ps(fragmentMask))
+                                    reinterpret_cast<QInt *>(depthBuffer),
+                                    SIMD::blend(depthBufferZ, currentZ, fragmentMask)
                                 );
                             }
                         }
@@ -723,10 +730,10 @@ namespace SWGL {
                             // data as OpenGL specifies it.
                             if (writeDepthAfterAlphaTest) {
 
-                                _mm_store_ps(
+                                _mm_store_si128(
 
-                                    depthBuffer,
-                                    SIMD::blend(depthBufferZ, currentZ, _mm_castsi128_ps(fragmentMask))
+                                    reinterpret_cast<QInt *>(depthBuffer),
+                                    SIMD::blend(depthBufferZ, currentZ, fragmentMask)
                                 );
                             }
                         }

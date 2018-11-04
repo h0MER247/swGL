@@ -10,7 +10,7 @@ namespace SWGL {
     class CommandClearDepth : public CommandBase {
 
     public:
-        CommandClearDepth(float value, int minX, int minY, int maxX, int maxY)
+        CommandClearDepth(unsigned int value, int minX, int minY, int maxX, int maxY)
 
             : m_value(value),
               m_minX(minX),
@@ -25,7 +25,7 @@ namespace SWGL {
         bool execute(DrawThread *thread) override;
 
     private:
-        float m_value;
+        unsigned int m_value;
         int m_minX, m_minY;
         int m_maxX, m_maxY;
     };

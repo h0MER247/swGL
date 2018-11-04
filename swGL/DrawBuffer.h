@@ -14,7 +14,7 @@ namespace SWGL {
     using BufferType = std::vector<T, AlignedAllocator<T, 16>>;
 
     using ColorBuffer = BufferType<unsigned int>;
-    using DepthBuffer = BufferType<float>;
+    using DepthBuffer = BufferType<unsigned int>;
     using DrawBufferPtr = std::shared_ptr<DrawBuffer>;
 
     //
@@ -51,7 +51,7 @@ namespace SWGL {
 
     public:
         unsigned int *getColor() { return m_color.data(); }
-        float *getDepth() { return m_depth.data(); }
+        unsigned int *getDepth() { return m_depth.data(); }
 
     public:
         void unswizzleColor(unsigned int *dst, int dstWidth) {
@@ -64,7 +64,7 @@ namespace SWGL {
             clear(m_color.data(), value, minX, minY, maxX, maxY);
         }
 
-        void clearDepth(float value, int minX, int minY, int maxX, int maxY) {
+        void clearDepth(unsigned int value, int minX, int minY, int maxX, int maxY) {
 
             clear(m_depth.data(), value, minX, minY, maxX, maxY);
         }

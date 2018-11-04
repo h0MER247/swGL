@@ -330,7 +330,7 @@ namespace SWGL {
         ClearValues()
 
             : m_color(0),
-              m_depth(1.0f) {
+              m_depth(0x00ffffff) {
 
         }
         ~ClearValues() = default;
@@ -353,7 +353,9 @@ namespace SWGL {
 
         void setClearDepth(double depth) {
 
-            m_depth = std::clamp(static_cast<float>(depth), 0.0f, 1.0f);
+            auto depthValue = std::clamp(static_cast<float>(depth), 0.0f, 1.0f);
+
+            m_depth = static_cast<unsigned int>(depthValue * 16777215.0f);
         }
 
     public:
@@ -362,7 +364,7 @@ namespace SWGL {
             return m_color;
         }
 
-        float getClearDepth() {
+        unsigned int getClearDepth() {
 
             return m_depth;
         }
@@ -390,7 +392,7 @@ namespace SWGL {
 
     private:
         unsigned int m_color;
-        float m_depth;
+        unsigned int m_depth;
 
     private:
         float m_colorRed;

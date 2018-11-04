@@ -72,7 +72,7 @@ SWGLAPI int STDCALL glDrv_wglDescribePixelFormat(HDC hdc, int iPixelFormat, UINT
         ppfd->cRedBits = 8; ppfd->cRedShift = 16;
         ppfd->cGreenBits = 8; ppfd->cGreenShift = 8;
         ppfd->cBlueBits = 8; ppfd->cBlueShift = 0;
-        ppfd->cDepthBits = 32;
+        ppfd->cDepthBits = 24;
     }
 
     return 1;

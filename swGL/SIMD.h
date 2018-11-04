@@ -3,6 +3,15 @@
 #include <intrin.h>
 #include "Defines.h"
 
+#define _mm_setallones_si128() \
+    _mm_cmpeq_epi32(_mm_setzero_si128(), _mm_setzero_si128())
+#define _mm_cmple_epi32(a, b) \
+    _mm_xor_si128(_mm_cmpgt_epi32(a, b), _mm_setallones_si128())
+#define _mm_cmpge_epi32(a, b) \
+    _mm_xor_si128(_mm_cmplt_epi32(a, b), _mm_setallones_si128())
+#define _mm_cmpneq_epi32(a, b) \
+    _mm_xor_si128(_mm_cmpeq_epi32(a, b), _mm_setallones_si128())
+
 namespace SWGL {
 
     using QFloat = __m128;
